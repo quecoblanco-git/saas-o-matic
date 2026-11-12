@@ -88,4 +88,115 @@ El coste mensual deberá incluir el impuesto correspondiente al país del client
 
 Antes de implementar esta funcionalidad se definirán los países admitidos, los tipos impositivos utilizados y el tratamiento de países no contemplados.
 
-##
+## 4. Aspectos pendientes de especificación
+
+El enunciado deja algunos detalles abiertos que deberán resolverse y justificarse antes de implementar las funcionalidades correspondientes.
+
+| Aspecto                              | Cuestión pendiente                                                   |
+| ------------------------------------ | -------------------------------------------------------------------- |
+| Planes SaaS                          | ¿Qué planes estarán disponibles y cómo afectarán al presupuesto?     |
+| Almacenamiento                       | ¿Tendrá un coste adicional o será únicamente un dato registrado?     |
+| Llamadas a la API                    | ¿Se facturarán o solo se almacenarán como estimación de consumo?     |
+| Países e impuestos                   | ¿Qué países y tipos impositivos admitirá la aplicación?              |
+| Identificadores fiscales extranjeros | ¿Qué validaciones se aplicarán fuera de España?                      |
+| Precisión monetaria                  | ¿Cómo se gestionarán los redondeos y los cálculos decimales?         |
+| Tipos de cambio                      | ¿Qué comportamiento tendrá la interfaz si falla el servicio externo? |
+| Historial                            | ¿Cómo se ordenarán y presentarán las simulaciones guardadas?         |
+
+Estas cuestiones se resolverán durante la fase de especificación y se registrarán en la documentación de decisiones técnicas.
+
+## 5. Plan de implementación
+
+El desarrollo se dividirá en las siguientes fases:
+
+### Fase 1. Especificaciones y arquitectura
+
+- Analizar los requisitos y las restricciones.
+- Resolver las ambigüedades funcionales.
+- Diseñar el modelo de datos.
+- Definir los contratos de la API REST.
+- Establecer las responsabilidades de los módulos.
+- Preparar los criterios de aceptación y la estrategia de pruebas.
+
+**Resultado esperado:** especificaciones técnicas suficientemente claras para comenzar la implementación.
+
+### Fase 2. Backend y persistencia
+
+- Implementar el modelo de datos con Prisma.
+- Crear las migraciones de SQLite.
+- Desarrollar las validaciones de entrada.
+- Implementar la validación fiscal española.
+- Implementar y probar el cálculo acumulativo por tramos.
+- Desarrollar los endpoints de clientes y simulaciones.
+- Verificar la persistencia de los resultados.
+
+**Resultado esperado:** API REST funcional y comprobada mediante pruebas.
+
+### Fase 3. Frontend comercial
+
+- Diseñar la estructura de vistas y componentes.
+- Implementar la búsqueda y visualización de clientes.
+- Crear el formulario de registro.
+- Mostrar el historial de simulaciones.
+- Desarrollar los controles interactivos de facturación.
+- Integrar el frontend con la API REST.
+- Adaptar la interfaz a diferentes tamaños de pantalla.
+
+**Resultado esperado:** dashboard conectado al backend.
+
+### Fase 4. Conversión de divisas
+
+- Integrar una API pública de tipos de cambio.
+- Incorporar la selección de moneda.
+- Convertir los importes mostrados.
+- Gestionar los estados de carga y error.
+- Verificar la coherencia de los cálculos.
+
+**Resultado esperado:** visualización de presupuestos en diferentes divisas.
+
+### Fase 5. Control de calidad y entrega
+
+- Ejecutar pruebas unitarias y de integración.
+- Revisar las validaciones y los casos límite.
+- Comprobar los flujos completos de la aplicación.
+- Revisar la experiencia responsive.
+- Auditar el código generado con ayuda de IA.
+- Completar el README y las instrucciones de ejecución.
+- Preparar la entrega del repositorio.
+
+**Resultado esperado:** aplicación verificable, documentada y lista para evaluación.
+
+## 6. Estrategia de trabajo con inteligencia artificial
+
+La IA se utilizará como apoyo en las distintas fases del desarrollo, siguiendo este procedimiento:
+
+1. Definir el objetivo y los requisitos de la tarea.
+2. Proporcionar a la IA el contexto técnico necesario.
+3. Solicitar una propuesta de implementación o solución.
+4. Revisar la propuesta y contrastarla con las especificaciones.
+5. Aplicar los cambios aceptados.
+6. Ejecutar las pruebas y comprobaciones correspondientes.
+7. Registrar las decisiones, problemas e iteraciones relevantes.
+
+No se considerará válida una funcionalidad únicamente porque el código haya sido generado sin errores aparentes. Cada resultado deberá comprobarse mediante pruebas o verificaciones adecuadas.
+
+Los prompts relevantes y las decisiones tomadas se documentarán en `02-ai-prompts.md` y `03-technical-decisions.md`.
+
+## 7. Estado inicial del proyecto
+
+Antes de comenzar la implementación funcional se ha completado la preparación del entorno:
+
+- Frontend React + TypeScript + Vite configurado.
+- Tailwind CSS y dependencias iniciales instaladas.
+- Backend Express + TypeScript preparado.
+- Prisma inicializado con SQLite.
+- Herramientas de pruebas instaladas.
+- Repositorio Git creado y sincronizado con GitHub.
+- Compilación inicial del frontend verificada.
+- Esquema inicial de Prisma validado.
+
+**Estado actual:** planificación y documentación inicial en curso. No se han implementado todavía las funcionalidades del reto.
+
+---
+
+_Este plan podrá evolucionar durante el desarrollo. Los cambios significativos se registrarán y justificarán en la documentación del proyecto._
