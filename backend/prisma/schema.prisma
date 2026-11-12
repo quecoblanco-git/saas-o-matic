@@ -11,3 +11,38 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+model Customer {
+  id          String   @id @default(cuid())
+  companyName String
+  taxId       String
+  email       String
+  country     String
+  plan        String
+  createdAt   DateTime @default(now())
+  simulations Simulation[]
+
+  @@unique([country, taxId])
+}
+model Simulation {
+  id                String   @id @default(cuid())
+  customerId        String
+  customer          Customer @relation(fields: [customerId], references: [id])
+  activeUsers       Int
+  storageGb         Int
+  apiCalls          Int
+
+  planSnapshot      String
+  countrySnapshot   String
+  taxRateSnapshot   String
+
+  usersCostCents    Int
+  planCostCents     Int
+  storageCostCents  Int
+  apiCostCents      Int
+  subtotalCents     Int
+  taxCents          Int
+  totalCents        Int
+
+  createdAt         DateTime @default(now())
+}
