@@ -1,0 +1,44 @@
+# Dependencias
+node_modules/
+**/node_modules/
+
+# Archivos compilados
+dist/
+**/dist/
+build/
+coverage/
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+
+# Bases de datos SQLite locales
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Archivos temporales y registros
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Configuración local del editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Archivos temporales de TypeScript
+*.tsbuildinfo
+
+# Archivos auxiliares de agentes generados por Prisma
+backend/.agents/
+backend/.claude/
+backend/.windsurf/
+
+# Listado temporal de estructura del proyecto
+estructura-proyecto.txt
