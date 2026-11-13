@@ -287,30 +287,48 @@ Para un número entero no negativo de usuarios `n`:
 - El valor 0 es válido y produce un coste por usuarios de 0 €.
 - El límite máximo técnico admitido por la API se establecerá antes de implementar la validación correspondiente.
 
-**RF-007 — Componentes adicionales del precio**
+### RF-007 — Planes de suscripción y datos de consumo sin coste adicional
 
-El precio mensual de una suscripción incluirá el coste acumulativo por usuarios, la cuota fija del plan seleccionado, el almacenamiento contratado y las llamadas API estimadas.
+El precio base mensual de una suscripción se calculará exclusivamente a partir del número de usuarios activos, aplicando los tramos acumulativos definidos en los requisitos de facturación.
+
+El plan seleccionado, el almacenamiento y las llamadas a la API serán datos informativos y no modificarán el precio.
 
 **Planes disponibles**
 
 | Plan         | Cuota mensual |
 | ------------ | ------------: |
 | Starter      |           0 € |
-| Professional |          29 € |
-| Enterprise   |          99 € |
+| Professional |           0 € |
+| Enterprise   |           0 € |
 
-**Tarifas adicionales**
+Los tres planes son opciones disponibles para clasificar a los clientes. La elección de uno u otro no afecta al cálculo económico.
 
-| Concepto       |                      Tarifa |
-| -------------- | --------------------------: |
-| Almacenamiento |        0,10 € por GB al mes |
-| Llamadas API   | 1 € por cada 1.000 llamadas |
+**Almacenamiento y llamadas a la API**
 
-Las tarifas de almacenamiento y API serán iguales para todos los planes.
+| Concepto          | Coste mensual |
+| ----------------- | ------------: |
+| Almacenamiento    |           0 € |
+| Llamadas a la API |           0 € |
 
-Las llamadas API se facturarán proporcionalmente. Por ejemplo, 1.500 llamadas tendrán un coste de 1,50 €, sin redondear a bloques completos de 1.000.
+El sistema deberá registrar y mostrar los GB de almacenamiento y el número estimado de llamadas a la API en cada simulación, aunque no generen costes adicionales.
 
-Las cuotas y tarifas son decisiones de diseño propias del proyecto, ya que el enunciado no establece sus importes.
+**Reglas de facturación**
+
+- El coste base mensual depende exclusivamente de los tramos acumulativos de usuarios activos.
+- El plan seleccionado no añade ninguna cuota.
+- El almacenamiento no genera costes adicionales.
+- Las llamadas a la API no generan costes adicionales.
+- Los impuestos por país se aplican posteriormente al coste base, conforme a las decisiones documentadas del proyecto.
+
+**Origen y justificación**
+
+Estas reglas reflejan las aclaraciones oficiales recibidas de Roams el 13/11/2026.
+
+Se mantienen los nombres Starter, Professional y Enterprise como decisión propia del proyecto, dado que Roams permite definir libremente los planes disponibles.
+
+Esta versión sustituye las tarifas adicionales inicialmente propuestas.
+
+**Referencias:** DT-020 y AR-001 a AR-005.
 
 **Fórmula de cálculo**
 
@@ -320,17 +338,28 @@ El subtotal mensual antes de impuestos será:
 
 El coste por usuarios seguirá los tramos acumulativos establecidos en RF-006.
 
-**Ejemplo de cálculo**
+**Ejemplo de cálculo actualizado (13/11/2026)**
 
-Para un cliente con plan Professional, 15 usuarios, 100 GB y 5.000 llamadas API:
+Para un cliente con plan Professional, 15 usuarios activos, 100 GB de almacenamiento y 5.000 llamadas a la API:
 
-| Concepto                   |   Importe |
-| -------------------------- | --------: |
-| Usuarios                   |     140 € |
-| Plan Professional          |      29 € |
-| Almacenamiento             |      10 € |
-| Llamadas API               |       5 € |
-| **Subtotal sin impuestos** | **184 €** |
+| Concepto                         |      Importe |
+| -------------------------------- | -----------: |
+| Primeros 10 usuarios (10 × 10 €) |     100,00 € |
+| Siguientes 5 usuarios (5 × 8 €)  |      40,00 € |
+| Plan Professional                |       0,00 € |
+| Almacenamiento (100 GB)          |       0,00 € |
+| Llamadas API (5.000)             |       0,00 € |
+| **Subtotal sin impuestos**       | **140,00 €** |
+| Impuestos España (21 %)          |      29,40 € |
+| **Total mensual**                | **169,40 €** |
+
+El coste base mensual se calcula exclusivamente mediante los tramos acumulativos de usuarios activos.
+
+El plan seleccionado, el almacenamiento y las llamadas a la API se registran como información de la simulación, pero no modifican el precio.
+
+El porcentaje de impuestos aplicado corresponde a la decisión de diseño documentada para España.
+
+**Referencia:** aclaraciones oficiales de Roams del 13/11/2026 y decisión DT-020.
 
 **Criterios de aceptación**
 
@@ -378,15 +407,21 @@ El subtotal se redondeará a dos decimales antes de calcular el impuesto. El imp
 
 La tasa se representará internamente como un valor decimal; por ejemplo, el 21 % corresponderá a `0.21`.
 
-**Ejemplo**
+**Ejemplo actualizado de impuestos por país (13/11/2026)**
 
-Para una simulación con un subtotal de 184 €:
+Para una simulación con 15 usuarios activos y un subtotal de 140 €, calculado exclusivamente mediante los tramos acumulativos de usuarios:
 
-| País     | Subtotal | Impuesto |    Total |
-| -------- | -------: | -------: | -------: |
-| España   |    184 € |  38,64 € | 222,64 € |
-| Francia  |    184 € |  36,80 € | 220,80 € |
-| Alemania |    184 € |  34,96 € | 218,96 € |
+| País            | Subtotal | Impuesto | Total mensual |
+| --------------- | -------: | -------: | ------------: |
+| España (21 %)   | 140,00 € |  29,40 € |  **169,40 €** |
+| Francia (20 %)  | 140,00 € |  28,00 € |  **168,00 €** |
+| Alemania (19 %) | 140,00 € |  26,60 € |  **166,60 €** |
+
+El plan de suscripción, el almacenamiento y las llamadas a la API no generan costes adicionales.
+
+Los porcentajes de impuestos son decisiones propias del proyecto, documentadas en `/ai-workspace`, y se utilizan como una simplificación para las simulaciones.
+
+**Referencia:** DT-020 y aclaraciones oficiales de Roams del 13/11/2026.
 
 **Criterios de aceptación**
 
@@ -1060,5 +1095,66 @@ Esta versión constituye una especificación inicial basada en el enunciado de R
 No representa todavía una especificación cerrada: las cuestiones pendientes deberán resolverse y revisarse antes de implementar las funcionalidades relacionadas.
 
 ---
+
+## Actualización de requisitos — Aclaraciones oficiales de Roams (13/11/2026)
+
+Esta sección recoge las aclaraciones recibidas por correo electrónico del equipo de Roams y prevalece sobre cualquier requisito o decisión anterior que establezca tarifas adicionales para los planes, el almacenamiento o las llamadas a la API.
+
+### AR-001 — Coste de los planes de suscripción
+
+Los planes de suscripción son exclusivamente informativos y no afectan al precio de la simulación.
+
+Se mantienen los planes Starter, Professional y Enterprise como opciones disponibles para registrar clientes.
+
+Ninguno de estos planes añade una cuota fija al importe mensual.
+
+### AR-002 — Coste por almacenamiento
+
+La cantidad de almacenamiento utilizada por el cliente, expresada en GB, debe registrarse y mostrarse en las simulaciones.
+
+El almacenamiento no genera ningún coste adicional.
+
+### AR-003 — Coste por llamadas a la API
+
+El número estimado de llamadas a la API debe registrarse y mostrarse en las simulaciones.
+
+Las llamadas a la API no generan ningún coste adicional.
+
+### AR-004 — Cálculo del importe mensual
+
+El coste base mensual se calcula exclusivamente a partir del número de usuarios activos, utilizando los tramos acumulativos establecidos en el enunciado:
+
+| Tramo                   | Coste por usuario |
+| ----------------------- | ----------------- |
+| Usuarios 1–10           | 10 €              |
+| Usuarios 11–50          | 8 €               |
+| Usuarios 51 en adelante | 5 €               |
+
+**Ejemplo:** para 15 usuarios activos, el coste base mensual es de 140 €.
+
+El plan seleccionado, el almacenamiento y las llamadas a la API no modifican este importe.
+
+Los impuestos por país se aplicarán posteriormente conforme a las decisiones documentadas del proyecto. Estas tasas constituyen una simplificación adoptada para la prueba.
+
+### AR-005 — Presentación de la simulación
+
+Cada simulación debe mostrar:
+
+- El cliente y su plan de suscripción.
+- El número de usuarios activos.
+- La cantidad de almacenamiento utilizada.
+- El número estimado de llamadas a la API.
+- El coste base calculado por usuarios.
+- Los impuestos aplicados y el importe mensual final.
+
+No se presentarán tarifas adicionales por plan, almacenamiento o llamadas a la API.
+
+### AR-006 — Documentación y decisiones propias
+
+La documentación del proyecto puede redactarse en español.
+
+Cuando el enunciado no especifique un comportamiento, se tomará una decisión técnica o funcional justificada y se documentará en `/ai-workspace`.
+
+Estas aclaraciones sustituyen las hipótesis anteriores incompatibles con ellas. La implementación y las pruebas automatizadas deberán adaptarse para verificar las reglas actualizadas.
 
 _Documento preparado antes del desarrollo funcional de SaaS-O-Matic._

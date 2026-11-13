@@ -251,17 +251,35 @@ Para implementar una simulación de facturación completa es necesario definir c
 2. **Tres planes con cuota fija:** permite diferenciar las suscripciones sin modificar las tarifas por usuarios.
 3. **Tres planes con tarifas variables:** ofrece mayor flexibilidad, pero aumenta la complejidad de las reglas de facturación.
 
-**Decisión**
+**Decisión inicial (sustituida el 13/11/2026 por DT-020)**
 
-Se adopta un modelo de tres planes con cuotas mensuales fijas:
+Inicialmente se propuso un modelo de tres planes con cuotas mensuales fijas:
 
-| Plan         | Cuota mensual |
-| ------------ | ------------: |
-| Starter      |           0 € |
-| Professional |          29 € |
-| Enterprise   |          99 € |
+| Plan         | Cuota inicialmente propuesta |
+| ------------ | ---------------------------: |
+| Starter      |                          0 € |
+| Professional |                         29 € |
+| Enterprise   |                         99 € |
 
-Estas cuotas son supuestos de diseño propios del proyecto y no precios establecidos por Roams.
+Estas cuotas eran supuestos de diseño propios del proyecto y no precios establecidos por Roams.
+
+**Estado: decisión sustituida.**
+
+Tras recibir las aclaraciones oficiales de Roams el 13/11/2026, se establece que los planes son exclusivamente informativos y no modifican el precio mensual.
+
+Se mantienen los tres planes definidos inicialmente, pero sin cuotas:
+
+| Plan         | Cuota mensual vigente |
+| ------------ | --------------------: |
+| Starter      |                   0 € |
+| Professional |                   0 € |
+| Enterprise   |                   0 € |
+
+El coste base mensual se calcula exclusivamente a partir de los tramos acumulativos de usuarios activos, independientemente del plan seleccionado.
+
+Se conserva la decisión inicial para documentar la evolución del proyecto y justificar los cambios realizados.
+
+**Decisión vigente: DT-020.**
 
 **Justificación**
 
@@ -299,20 +317,29 @@ Es necesario establecer reglas explícitas para calcular estos componentes de fo
 2. **Tarifas proporcionales al consumo:** permiten calcular importes según los GB y las llamadas API utilizadas.
 3. **Tarifas por bloques completos:** facilitan la facturación por paquetes, pero introducen saltos en el precio al superar determinados límites.
 
-**Decisión**
+**Decisión inicial (sustituida el 13/11/2026 por DT-020)**
 
-Se adopta un modelo de facturación proporcional al consumo:
+Inicialmente se propuso un modelo de facturación proporcional al consumo, con las siguientes tarifas:
 
-| Concepto       |                      Tarifa |
-| -------------- | --------------------------: |
-| Almacenamiento |        0,10 € por GB al mes |
-| Llamadas API   | 1 € por cada 1.000 llamadas |
+| Concepto       | Tarifa inicialmente propuesta |
+| -------------- | ----------------------------: |
+| Almacenamiento |          0,10 € por GB al mes |
+| Llamadas API   |   1 € por cada 1.000 llamadas |
 
-Las tarifas serán idénticas para los planes Starter, Professional y Enterprise.
+Estas tarifas se habrían aplicado por igual a los planes Starter, Professional y Enterprise. El almacenamiento se habría facturado por GB y las llamadas API proporcionalmente, sin redondear a bloques completos de 1.000.
 
-El almacenamiento se calculará multiplicando los GB por su tarifa.
+**Estado: decisión sustituida.**
 
-Las llamadas API se facturarán proporcionalmente, sin redondear a bloques completos de 1.000.
+Tras recibir las aclaraciones oficiales de Roams el 13/11/2026, se establece que:
+
+- El coste base mensual depende exclusivamente de los tramos acumulativos de usuarios activos.
+- Los planes Starter, Professional y Enterprise son informativos y no añaden cuotas.
+- El almacenamiento debe registrarse y mostrarse, pero no genera costes.
+- Las llamadas a la API deben registrarse y mostrarse, pero no generan costes.
+
+Se conserva la decisión inicial para documentar la evolución del proyecto y justificar los cambios realizados.
+
+**Decisión vigente: DT-020.**
 
 **Fórmulas**
 
@@ -1072,6 +1099,49 @@ Las pruebas automatizadas se complementarán con comprobaciones manuales de la e
 La existencia de pruebas no garantiza por sí sola la ausencia de errores, por lo que será necesario revisar también los resultados y los casos no cubiertos.
 
 **Requisito relacionado:** `RT-010` de `docs/requirements.md`.
+
+## DT-020 — Revisión de las reglas de facturación tras aclaración oficial
+
+**Fecha:** 13 de noviembre de 2026.
+
+**Contexto:** Durante el análisis inicial de SaaS-O-Matic se identificaron varios aspectos del enunciado que no estaban completamente definidos. Se tomaron decisiones propias para concretar las tarifas de los planes, el almacenamiento y las llamadas a la API.
+
+Posteriormente, se consultaron estas cuestiones al equipo de Roams y se recibió una aclaración por correo electrónico.
+
+### Aclaraciones recibidas
+
+1. **Idioma de la documentación:** puede redactarse en español, sin que ello afecte a la evaluación.
+2. **Planes de suscripción:** son datos informativos del cliente y no modifican el precio. Los nombres de los planes pueden definirse libremente.
+3. **Almacenamiento y llamadas a la API:** deben registrarse y mostrarse en las simulaciones, pero no generan costes adicionales.
+4. **Aspectos no especificados:** deben resolverse mediante decisiones propias, justificadas y documentadas en `/ai-workspace`.
+
+### Decisión adoptada
+
+Se actualiza el modelo de facturación con las siguientes reglas:
+
+- El precio base mensual se calcula exclusivamente mediante los tramos acumulativos de usuarios activos.
+- Los primeros 10 usuarios cuestan 10 € por usuario.
+- Los usuarios del 11 al 50 cuestan 8 € por usuario.
+- A partir del usuario 51, el coste es de 5 € por usuario.
+- Los planes Starter, Professional y Enterprise se mantienen como opciones informativas, sin cuota adicional.
+- El almacenamiento en GB y las llamadas a la API continúan registrándose, pero no aumentan el importe de la simulación.
+- Se mantienen los impuestos por país definidos previamente como una decisión propia del proyecto, diferenciando el coste base de usuarios del importe final con impuestos.
+
+### Impacto técnico
+
+Será necesario revisar:
+
+- El motor de facturación y sus funciones de cálculo.
+- Las pruebas automatizadas afectadas por las tarifas anteriores.
+- La estructura de los datos monetarios de las simulaciones.
+- Los requisitos funcionales y demás documentación que mencione tarifas adicionales.
+- La información económica presentada en el futuro dashboard.
+
+### Justificación
+
+Esta modificación permite ajustar la implementación a las aclaraciones oficiales, evitar funcionalidades económicas no solicitadas y mantener la trazabilidad de las decisiones tomadas durante el desarrollo.
+
+Se conservan las decisiones iniciales como parte del historial del proyecto, indicando que quedan sustituidas por esta revisión en todo lo relativo a las tarifas de planes, almacenamiento y llamadas a la API.
 
 ---
 

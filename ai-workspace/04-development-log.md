@@ -144,6 +144,78 @@ Una iteración se considerará completada cuando:
 
 La existencia de código generado no será suficiente, por sí sola, para considerar completada una funcionalidad.
 
+## 13/11/2026 — Adaptación a las aclaraciones oficiales de Roams
+
+### Contexto
+
+Se recibió una respuesta del equipo de Roams aclarando tres cuestiones del enunciado:
+
+- La documentación puede redactarse en español.
+- Los planes de suscripción son informativos y no modifican el precio.
+- El almacenamiento y las llamadas a la API deben registrarse y mostrarse, pero no generan costes adicionales.
+
+También se confirmó que las decisiones sobre aspectos no especificados deben justificarse y documentarse en `/ai-workspace`.
+
+### Cambios realizados
+
+**1. Actualización de requisitos y decisiones**
+
+Se incorporaron las aclaraciones a `docs/requirements.md` y se documentó su impacto en `ai-workspace/03-technical-decisions.md`, conservando la trazabilidad de las decisiones originales.
+
+**2. Modificación del motor de facturación**
+
+Se actualizó `backend/src/modules/billing/billing.ts` para que el coste base mensual dependa exclusivamente de los tramos acumulativos de usuarios activos.
+
+Los planes Starter, Professional y Enterprise mantienen su función informativa, sin cuota adicional. El almacenamiento y las llamadas a la API continúan sujetos a validación, pero no generan costes.
+
+Se mantuvo la aplicación posterior de impuestos por país como decisión propia documentada del proyecto.
+
+**3. Actualización de pruebas automatizadas**
+
+Se adaptaron las pruebas anteriores y se añadió una prueba específica para las aclaraciones oficiales.
+
+Se siguió un proceso de TDD:
+
+- Se añadió una prueba con el nuevo resultado esperado.
+- Se ejecutó y falló porque el motor todavía aplicaba las tarifas anteriores.
+- Se modificó el código de facturación.
+- Se actualizaron las pruebas afectadas.
+- Se volvió a ejecutar la batería de pruebas hasta obtener resultados correctos.
+
+**4. Simplificación del modelo de datos**
+
+Se eliminaron del modelo `Simulation` los campos:
+
+- `planCostCents`
+- `storageCostCents`
+- `apiCostCents`
+
+Se conservaron los datos de consumo, los valores históricos y los importes necesarios para las simulaciones.
+
+Se creó la migración `20261113115112_remove_unbilled_simulation_costs` y se aplicó correctamente a las bases de datos `dev.db` y `test.db`. Posteriormente, se regeneró el cliente de Prisma.
+
+### Verificaciones realizadas
+
+| Comprobación                  | Resultado              |
+| ----------------------------- | ---------------------- |
+| Pruebas de facturación        | 75/75 superadas        |
+| Pruebas completas del backend | 287/287 superadas      |
+| Archivos de pruebas           | 9                      |
+| Comprobación TypeScript       | Sin errores            |
+| Compilación del backend       | Correcta               |
+| Migración en `dev.db`         | Aplicada correctamente |
+| Migración en `test.db`        | Aplicada correctamente |
+
+### Resultado y aprendizaje
+
+El proyecto se ha adaptado a las aclaraciones oficiales sin necesidad de rehacer su arquitectura.
+
+La separación entre el motor de facturación, las rutas HTTP y la persistencia ha permitido modificar las reglas de negocio de forma localizada.
+
+Las pruebas automatizadas han servido para identificar la diferencia entre el comportamiento anterior y el esperado, y para verificar que los cambios no introducen regresiones.
+
+Este proceso refleja la importancia de validar las hipótesis iniciales, incorporar nuevas indicaciones y mantener la documentación sincronizada con la implementación.
+
 ---
 
 _Registro iniciado durante la preparación del proyecto. Las iteraciones funcionales se añadirán conforme se desarrollen y verifiquen._

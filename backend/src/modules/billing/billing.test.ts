@@ -37,8 +37,8 @@ describe("calculateUsersCost", () => {
 describe("calculatePlanCost", () => {
   it.each([
     ["Starter", "0"],
-    ["Professional", "29"],
-    ["Enterprise", "99"],
+    ["Professional", "0"],
+    ["Enterprise", "0"],
   ])("calculates the %s plan as %s EUR", (plan, expected) => {
     const result = calculatePlanCost(plan as SubscriptionPlan);
 
@@ -57,11 +57,11 @@ describe("calculatePlanCost", () => {
 describe("calculateStorageCost", () => {
   it.each([
     [0, "0"],
-    [1, "0.1"],
-    [10, "1"],
-    [100, "10"],
-    [250, "25"],
-    [1000000, "100000"],
+    [1, "0"],
+    [10, "0"],
+    [100, "0"],
+    [250, "0"],
+    [1000000, "0"],
   ])("calculates %i GB as %s EUR", (storageGb, expected) => {
     const result = calculateStorageCost(storageGb);
 
@@ -78,12 +78,12 @@ describe("calculateStorageCost", () => {
 describe("calculateApiCost", () => {
   it.each([
     [0, "0"],
-    [1, "0.001"],
-    [500, "0.5"],
-    [1000, "1"],
-    [1500, "1.5"],
-    [5000, "5"],
-    [100000000, "100000"],
+    [1, "0"],
+    [500, "0"],
+    [1000, "0"],
+    [1500, "0"],
+    [5000, "0"],
+    [100000000, "0"],
   ])("calculates %i API calls as %s EUR", (apiCalls, expected) => {
     const result = calculateApiCost(apiCalls);
 
@@ -98,7 +98,7 @@ describe("calculateApiCost", () => {
 });
 
 describe("calculateSubtotal", () => {
-  it("calculates a Professional subscription correctly", () => {
+  it("calculates a Professional subscription using only active users", () => {
     const result = calculateSubtotal({
       activeUsers: 15,
       plan: "Professional",
@@ -106,7 +106,7 @@ describe("calculateSubtotal", () => {
       apiCalls: 5000,
     });
 
-    expect(result.toString()).toBe("184");
+    expect(result.toFixed(2)).toBe("140.00");
   });
 
   it("calculates an empty Starter subscription as zero", () => {
@@ -117,18 +117,18 @@ describe("calculateSubtotal", () => {
       apiCalls: 0,
     });
 
-    expect(result.toString()).toBe("0");
+    expect(result.toFixed(2)).toBe("0.00");
   });
 
-  it("rounds the subtotal to two decimal places", () => {
+  it("does not charge for storage or API calls", () => {
     const result = calculateSubtotal({
       activeUsers: 0,
-      plan: "Starter",
-      storageGb: 0,
-      apiCalls: 5,
+      plan: "Enterprise",
+      storageGb: 1000000,
+      apiCalls: 100000000,
     });
 
-    expect(result.toFixed(2)).toBe("0.01");
+    expect(result.toFixed(2)).toBe("0.00");
   });
 });
 
@@ -170,26 +170,45 @@ describe("calculateTax", () => {
 });
 
 describe("calculateMonthlyBill", () => {
-  it.each([
-    ["ES", "38.64", "222.64"],
-    ["FR", "36.8", "220.8"],
-    ["DE", "34.96", "218.96"],
-  ])(
-    "calculates the complete monthly bill for %s",
-    (country, expectedTax, expectedTotal) => {
-      const result = calculateMonthlyBill({
-        activeUsers: 15,
-        plan: "Professional",
-        storageGb: 100,
-        apiCalls: 5000,
-        country,
-      });
+  const subscription = {
+    activeUsers: 15,
+    plan: "Professional" as const,
+    storageGb: 100,
+    apiCalls: 5000,
+  };
 
-      expect(result.subtotal.toString()).toBe("184");
-      expect(result.tax.toString()).toBe(expectedTax);
-      expect(result.total.toString()).toBe(expectedTotal);
-    },
-  );
+  it("calculates the complete monthly bill for ES", () => {
+    const result = calculateMonthlyBill({
+      ...subscription,
+      country: "ES",
+    });
+
+    expect(result.subtotal.toFixed(2)).toBe("140.00");
+    expect(result.tax.toFixed(2)).toBe("29.40");
+    expect(result.total.toFixed(2)).toBe("169.40");
+  });
+
+  it("calculates the complete monthly bill for FR", () => {
+    const result = calculateMonthlyBill({
+      ...subscription,
+      country: "FR",
+    });
+
+    expect(result.subtotal.toFixed(2)).toBe("140.00");
+    expect(result.tax.toFixed(2)).toBe("28.00");
+    expect(result.total.toFixed(2)).toBe("168.00");
+  });
+
+  it("calculates the complete monthly bill for DE", () => {
+    const result = calculateMonthlyBill({
+      ...subscription,
+      country: "DE",
+    });
+
+    expect(result.subtotal.toFixed(2)).toBe("140.00");
+    expect(result.tax.toFixed(2)).toBe("26.60");
+    expect(result.total.toFixed(2)).toBe("166.60");
+  });
 
   it("calculates a zero-cost Starter subscription", () => {
     const result = calculateMonthlyBill({
@@ -200,23 +219,23 @@ describe("calculateMonthlyBill", () => {
       country: "ES",
     });
 
-    expect(result.subtotal.toString()).toBe("0");
-    expect(result.tax.toString()).toBe("0");
-    expect(result.total.toString()).toBe("0");
+    expect(result.subtotal.toFixed(2)).toBe("0.00");
+    expect(result.tax.toFixed(2)).toBe("0.00");
+    expect(result.total.toFixed(2)).toBe("0.00");
   });
 
-  it("rounds the subtotal before calculating tax", () => {
+  it("does not charge for plan, storage or API calls", () => {
     const result = calculateMonthlyBill({
-      activeUsers: 0,
-      plan: "Starter",
-      storageGb: 0,
-      apiCalls: 5,
+      activeUsers: 1,
+      plan: "Enterprise",
+      storageGb: 1000000,
+      apiCalls: 100000000,
       country: "ES",
     });
 
-    expect(result.subtotal.toFixed(2)).toBe("0.01");
-    expect(result.tax.toFixed(2)).toBe("0.00");
-    expect(result.total.toFixed(2)).toBe("0.01");
+    expect(result.subtotal.toFixed(2)).toBe("10.00");
+    expect(result.tax.toFixed(2)).toBe("2.10");
+    expect(result.total.toFixed(2)).toBe("12.10");
   });
 });
 
@@ -240,4 +259,20 @@ describe("eurosToCents", () => {
       expect(() => eurosToCents(euros)).toThrow(RangeError);
     },
   );
+});
+
+describe("Official Roams billing clarification", () => {
+  it("charges only for active users, regardless of plan, storage or API calls", () => {
+    const result = calculateMonthlyBill({
+      activeUsers: 15,
+      plan: "Enterprise",
+      storageGb: 100,
+      apiCalls: 5000,
+      country: "ES",
+    });
+
+    expect(result.subtotal.toFixed(2)).toBe("140.00");
+    expect(result.tax.toFixed(2)).toBe("29.40");
+    expect(result.total.toFixed(2)).toBe("169.40");
+  });
 });

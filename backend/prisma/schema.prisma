@@ -37,9 +37,6 @@ model Simulation {
   taxRateSnapshot   String
 
   usersCostCents    Int
-  planCostCents     Int
-  storageCostCents  Int
-  apiCostCents      Int
   subtotalCents     Int
   taxCents          Int
   totalCents        Int

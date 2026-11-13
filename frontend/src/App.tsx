@@ -1,122 +1,115 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { CustomerList } from "./features/customers/CustomerList";
+import { CustomerForm } from "./features/customers/CustomerForm";
+import { SimulationForm } from "./features/simulations/SimulationForm";
+import type { Simulation } from "./types/simulation";
+import { SimulationResult } from "./features/simulations/SimulationResult";
+import { SimulationHistory } from "./features/simulations/SimulationHistory";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [customerRefreshKey, setCustomerRefreshKey] = useState(0);
+
+  const [latestSimulation, setLatestSimulation] = useState<Simulation | null>(
+    null,
+  );
+
+  const [simulationRefreshKey, setSimulationRefreshKey] = useState(0);
+
+  function handleCustomerCreated() {
+    setCustomerRefreshKey((current) => current + 1);
+  }
+
+  function handleSimulationCreated(simulation: Simulation) {
+    setLatestSimulation(simulation);
+    setSimulationRefreshKey((current) => current + 1);
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <header className="border-b border-slate-800 bg-slate-900">
+        <div className="mx-auto max-w-6xl px-6 py-6">
+          <h1 className="text-3xl font-bold tracking-tight">SaaS-O-Matic</h1>
+
+          <p className="mt-2 text-sm text-slate-400">
+            Dynamic Billing & Subscription Optimizer
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
+      <main className="mx-auto max-w-6xl space-y-8 px-6 py-10">
+        <section>
+          <h2 className="text-2xl font-semibold">Panel de control</h2>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          <p className="mt-2 text-slate-400">
+            Gestiona clientes, calcula facturas y consulta el historial de
+            simulaciones.
+          </p>
+        </section>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+            <h3 className="text-xl font-semibold">Clientes</h3>
+
+            <p className="mt-3 mb-5 text-sm text-slate-400">
+              Registra empresas y consulta los clientes existentes.
+            </p>
+
+            <div className="space-y-6">
+              <div>
+                <h4 className="mb-4 text-lg font-medium">
+                  Registrar nuevo cliente
+                </h4>
+
+                <CustomerForm onCustomerCreated={handleCustomerCreated} />
+              </div>
+
+              <div className="border-t border-slate-700 pt-6">
+                <h4 className="mb-4 text-lg font-medium">
+                  Clientes registrados
+                </h4>
+
+                <CustomerList refreshKey={customerRefreshKey} />
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+            <h3 className="text-xl font-semibold">Simulaciones</h3>
+
+            <p className="mt-3 mb-5 text-sm text-slate-400">
+              Calcula la facturación mensual de los clientes.
+            </p>
+
+            <SimulationForm
+              onSimulationCreated={handleSimulationCreated}
+              customerRefreshKey={customerRefreshKey}
+            />
+
+            {latestSimulation && (
+              <SimulationResult simulation={latestSimulation} />
+            )}
+          </section>
+
+          <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+            <h3 className="text-xl font-semibold">Historial</h3>
+
+            <p className="mt-3 mb-5 text-sm text-slate-400">
+              Consulta las simulaciones guardadas de cada cliente.
+            </p>
+
+            <SimulationHistory
+              refreshKey={simulationRefreshKey}
+              customerRefreshKey={customerRefreshKey}
+            />
+          </section>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      </main>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <footer className="border-t border-slate-800 py-6 text-center text-sm text-slate-500">
+        SaaS-O-Matic · Roams Technical Challenge
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;

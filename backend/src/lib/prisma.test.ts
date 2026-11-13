@@ -11,4 +11,7 @@ describe("Prisma database connection", () => {
 
     expect(Array.isArray(customers)).toBe(true);
   });
+  it("uses the dedicated SQLite test database", () => {
+    expect(process.env.DATABASE_URL).toBe("file:./test.db");
+  });
 });

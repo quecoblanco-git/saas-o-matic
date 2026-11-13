@@ -1,4 +1,7 @@
 import express from "express";
+import { customerRouter } from "./modules/customers/customer.routes.js";
+import { errorHandler } from "./middleware/error-handler.js";
+import { simulationRouter } from "./modules/simulations/simulation.routes.js";
 
 const app = express();
 
@@ -10,5 +13,10 @@ app.get("/health", (_req, res) => {
     service: "saas-o-matic-api",
   });
 });
+
+app.use("/customers", customerRouter);
+app.use("/simulations", simulationRouter);
+
+app.use(errorHandler);
 
 export default app;

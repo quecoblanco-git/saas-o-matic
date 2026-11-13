@@ -23,8 +23,8 @@ export type SubscriptionPlan = "Starter" | "Professional" | "Enterprise";
 
 const PLAN_PRICES: Record<SubscriptionPlan, number> = {
   Starter: 0,
-  Professional: 29,
-  Enterprise: 99,
+  Professional: 0,
+  Enterprise: 0,
 };
 
 export function calculatePlanCost(plan: SubscriptionPlan): Decimal {
@@ -42,7 +42,7 @@ export function calculateStorageCost(storageGb: number): Decimal {
     throw new RangeError("storageGb must be an integer between 0 and 1000000");
   }
 
-  return new Decimal(storageGb).mul("0.10");
+  return new Decimal(0);
 }
 
 export function calculateApiCost(apiCalls: number): Decimal {
@@ -50,7 +50,7 @@ export function calculateApiCost(apiCalls: number): Decimal {
     throw new RangeError("apiCalls must be an integer between 0 and 100000000");
   }
 
-  return new Decimal(apiCalls).div(1000);
+  return new Decimal(0);
 }
 
 export interface SubtotalInput {
