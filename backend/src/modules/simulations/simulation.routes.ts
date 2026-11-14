@@ -53,7 +53,32 @@ simulationRouter.get("/", async (req, res) => {
     return;
   }
 
-  const simulations = await listSimulations(customerId);
+  // Primera página por defecto.
+  const skipParam = req.query.skip;
+
+  let skip = 0;
+
+  if (skipParam !== undefined) {
+    if (typeof skipParam !== "string" || !/^(0|[1-9]\d*)$/.test(skipParam)) {
+      res.status(400).json({
+        error: "ValidationError",
+        message: "Skip must be a non-negative integer",
+      });
+      return;
+    }
+
+    skip = Number(skipParam);
+
+    if (!Number.isSafeInteger(skip)) {
+      res.status(400).json({
+        error: "ValidationError",
+        message: "Skip must be a non-negative integer",
+      });
+      return;
+    }
+  }
+
+  const simulations = await listSimulations(customerId, skip, 10);
 
   res.status(200).json(simulations);
 });

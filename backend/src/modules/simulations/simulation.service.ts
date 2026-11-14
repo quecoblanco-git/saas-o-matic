@@ -62,13 +62,13 @@ export async function createSimulation(input: CreateSimulationInput) {
     },
   });
 }
-export async function listSimulations(customerId: string) {
+export async function listSimulations(customerId: string, skip = 0, take = 10) {
   return prisma.simulation.findMany({
     where: {
       customerId,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    skip,
+    take,
   });
 }

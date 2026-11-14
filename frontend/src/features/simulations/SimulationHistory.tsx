@@ -3,6 +3,7 @@ import { getCustomers } from "../../api/customers";
 import { getSimulations } from "../../api/simulations";
 import type { Customer } from "../../types/customer";
 import type { Simulation } from "../../types/simulation";
+import { CurrencySelector } from "../currency/CurrencySelector";
 
 interface SimulationHistoryProps {
   refreshKey?: number;
@@ -157,6 +158,8 @@ export function SimulationHistory({
                   {formatEuros(simulation.totalCents)}
                 </strong>
               </div>
+
+              <CurrencySelector amountCents={simulation.totalCents} />
 
               <p className="mt-2 text-xs text-slate-400">
                 {simulation.planSnapshot} · {simulation.countrySnapshot}

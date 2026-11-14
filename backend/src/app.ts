@@ -2,6 +2,7 @@ import express from "express";
 import { customerRouter } from "./modules/customers/customer.routes.js";
 import { errorHandler } from "./middleware/error-handler.js";
 import { simulationRouter } from "./modules/simulations/simulation.routes.js";
+import { currencyRouter } from "./modules/currency/currency.routes.js";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/customers", customerRouter);
 app.use("/simulations", simulationRouter);
+app.use("/currency", currencyRouter);
 
 app.use(errorHandler);
 

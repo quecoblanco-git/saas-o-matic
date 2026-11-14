@@ -1,4 +1,5 @@
 import type { Simulation } from "../../types/simulation";
+import { CurrencySelector } from "../currency/CurrencySelector";
 
 interface SimulationResultProps {
   simulation: Simulation;
@@ -80,6 +81,8 @@ export function SimulationResult({ simulation }: SimulationResultProps) {
         El almacenamiento y las llamadas API son informativos y no generan
         cargos adicionales.
       </p>
+
+      <CurrencySelector amountCents={simulation.totalCents} />
     </section>
   );
 }

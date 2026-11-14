@@ -227,7 +227,7 @@ describe("createSimulation", () => {
 });
 
 describe("listSimulations", () => {
-  it("returns the simulations of a customer ordered by newest first", async () => {
+  it("returns the first 10 simulations ordered by newest first", async () => {
     const customerId = "customer-123";
 
     const simulations = [
@@ -253,9 +253,36 @@ describe("listSimulations", () => {
       where: {
         customerId,
       },
-      orderBy: {
-        createdAt: "desc",
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: 0,
+      take: 10,
+    });
+  });
+
+  it("retrieves the second page of simulations", async () => {
+    const customerId = "customer-123";
+
+    const simulations = [
+      {
+        id: "simulation-11",
+        customerId,
+        totalCents: 6050,
       },
+    ];
+
+    findManyMock.mockResolvedValue(simulations);
+
+    const result = await listSimulations(customerId, 10, 10);
+
+    expect(result).toEqual(simulations);
+
+    expect(findManyMock).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        customerId,
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: 10,
+      take: 10,
     });
   });
 });

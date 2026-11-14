@@ -182,7 +182,7 @@ describe("GET /simulations", () => {
     vi.clearAllMocks();
   });
 
-  it("returns the simulation history of a customer", async () => {
+  it("returns the first 10 simulations by default", async () => {
     const customerId = "customer-123";
 
     const simulations = [
@@ -207,8 +207,33 @@ describe("GET /simulations", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(simulations);
 
-    expect(listSimulations).toHaveBeenCalledExactlyOnceWith(customerId);
+    expect(listSimulations).toHaveBeenCalledExactlyOnceWith(customerId, 0, 10);
   });
+
+  it("returns the second page of simulations", async () => {
+    const customerId = "customer-123";
+
+    const simulations = [
+      {
+        id: "simulation-11",
+        customerId,
+        totalCents: 6050,
+      },
+    ];
+
+    vi.mocked(listSimulations).mockResolvedValue(simulations as never);
+
+    const response = await request(app).get("/simulations").query({
+      customerId,
+      skip: 10,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(simulations);
+
+    expect(listSimulations).toHaveBeenCalledExactlyOnceWith(customerId, 10, 10);
+  });
+
   it.each([
     ["missing", undefined],
     ["empty", ""],
@@ -230,6 +255,26 @@ describe("GET /simulations", () => {
       expect(listSimulations).not.toHaveBeenCalled();
     },
   );
+
+  it.each(["-1", "abc", "1.5", "9007199254740992"])(
+    "returns HTTP 400 for invalid skip value %s",
+    async (skip) => {
+      const response = await request(app).get("/simulations").query({
+        customerId: "customer-123",
+        skip,
+      });
+
+      expect(response.status).toBe(400);
+
+      expect(response.body).toEqual({
+        error: "ValidationError",
+        message: "Skip must be a non-negative integer",
+      });
+
+      expect(listSimulations).not.toHaveBeenCalled();
+    },
+  );
+
   it("returns an empty array when the customer has no simulations", async () => {
     const customerId = "customer-without-simulations";
 
@@ -240,9 +285,8 @@ describe("GET /simulations", () => {
       .query({ customerId });
 
     expect(response.status).toBe(200);
-
     expect(response.body).toEqual([]);
 
-    expect(listSimulations).toHaveBeenCalledExactlyOnceWith(customerId);
+    expect(listSimulations).toHaveBeenCalledExactlyOnceWith(customerId, 0, 10);
   });
 });
