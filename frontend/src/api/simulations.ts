@@ -12,9 +12,11 @@ export async function createSimulation(
 
 export async function getSimulations(
   customerId: string,
+  skip = 0,
 ): Promise<Simulation[]> {
   const params = new URLSearchParams({
-    customerId: customerId.trim(),
+    customerId,
+    skip: String(skip),
   });
 
   return apiRequest<Simulation[]>(`/simulations?${params.toString()}`);
