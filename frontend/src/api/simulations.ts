@@ -1,5 +1,18 @@
 import { apiRequest } from "./client";
 import type { CreateSimulationInput, Simulation } from "../types/simulation";
+export interface SimulationPreview {
+  customerId: string;
+  activeUsers: number;
+  storageGb: number;
+  apiCalls: number;
+  plan: string;
+  country: string;
+  taxRate: string;
+  usersCostCents: number;
+  subtotalCents: number;
+  taxCents: number;
+  totalCents: number;
+}
 
 export async function createSimulation(
   input: CreateSimulationInput,
@@ -20,4 +33,13 @@ export async function getSimulations(
   });
 
   return apiRequest<Simulation[]>(`/simulations?${params.toString()}`);
+}
+
+export async function previewSimulation(
+  input: CreateSimulationInput,
+): Promise<SimulationPreview> {
+  return apiRequest<SimulationPreview>("/simulations/preview", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }

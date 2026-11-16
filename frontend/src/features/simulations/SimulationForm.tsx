@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCustomers } from "../../api/customers";
-import { createSimulation } from "../../api/simulations";
+import { createSimulation, previewSimulation } from "../../api/simulations";
+import type { SimulationPreview } from "../../api/simulations";
 import type { Customer } from "../../types/customer";
 import type { CreateSimulationInput, Simulation } from "../../types/simulation";
 
@@ -17,10 +18,13 @@ export function SimulationForm({
   const [loadingCustomers, setLoadingCustomers] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<SimulationPreview | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     customerId: "",
-    activeUsers: "",
+    activeUsers: "10",
     storageGb: "",
     apiCalls: "",
   });
@@ -56,6 +60,74 @@ export function SimulationForm({
       active = false;
     };
   }, [customerRefreshKey]);
+
+  useEffect(() => {
+    // Limpiar la estimación anterior cuando cambien los datos.
+    setPreview(null);
+    setPreviewError(null);
+
+    const activeUsers = Number(form.activeUsers);
+    const storageGb = Number(form.storageGb);
+    const apiCalls = Number(form.apiCalls);
+
+    // No calcular hasta tener un formulario válido.
+    if (
+      !form.customerId ||
+      form.activeUsers === "" ||
+      form.storageGb === "" ||
+      form.apiCalls === "" ||
+      !Number.isInteger(activeUsers) ||
+      activeUsers < 0 ||
+      activeUsers > 100000 ||
+      !Number.isInteger(storageGb) ||
+      storageGb < 0 ||
+      storageGb > 1000000 ||
+      !Number.isInteger(apiCalls) ||
+      apiCalls < 0 ||
+      apiCalls > 100000000
+    ) {
+      setPreviewLoading(false);
+      return;
+    }
+
+    let active = true;
+
+    setPreviewLoading(true);
+
+    const timeout = setTimeout(() => {
+      void (async () => {
+        try {
+          const result = await previewSimulation({
+            customerId: form.customerId,
+            activeUsers,
+            storageGb,
+            apiCalls,
+          });
+
+          if (active) {
+            setPreview(result);
+          }
+        } catch (error) {
+          if (active) {
+            setPreviewError(
+              error instanceof Error
+                ? error.message
+                : "No se pudo calcular la vista previa",
+            );
+          }
+        } finally {
+          if (active) {
+            setPreviewLoading(false);
+          }
+        }
+      })();
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timeout);
+    };
+  }, [form.customerId, form.activeUsers, form.storageGb, form.apiCalls]);
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -110,8 +182,8 @@ export function SimulationForm({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="activeUsers" className="mb-1 block text-sm">
+      <div className="space-y-3">
+        <label htmlFor="activeUsers" className="block text-sm">
           Usuarios activos
         </label>
 
@@ -131,6 +203,36 @@ export function SimulationForm({
           }
           className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
         />
+
+        <div>
+          <label
+            htmlFor="activeUsersSlider"
+            className="mb-2 block text-sm text-slate-400"
+          >
+            Ajustar usuarios con el deslizador (0–500)
+          </label>
+
+          <input
+            id="activeUsersSlider"
+            type="range"
+            min="0"
+            max="500"
+            step="1"
+            value={Math.min(500, Math.max(0, Number(form.activeUsers) || 0))}
+            onChange={(event) =>
+              setForm({
+                ...form,
+                activeUsers: event.target.value,
+              })
+            }
+            className="w-full cursor-pointer accent-blue-500"
+          />
+
+          <div className="flex justify-between text-xs text-slate-400">
+            <span>0 usuarios</span>
+            <span>500 usuarios</span>
+          </div>
+        </div>
       </div>
 
       <div>
@@ -183,6 +285,74 @@ export function SimulationForm({
         El coste depende de los usuarios activos. El almacenamiento y las
         llamadas API son informativos y no generan cargos.
       </p>
+
+      <div
+        className="space-y-3 rounded-lg border border-slate-700 bg-slate-800/50 p-4"
+        aria-live="polite"
+      >
+        <h3 className="text-lg font-semibold">
+          Vista previa del coste mensual
+        </h3>
+
+        {previewLoading ? (
+          <p className="text-sm text-slate-400">Calculando estimación...</p>
+        ) : previewError ? (
+          <p role="alert" className="text-sm text-red-400">
+            {previewError}
+          </p>
+        ) : preview ? (
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span>Coste de usuarios</span>
+              <span>
+                {(preview.usersCostCents / 100).toLocaleString("es-ES", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>
+                {(preview.subtotalCents / 100).toLocaleString("es-ES", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>Impuestos ({Number(preview.taxRate) * 100} %)</span>
+              <span>
+                {(preview.taxCents / 100).toLocaleString("es-ES", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
+              </span>
+            </div>
+
+            <div className="flex justify-between border-t border-slate-600 pt-3 text-lg font-bold">
+              <span>Total mensual</span>
+              <span>
+                {(preview.totalCents / 100).toLocaleString("es-ES", {
+                  style: "currency",
+                  currency: "EUR",
+                })}
+              </span>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Estimación orientativa. No se guardará hasta pulsar «Crear
+              simulación».
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-400">
+            Selecciona un cliente y completa los campos para consultar el coste.
+          </p>
+        )}
+      </div>
 
       {error && (
         <p role="alert" className="text-sm text-red-400">

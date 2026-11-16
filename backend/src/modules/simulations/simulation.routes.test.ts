@@ -3,6 +3,7 @@ import request from "supertest";
 import app from "../../app.js";
 import {
   createSimulation,
+  previewSimulation,
   listSimulations,
   CustomerNotFoundError,
 } from "./simulation.service.js";
@@ -14,6 +15,7 @@ vi.mock("./simulation.service.js", async (importOriginal) => {
   return {
     ...actual,
     createSimulation: vi.fn(),
+    previewSimulation: vi.fn(),
     listSimulations: vi.fn(),
   };
 });
@@ -174,6 +176,146 @@ describe("POST /simulations", () => {
     );
 
     expect(createSimulation).toHaveBeenCalledOnce();
+  });
+});
+
+describe("POST /simulations/preview", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns HTTP 200 with the calculated preview without creating a simulation", async () => {
+    const input = {
+      customerId: "customer-preview-fr",
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+    };
+
+    const preview = {
+      ...input,
+      plan: "Enterprise",
+      country: "FR",
+      taxRate: "0.20",
+      usersCostCents: 18000,
+      subtotalCents: 18000,
+      taxCents: 3600,
+      totalCents: 21600,
+    };
+
+    vi.mocked(previewSimulation).mockResolvedValue(preview);
+
+    const response = await request(app)
+      .post("/simulations/preview")
+      .send(input);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(preview);
+
+    expect(previewSimulation).toHaveBeenCalledExactlyOnceWith(input);
+
+    // La ruta de vista previa no debe crear simulaciones.
+    expect(createSimulation).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["negative active users", "activeUsers", -1],
+    ["decimal active users", "activeUsers", 20.5],
+    ["too many active users", "activeUsers", 100001],
+    ["negative storage", "storageGb", -1],
+    ["too much storage", "storageGb", 1000001],
+    ["negative API calls", "apiCalls", -1],
+    ["too many API calls", "apiCalls", 100000001],
+    ["empty customer ID", "customerId", ""],
+    ["whitespace customer ID", "customerId", "   "],
+  ] as const)("returns HTTP 400 for %s", async (_description, field, value) => {
+    const input = {
+      customerId: "customer-preview-fr",
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+      [field]: value,
+    };
+
+    const response = await request(app)
+      .post("/simulations/preview")
+      .send(input);
+
+    expect(response.status).toBe(400);
+
+    expect(response.body).toMatchObject({
+      error: "ValidationError",
+      message: "Invalid simulation data",
+    });
+
+    expect(response.body.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: [field],
+        }),
+      ]),
+    );
+
+    expect(previewSimulation).not.toHaveBeenCalled();
+    expect(createSimulation).not.toHaveBeenCalled();
+  });
+
+  it("returns HTTP 404 when the preview customer does not exist", async () => {
+    const input = {
+      customerId: "non-existent-customer",
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+    };
+
+    vi.mocked(previewSimulation).mockRejectedValue(new CustomerNotFoundError());
+
+    const response = await request(app)
+      .post("/simulations/preview")
+      .send(input);
+
+    expect(response.status).toBe(404);
+
+    expect(response.body).toEqual({
+      error: "CustomerNotFoundError",
+      message: "Customer not found",
+    });
+
+    expect(previewSimulation).toHaveBeenCalledExactlyOnceWith(input);
+
+    // Una vista previa nunca debe ejecutar la creación.
+    expect(createSimulation).not.toHaveBeenCalled();
+  });
+
+  it("returns HTTP 500 without exposing internal errors in the preview", async () => {
+    const input = {
+      customerId: "customer-preview-fr",
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+    };
+
+    const databaseError = new Error("Sensitive database connection details");
+
+    vi.mocked(previewSimulation).mockRejectedValue(databaseError);
+
+    const response = await request(app)
+      .post("/simulations/preview")
+      .send(input);
+
+    expect(response.status).toBe(500);
+
+    expect(response.body).toEqual({
+      error: "InternalServerError",
+      message: "An unexpected error occurred",
+    });
+
+    expect(JSON.stringify(response.body)).not.toContain(
+      "Sensitive database connection details",
+    );
+
+    expect(previewSimulation).toHaveBeenCalledExactlyOnceWith(input);
+    expect(createSimulation).not.toHaveBeenCalled();
   });
 });
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createSimulation,
+  previewSimulation,
   listSimulations,
   CustomerNotFoundError,
 } from "./simulation.service.js";
@@ -223,6 +224,77 @@ describe("createSimulation", () => {
     });
 
     expect(createMock).toHaveBeenCalledOnce();
+  });
+});
+
+describe("previewSimulation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("calculates the monthly cost without saving a simulation", async () => {
+    const customer = {
+      id: "customer-preview-fr",
+      companyName: "Preview France",
+      country: "FR",
+      plan: "Enterprise",
+    };
+
+    findUniqueMock.mockResolvedValue(customer);
+
+    const result = await previewSimulation({
+      customerId: customer.id,
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+    });
+
+    expect(result).toEqual({
+      customerId: customer.id,
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+      plan: "Enterprise",
+      country: "FR",
+      taxRate: "0.20",
+      usersCostCents: 18000,
+      subtotalCents: 18000,
+      taxCents: 3600,
+      totalCents: 21600,
+    });
+
+    expect(findUniqueMock).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        id: customer.id,
+      },
+    });
+
+    // La vista previa nunca debe guardar una simulación.
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a preview when the customer does not exist", async () => {
+    findUniqueMock.mockResolvedValue(null);
+
+    const input = {
+      customerId: "non-existent-customer",
+      activeUsers: 20,
+      storageGb: 100,
+      apiCalls: 1000,
+    };
+
+    await expect(previewSimulation(input)).rejects.toBeInstanceOf(
+      CustomerNotFoundError,
+    );
+
+    expect(findUniqueMock).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        id: "non-existent-customer",
+      },
+    });
+
+    // No debe guardar ninguna simulación.
+    expect(createMock).not.toHaveBeenCalled();
   });
 });
 

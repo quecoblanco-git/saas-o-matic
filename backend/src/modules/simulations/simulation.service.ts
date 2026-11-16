@@ -19,7 +19,7 @@ export class CustomerNotFoundError extends Error {
   }
 }
 
-export async function createSimulation(input: CreateSimulationInput) {
+export async function previewSimulation(input: CreateSimulationInput) {
   const customer = await prisma.customer.findUnique({
     where: {
       id: input.customerId,
@@ -46,22 +46,41 @@ export async function createSimulation(input: CreateSimulationInput) {
 
   const usersCost = calculateUsersCost(input.activeUsers);
 
+  return {
+    customerId: customer.id,
+    activeUsers: input.activeUsers,
+    storageGb: input.storageGb,
+    apiCalls: input.apiCalls,
+    plan: customer.plan,
+    country: customer.country,
+    taxRate,
+    usersCostCents: eurosToCents(usersCost.toFixed(2)),
+    subtotalCents: eurosToCents(bill.subtotal.toFixed(2)),
+    taxCents: eurosToCents(bill.tax.toFixed(2)),
+    totalCents: eurosToCents(bill.total.toFixed(2)),
+  };
+}
+
+export async function createSimulation(input: CreateSimulationInput) {
+  const preview = await previewSimulation(input);
+
   return prisma.simulation.create({
     data: {
-      customerId: customer.id,
-      activeUsers: input.activeUsers,
-      storageGb: input.storageGb,
-      apiCalls: input.apiCalls,
-      planSnapshot: customer.plan,
-      countrySnapshot: customer.country,
-      taxRateSnapshot: taxRate,
-      usersCostCents: eurosToCents(usersCost.toFixed(2)),
-      subtotalCents: eurosToCents(bill.subtotal.toFixed(2)),
-      taxCents: eurosToCents(bill.tax.toFixed(2)),
-      totalCents: eurosToCents(bill.total.toFixed(2)),
+      customerId: preview.customerId,
+      activeUsers: preview.activeUsers,
+      storageGb: preview.storageGb,
+      apiCalls: preview.apiCalls,
+      planSnapshot: preview.plan,
+      countrySnapshot: preview.country,
+      taxRateSnapshot: preview.taxRate,
+      usersCostCents: preview.usersCostCents,
+      subtotalCents: preview.subtotalCents,
+      taxCents: preview.taxCents,
+      totalCents: preview.totalCents,
     },
   });
 }
+
 export async function listSimulations(customerId: string, skip = 0, take = 10) {
   return prisma.simulation.findMany({
     where: {
