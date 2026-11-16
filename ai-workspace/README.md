@@ -24,13 +24,25 @@ Estas fases representan la metodología prevista. Las actividades y sus resultad
 
 Los siguientes documentos recogerán el proceso de desarrollo:
 
-| Documento                   | Contenido                                             |
-| --------------------------- | ----------------------------------------------------- |
-| `01-planning.md`            | Planificación inicial, objetivos y desglose de tareas |
-| `02-ai-prompts.md`          | Prompts relevantes utilizados y sus objetivos         |
-| `03-technical-decisions.md` | Decisiones técnicas, alternativas y justificaciones   |
-| `04-development-log.md`     | Iteraciones, problemas encontrados y mejoras          |
-| `05-quality-review.md`      | Revisión del código, pruebas y validaciones           |
+| Documento                                              | Contenido                                                      |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
+| [01-planning.md](01-planning.md)                       | Planificación inicial, objetivos y desglose de tareas.         |
+| [02-ai-prompts.md](02-ai-prompts.md)                   | Prompts relevantes utilizados y sus objetivos.                 |
+| [03-technical-decisions.md](03-technical-decisions.md) | Decisiones técnicas, alternativas y justificaciones.           |
+| [04-development-log.md](04-development-log.md)         | Registro cronológico de iteraciones, problemas y validaciones. |
+| [05-quality-review.md](05-quality-review.md)           | Revisión del código, pruebas y controles de calidad.           |
+| [ai-development-log.md](ai-development-log.md)         | Casos prácticos del uso de IA durante el desarrollo.           |
+
+El registro `04-development-log.md` conserva la evolución
+cronológica del proyecto y los resultados de cada fase.
+
+El documento `ai-development-log.md` complementa ese registro
+con explicaciones detalladas de casos prácticos de desarrollo
+asistido por inteligencia artificial.
+
+Las secciones que describen la preparación inicial del entorno
+representan el estado histórico del proyecto en ese momento,
+no necesariamente su estado actual.
 
 Las especificaciones funcionales y la documentación técnica de la aplicación se mantendrán por separado en la carpeta `docs/`.
 

@@ -218,4 +218,84 @@ Este proceso refleja la importancia de validar las hipótesis iniciales, incorpo
 
 ---
 
+---
+
+## 16/11/2026 — Vista previa de facturación y mejoras del dashboard
+
+### Objetivo
+
+Mejorar la experiencia de usuario de SaaS-O-Matic,
+incorporando una vista previa de facturación en tiempo real,
+facilitando la consulta de clientes y mejorando la navegación
+entre las secciones del dashboard.
+
+### Funcionalidades implementadas
+
+**1. Vista previa de facturación**
+
+- Incorporación de un control deslizante para usuarios activos.
+- Sincronización con el campo numérico del formulario.
+- Actualización automática de importes al modificar parámetros.
+- Implementación del endpoint `POST /simulations/preview`.
+- Reutilización de las reglas de facturación del backend.
+- Cálculo sin guardar automáticamente simulaciones.
+
+**2. Mejoras del listado de clientes**
+
+- Presentación de clientes en una lista vertical.
+- Corrección del desbordamiento de textos largos.
+- Incorporación del botón "Reintentar" ante errores de carga.
+- Incorporación del botón "Ver historial" en cada cliente.
+
+**3. Navegación al historial**
+
+- Selección automática del cliente desde su tarjeta.
+- Desplazamiento hasta la sección de historial.
+- Conservación de la selección manual y la paginación.
+
+**4. Revisión responsive**
+
+Se comprobó manualmente el comportamiento de la interfaz
+en pantallas móviles y de tableta.
+
+Se mantuvo la distribución actual del dashboard tras
+verificar que resultaba funcional en los tamaños revisados.
+
+### Validación
+
+Se ejecutaron pruebas automatizadas de backend y frontend,
+además de compilaciones y comprobaciones manuales.
+
+Resultados registrados:
+
+- Backend: 402 pruebas superadas en la última ejecución
+  completa registrada.
+- Frontend: 16 pruebas superadas en una ejecución completa,
+  seguidas de pruebas específicas de los componentes
+  modificados.
+- CustomerList: 3 pruebas superadas.
+- SimulationHistory: 6 pruebas superadas.
+- Compilación del frontend: correcta.
+
+Las pruebas específicas posteriores incorporaron nuevos
+casos que todavía deben verificarse conjuntamente mediante
+una nueva ejecución de toda la batería del frontend.
+
+### Commits relacionados
+
+- `e4dd098` — feat: add real-time billing preview and active users slider
+- `f4db9c2` — feat: improve customer list and history navigation
+
+Ambos commits fueron enviados a la rama `main` de GitHub.
+
+### Uso de IA
+
+ChatGPT se utilizó para apoyar la implementación incremental,
+la preparación de pruebas automatizadas, la revisión de errores
+y el análisis de los requisitos funcionales.
+
+Cada cambio se incorporó y verificó progresivamente mediante
+el entorno de desarrollo, las pruebas y la revisión visual
+de la aplicación.
+
 _Registro iniciado durante la preparación del proyecto. Las iteraciones funcionales se añadirán conforme se desarrollen y verifiquen._
