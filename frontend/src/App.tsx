@@ -9,6 +9,9 @@ import { SimulationHistory } from "./features/simulations/SimulationHistory";
 function App() {
   const [customerRefreshKey, setCustomerRefreshKey] = useState(0);
 
+  const [selectedHistoryCustomerId, setSelectedHistoryCustomerId] =
+    useState<string>("");
+
   const [latestSimulation, setLatestSimulation] = useState<Simulation | null>(
     null,
   );
@@ -17,6 +20,15 @@ function App() {
 
   function handleCustomerCreated() {
     setCustomerRefreshKey((current) => current + 1);
+  }
+
+  function handleViewCustomerHistory(customerId: string) {
+    setSelectedHistoryCustomerId(customerId);
+
+    document.getElementById("simulation-history")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   }
 
   function handleSimulationCreated(simulation: Simulation) {
@@ -68,7 +80,10 @@ function App() {
                   Clientes registrados
                 </h4>
 
-                <CustomerList refreshKey={customerRefreshKey} />
+                <CustomerList
+                  refreshKey={customerRefreshKey}
+                  onViewHistory={handleViewCustomerHistory}
+                />
               </div>
             </div>
           </section>
@@ -90,7 +105,10 @@ function App() {
             )}
           </section>
 
-          <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+          <section
+            id="simulation-history"
+            className="scroll-mt-6 rounded-xl border border-slate-800 bg-slate-900 p-6"
+          >
             <h3 className="text-xl font-semibold">Historial</h3>
 
             <p className="mt-3 mb-5 text-sm text-slate-400">
@@ -100,6 +118,7 @@ function App() {
             <SimulationHistory
               refreshKey={simulationRefreshKey}
               customerRefreshKey={customerRefreshKey}
+              selectedCustomerId={selectedHistoryCustomerId}
             />
           </section>
         </div>

@@ -8,6 +8,7 @@ import { CurrencySelector } from "../currency/CurrencySelector";
 interface SimulationHistoryProps {
   refreshKey?: number;
   customerRefreshKey?: number;
+  selectedCustomerId?: string;
 }
 
 function formatEuros(cents: number): string {
@@ -20,6 +21,7 @@ function formatEuros(cents: number): string {
 export function SimulationHistory({
   refreshKey = 0,
   customerRefreshKey = 0,
+  selectedCustomerId = "",
 }: SimulationHistoryProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [customerId, setCustomerId] = useState("");
@@ -33,6 +35,24 @@ export function SimulationHistory({
   const [hasMore, setHasMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
   const historyVersionRef = useRef(0);
+
+  // Seleccionar un cliente desde el listado de clientes.
+  useEffect(() => {
+    if (!selectedCustomerId) {
+      return;
+    }
+
+    // Invalidar inmediatamente las peticiones anteriores.
+    ++historyVersionRef.current;
+
+    setCustomerId(selectedCustomerId);
+    setSimulations([]);
+    setVisibleCount(0);
+    setHasMore(false);
+    setLoadingMore(false);
+    setLoadMoreError(null);
+    setError(null);
+  }, [selectedCustomerId]);
 
   // Cargar clientes registrados.
   useEffect(() => {

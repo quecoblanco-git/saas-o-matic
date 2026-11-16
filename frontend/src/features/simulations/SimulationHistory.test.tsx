@@ -296,4 +296,34 @@ describe("SimulationHistory", () => {
       screen.queryByRole("button", { name: "Mostrar más" }),
     ).not.toBeInTheDocument();
   });
+
+  it("automatically selects a customer received from the parent", async () => {
+    vi.mocked(getCustomers).mockResolvedValueOnce([
+      {
+        id: "customer-auto-123",
+        companyName: "Empresa Automática SL",
+        taxId: "B12345674",
+        email: "automatica@example.es",
+        country: "ES",
+        plan: "Professional",
+        createdAt: "2026-11-16T10:00:00.000Z",
+      },
+    ]);
+
+    vi.mocked(getSimulations).mockResolvedValueOnce([]);
+
+    render(<SimulationHistory selectedCustomerId="customer-auto-123" />);
+
+    const customerSelector = await screen.findByRole("combobox", {
+      name: "Seleccionar cliente",
+    });
+
+    await waitFor(() => {
+      expect(customerSelector).toHaveValue("customer-auto-123");
+    });
+
+    await waitFor(() => {
+      expect(getSimulations).toHaveBeenCalledWith("customer-auto-123", 0);
+    });
+  });
 });
