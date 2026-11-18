@@ -1,3 +1,4 @@
+// Valida y normaliza los datos requeridos para registrar clientes.
 import { z } from "zod";
 import {
   normalizeTaxId,

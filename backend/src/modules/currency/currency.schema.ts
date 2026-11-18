@@ -1,3 +1,4 @@
+// Valida los datos y códigos de moneda enviados para una conversión.
 import { z } from "zod";
 
 export const currencyConversionSchema = z

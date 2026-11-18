@@ -1,3 +1,4 @@
+// Comprueba persistencia, vista previa, snapshots e historial con SQLite.
 import { afterAll, describe, expect, it } from "vitest";
 import request from "supertest";
 import app from "../../app.js";

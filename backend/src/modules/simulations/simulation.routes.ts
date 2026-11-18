@@ -1,3 +1,4 @@
+// Define los endpoints HTTP de vista previa, creación e historial.
 import { Router } from "express";
 import { ZodError } from "zod";
 import { createSimulationSchema } from "./simulation.schema.js";

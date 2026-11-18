@@ -1,3 +1,4 @@
+// Expone las llamadas HTTP para previsualizar, crear y consultar simulaciones.
 import { apiRequest } from "./client";
 import type { CreateSimulationInput, Simulation } from "../types/simulation";
 export interface SimulationPreview {

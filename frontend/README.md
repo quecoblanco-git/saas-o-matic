@@ -4,19 +4,12 @@ Interfaz React y TypeScript construida con Vite y Tailwind CSS. El código de pr
 
 ## Desarrollo
 
-Desde esta carpeta:
-
-```bash
-npm install
-npm run dev
-```
-
-Vite sirve la aplicación en `http://localhost:5173` y redirige `/api` a `http://localhost:3001`. Para utilizar los flujos conectados, inicia también el backend siguiendo las instrucciones del [README principal](../README.md).
+Desde la raíz del repositorio, ejecuta `npm run setup` y `npm run dev` siguiendo el [README principal](../README.md). Vite sirve la aplicación en `http://localhost:5173` y redirige `/api` a `http://localhost:3001`.
 
 ## Comprobaciones
 
 ```bash
-npx vitest run
+npm test
 npm run lint
 npm run build
 ```

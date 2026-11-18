@@ -1,3 +1,4 @@
+// Comprueba la conexión Prisma con la base SQLite configurada para pruebas.
 import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "./prisma.js";
 

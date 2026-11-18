@@ -47,15 +47,29 @@ y la persistencia de datos.
 
 ### Endpoints principales
 
-| Método y ruta | Uso |
-| ------------- | --- |
-| `GET /customers`, `POST /customers` | Buscar y registrar clientes. |
-| `POST /simulations/preview` | Calcular una vista previa sin persistirla. |
+| Método y ruta                           | Uso                                                                 |
+| --------------------------------------- | ------------------------------------------------------------------- |
+| `GET /customers`, `POST /customers`     | Buscar y registrar clientes.                                        |
+| `POST /simulations/preview`             | Calcular una vista previa sin persistirla.                          |
 | `POST /simulations`, `GET /simulations` | Guardar simulaciones y consultar el historial paginado por cliente. |
-| `GET /currency/rates` | Obtener las tasas y divisas disponibles. |
-| `POST /currency/convert` | Convertir un importe desde EUR. |
+| `GET /currency/rates`                   | Obtener las tasas y divisas disponibles.                            |
+| `POST /currency/convert`                | Convertir un importe desde EUR.                                     |
 
 En desarrollo, el frontend usa `/api` y Vite lo redirige a Express. El backend conserva las tasas en memoria durante una hora y puede reutilizar tasas anteriores si falla una actualización. EUR permanece como moneda base; la interfaz presenta las monedas que devuelve el endpoint.
+
+### Flujo de creación de clientes
+
+El siguiente diagrama representa el proceso de registro de clientes mediante el endpoint `POST /customers` del backend.
+
+Cuando se recibe una petición, los datos se validan mediante Zod. Si la información proporcionada no cumple las reglas establecidas, la API devuelve una respuesta HTTP `400 Bad Request`.
+
+Si los datos son válidos, el backend intenta crear el cliente en SQLite mediante Prisma ORM. La restricción de unicidad del identificador fiscal permite detectar registros duplicados, devolviendo `409 Conflict` cuando corresponde.
+
+Si el registro se completa correctamente, la API devuelve `201 Created`.
+
+![Diagrama del flujo de creación de clientes](evidence/customer-creation-flow.png)
+
+_Figura. Flujo de creación de clientes, validación de datos y gestión de respuestas HTTP._
 
 ## 4. Diagrama de arquitectura general
 
@@ -300,7 +314,7 @@ Para ejecutar las pruebas:
 
 ```bash
 cd frontend
-npx vitest run
+npm test
 ```
 
 ### Comprobación de compilación
@@ -320,17 +334,18 @@ npm run build
 Estas comprobaciones permiten detectar errores de TypeScript
 y problemas de construcción antes de entregar el proyecto.
 
+Desde la raíz del repositorio, `npm run verify` ejecuta las suites de pruebas, el lint, los chequeos de tipos y los builds de ambos proyectos. Los resultados de la última ejecución se registran en [la revisión de calidad](../ai-workspace/05-quality-review.md).
+
 ### Evidencias de ejecución
 
-Se ejecutaron las baterías completas de pruebas automatizadas
-del backend y del frontend el 16 de noviembre de 2026.
+Las siguientes capturas muestran los resultados de las pruebas automatizadas ejecutadas el **18 de noviembre de 2026**, correspondientes a la versión actual del proyecto en el momento de su verificación.
 
-#### Capturas históricas
+- **Backend:** 450 pruebas superadas en 18 archivos.
+- **Frontend:** 30 pruebas superadas en 5 archivos.
 
-Estas imágenes corresponden a ejecuciones registradas el
-16/11/2026. No representan las verificaciones más recientes;
-los resultados actuales se mantienen en
-[la revisión de calidad](../ai-workspace/05-quality-review.md).
+Los detalles de las verificaciones adicionales, incluidas las comprobaciones de compilación, tipos y calidad del código, se encuentran documentados en [la revisión de calidad](../ai-workspace/05-quality-review.md).
+
+#### Capturas de las pruebas automatizadas
 
 ![Captura de pruebas del backend](evidence/backend-tests.png)
 
@@ -344,3 +359,4 @@ o incorporación a otros documentos.
 
 - [Diagrama de arquitectura general](evidence/architecture-diagram.png)
 - [Diagrama Customer–Simulation](evidence/customer-simulation-diagram.png)
+- [Diagrama del flujo de creación de clientes](evidence/customer-creation-flow.png)

@@ -1,0 +1,11 @@
+{
+  "name": "saas-o-matic",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "verify": "node scripts/verify.mjs"
+  }
+}

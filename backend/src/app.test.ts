@@ -1,3 +1,4 @@
+// Verifica la respuesta del endpoint de salud de la API.
 import { describe, expect, it } from "vitest";
 import request from "supertest";
 import app from "./app.js";

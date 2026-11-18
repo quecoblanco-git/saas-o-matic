@@ -6,9 +6,7 @@ Este documento recoge las decisiones técnicas relevantes tomadas durante el des
 
 Su finalidad es justificar las elecciones de arquitectura, tecnologías y organización del proyecto, así como identificar sus ventajas, limitaciones y posibles alternativas.
 
-Las decisiones se documentarán de forma progresiva. Cuando una decisión cambie durante el desarrollo, se registrará el motivo y sus consecuencias.
-
-Las decisiones sustituidas se conservan como historial. La decisión vigente se identifica expresamente para evitar que las propuestas iniciales se interpreten como reglas actuales.
+Las fechas indican cuándo se registró cada decisión. Las consecuencias redactadas en futuro reflejan las previsiones iniciales; la implementación y las comprobaciones actuales se consultan en `04-development-log.md` y `05-quality-review.md`. Las decisiones sustituidas se conservan como historial y se identifica expresamente la vigente.
 
 ## 2. Criterios generales
 
@@ -32,6 +30,7 @@ Se priorizará una solución comprensible y verificable frente a una arquitectur
 
 **Estado:** Adoptada
 **Fase:** Preparación del entorno
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -60,6 +59,7 @@ Será necesario mantener las definiciones de tipos y comprobar que la informaci�
 
 **Estado:** Adoptada
 **Fase:** Preparación del entorno
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -88,6 +88,7 @@ Será necesario definir una estructura de componentes clara y gestionar adecuada
 
 **Estado:** Adoptada
 **Fase:** Preparación del entorno
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -115,6 +116,7 @@ La separación entre validación, lógica de negocio y acceso a datos deberá es
 
 **Estado:** Adoptada
 **Fase:** Preparación del entorno
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -142,6 +144,7 @@ Deberán definirse los modelos, relaciones, restricciones y migraciones. La conf
 
 **Estado:** Adoptada
 **Fase:** Preparación del entorno
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -165,6 +168,7 @@ Será necesario configurar la comunicación entre ambos proyectos y documentar l
 
 **Estado:** Adoptada
 **Fase:** Preparación del entorno
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -192,6 +196,7 @@ Se mantendrá la configuración compatible con Prisma 7 y se revisará cualquier
 
 **Estado:** Adoptada
 **Fase:** Planificación
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -218,6 +223,7 @@ Se utilizarán enlaces entre documentos para evitar duplicaciones y mantener la 
 
 **Estado:** Adoptada
 **Fase:** Planificación
+**Fecha:** 2026-11-12
 
 **Contexto**
 
@@ -625,6 +631,9 @@ Estas restricciones son simplificaciones deliberadas del simulador y no represen
 
 ### DT-019 — Límites técnicos de entrada para simulaciones
 
+**Estado:** Adoptada
+**Fase:** Validación de simulaciones
+**Fecha:** 2026-11-12
 **Decisión:** Establecer límites máximos explícitos para los valores numéricos utilizados en las simulaciones de facturación.
 
 **Límites aprobados:**
@@ -652,8 +661,6 @@ Todos los límites son inclusivos y únicamente se admitirán números enteros.
 - Los valores válidos se procesarán utilizando las reglas monetarias definidas en RT-007.
 
 **Requisitos relacionados:** `RF-004`, `RF-011`, `RT-007`.
-
-**Estado:** Adoptada. Su implementación y verificación se registran en `ai-workspace/05-quality-review.md`.
 
 ### DT-009 — Modelo de datos y persistencia histórica
 
@@ -1092,9 +1099,10 @@ La existencia de pruebas no garantiza por sí sola la ausencia de errores, por l
 
 **Requisito relacionado:** `RT-010` de `docs/requirements.md`.
 
-## DT-020 — Revisión de las reglas de facturación tras aclaración oficial
+### DT-020 — Revisión de las reglas de facturación tras aclaración oficial
 
-**Fecha:** 13 de noviembre de 2026.
+- **Estado:** Adoptada y vigente
+- **Fecha:** 2026-11-13
 
 **Contexto:** Durante el análisis inicial de SaaS-O-Matic se identificaron varios aspectos del enunciado que no estaban completamente definidos. Se tomaron decisiones propias para concretar las tarifas de los planes, el almacenamiento y las llamadas a la API.
 
@@ -1133,11 +1141,9 @@ Se conservan las decisiones iniciales como parte del historial del proyecto, ind
 
 ---
 
-## 4. Decisiones pendientes
+## 4. Estado de decisiones abiertas
 
-No quedan decisiones iniciales pendientes. Las nuevas cuestiones de diseño identificadas durante el mantenimiento se registrarán antes de aplicar cambios que dependan de ellas.
-
-Durante la implementación podrán identificarse nuevas decisiones o ajustes, que se documentarán en este archivo antes de aplicarse.
+A 18/11/2026 no quedan decisiones pendientes dentro del alcance documentado. Las propuestas iniciales sustituidas se conservan como historial y las reglas vigentes se identifican en sus entradas correspondientes.
 
 ## 5. Seguimiento de cambios
 

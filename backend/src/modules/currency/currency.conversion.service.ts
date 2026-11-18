@@ -1,3 +1,4 @@
+// Coordina la consulta de tasas y la conversión de importes de simulación.
 import { convertCurrency } from "./currency.converter.js";
 import { getExchangeRates } from "./currency.service.js";
 

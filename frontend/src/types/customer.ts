@@ -1,3 +1,4 @@
+// Declara los países, planes y estructuras de datos de los clientes.
 export type CustomerCountry = "ES" | "FR" | "DE";
 
 export type CustomerPlan = "Starter" | "Professional" | "Enterprise";

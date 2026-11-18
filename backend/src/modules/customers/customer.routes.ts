@@ -1,3 +1,4 @@
+// Define los endpoints HTTP para registrar y buscar clientes.
 import { Router } from "express";
 import { ZodError } from "zod";
 import { createCustomerSchema } from "./customer.schema.js";

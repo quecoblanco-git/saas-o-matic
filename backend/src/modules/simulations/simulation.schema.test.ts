@@ -1,3 +1,4 @@
+// Comprueba la validación de los campos y límites de una simulación.
 import { describe, expect, it } from "vitest";
 import { createSimulationSchema } from "./simulation.schema.js";
 

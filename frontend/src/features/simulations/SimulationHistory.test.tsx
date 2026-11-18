@@ -1,3 +1,4 @@
+// Verifica carga, paginación, cambio de cliente y estados del historial.
 import { describe, expect, it, vi } from "vitest";
 import {
   act,

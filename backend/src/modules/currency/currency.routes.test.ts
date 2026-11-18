@@ -1,3 +1,4 @@
+// Verifica respuestas, errores y validaciones de los endpoints de divisas.
 import express from "express";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

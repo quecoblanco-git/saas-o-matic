@@ -1,3 +1,5 @@
+// Recoge y envía los datos necesarios para registrar un cliente.
+import { CheckCircle2, LoaderCircle, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
 import { createCustomer } from "../../api/customers";
 import type { CreateCustomerInput, Customer } from "../../types/customer";
@@ -13,6 +15,10 @@ const initialForm: CreateCustomerInput = {
   country: "ES",
   plan: "Starter",
 };
+
+const labelClassName = "mb-1.5 block text-sm font-medium text-slate-300";
+const fieldClassName =
+  "min-h-11 w-full rounded-xl border border-slate-700/90 bg-slate-900/70 px-3.5 py-2.5 text-sm text-white transition placeholder:text-slate-500 hover:border-slate-600 focus:border-blue-400/80 focus:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60";
 
 export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
   const [form, setForm] = useState<CreateCustomerInput>(initialForm);
@@ -47,22 +53,24 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="companyName" className="mb-1 block text-sm">
+        <label htmlFor="companyName" className={labelClassName}>
           Nombre de la empresa
         </label>
         <input
           id="companyName"
+          autoComplete="organization"
           required
           value={form.companyName}
           onChange={(event) =>
             setForm({ ...form, companyName: event.target.value })
           }
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
+          placeholder="Ej. Tecnología Palencia SL"
+          className={fieldClassName}
         />
       </div>
 
       <div>
-        <label htmlFor="taxId" className="mb-1 block text-sm">
+        <label htmlFor="taxId" className={labelClassName}>
           Identificación fiscal
         </label>
         <input
@@ -70,26 +78,29 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
           required
           value={form.taxId}
           onChange={(event) => setForm({ ...form, taxId: event.target.value })}
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
+          placeholder="NIF, SIREN o USt-IdNr."
+          className={fieldClassName}
         />
       </div>
 
       <div>
-        <label htmlFor="email" className="mb-1 block text-sm">
+        <label htmlFor="email" className={labelClassName}>
           Correo electrónico
         </label>
         <input
           id="email"
           type="email"
+          autoComplete="email"
           required
           value={form.email}
           onChange={(event) => setForm({ ...form, email: event.target.value })}
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
+          placeholder="nombre@empresa.com"
+          className={fieldClassName}
         />
       </div>
 
       <div>
-        <label htmlFor="country" className="mb-1 block text-sm">
+        <label htmlFor="country" className={labelClassName}>
           País
         </label>
         <select
@@ -101,7 +112,7 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
               country: event.target.value as CreateCustomerInput["country"],
             })
           }
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
+          className={fieldClassName}
         >
           <option value="ES">España</option>
           <option value="FR">Francia</option>
@@ -110,7 +121,7 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
       </div>
 
       <div>
-        <label htmlFor="plan" className="mb-1 block text-sm">
+        <label htmlFor="plan" className={labelClassName}>
           Plan
         </label>
         <select
@@ -122,7 +133,7 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
               plan: event.target.value as CreateCustomerInput["plan"],
             })
           }
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
+          className={fieldClassName}
         >
           <option value="Starter">Starter</option>
           <option value="Professional">Professional</option>
@@ -131,23 +142,40 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-red-400">
+        <p
+          role="alert"
+          className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-3.5 py-3 text-sm text-rose-200"
+        >
           {error}
         </p>
       )}
 
       {success && (
-        <p role="status" className="text-sm text-green-400">
-          Cliente registrado correctamente.
-        </p>
+        <div
+          role="status"
+          className="flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3.5 py-3 text-sm text-emerald-200"
+        >
+          <CheckCircle2 size={17} aria-hidden="true" />
+          <span>Cliente registrado correctamente.</span>
+        </div>
       )}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-950/20 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Registrando..." : "Registrar cliente"}
+        {loading ? (
+          <>
+            <LoaderCircle size={17} className="animate-spin" aria-hidden="true" />
+            Registrando…
+          </>
+        ) : (
+          <>
+            <UserRoundPlus size={17} aria-hidden="true" />
+            Registrar cliente
+          </>
+        )}
       </button>
     </form>
   );

@@ -1,3 +1,4 @@
+// Verifica entradas, vista previa, errores y creación de simulaciones.
 import { describe, expect, it, vi } from "vitest";
 import {
   act,

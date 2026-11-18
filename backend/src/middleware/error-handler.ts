@@ -1,3 +1,4 @@
+// Convierte errores no controlados en respuestas HTTP seguras y coherentes.
 import type { ErrorRequestHandler } from "express";
 
 export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {

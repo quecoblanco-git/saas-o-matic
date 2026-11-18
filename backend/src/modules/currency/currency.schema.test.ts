@@ -1,3 +1,4 @@
+// Comprueba la validación de solicitudes de conversión de divisas.
 import { describe, expect, it } from "vitest";
 
 import { currencyConversionSchema } from "./currency.schema.js";

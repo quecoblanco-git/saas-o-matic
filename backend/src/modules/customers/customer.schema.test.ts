@@ -1,3 +1,4 @@
+// Comprueba las reglas de validación de clientes y sus datos fiscales.
 import { describe, expect, it } from "vitest";
 import {
   countrySchema,

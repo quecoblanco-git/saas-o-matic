@@ -1,3 +1,4 @@
+// Verifica búsqueda, listado y navegación desde la lista de clientes.
 import { describe, expect, it, vi } from "vitest";
 import {
   fireEvent,

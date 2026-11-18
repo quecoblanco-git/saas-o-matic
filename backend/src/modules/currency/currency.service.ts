@@ -1,3 +1,4 @@
+// Obtiene, valida y mantiene en caché las tasas de cambio externas.
 import { Decimal } from "decimal.js";
 import type { ExchangeRates } from "./currency.types.js";
 

@@ -1,3 +1,4 @@
+// Define los datos de entrada, vista previa e historial de simulaciones.
 import type { CustomerCountry, CustomerPlan } from "./customer";
 
 export interface CreateSimulationInput {

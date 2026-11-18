@@ -1,3 +1,4 @@
+// Valida y tipa los datos de entrada para crear y previsualizar simulaciones.
 import { z } from "zod";
 
 export const createSimulationSchema = z.object({

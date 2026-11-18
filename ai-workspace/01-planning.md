@@ -92,22 +92,16 @@ Antes de implementar esta funcionalidad se definirán los países admitidos, los
 
 ## 4. Ambigüedades identificadas al inicio
 
-Las preguntas siguientes se detectaron durante la planificación. Se resolvieron posteriormente en `docs/requirements.md` y `03-technical-decisions.md`.
+Durante la planificación se identificaron las siguientes cuestiones. Todas quedaron resueltas antes de la entrega y su definición vigente se conserva en los documentos enlazados.
 
-El enunciado deja algunos detalles abiertos que deberán resolverse y justificarse antes de implementar las funcionalidades correspondientes.
-
-| Aspecto                              | Cuestión pendiente                                                   |
-| ------------------------------------ | -------------------------------------------------------------------- |
-| Planes SaaS                          | ¿Qué planes estarán disponibles y cómo afectarán al presupuesto?     |
-| Almacenamiento                       | ¿Tendrá un coste adicional o será únicamente un dato registrado?     |
-| Llamadas a la API                    | ¿Se facturarán o solo se almacenarán como estimación de consumo?     |
-| Países e impuestos                   | ¿Qué países y tipos impositivos admitirá la aplicación?              |
-| Identificadores fiscales extranjeros | ¿Qué validaciones se aplicarán fuera de España?                      |
-| Precisión monetaria                  | ¿Cómo se gestionarán los redondeos y los cálculos decimales?         |
-| Tipos de cambio                      | ¿Qué comportamiento tendrá la interfaz si falla el servicio externo? |
-| Historial                            | ¿Cómo se ordenarán y presentarán las simulaciones guardadas?         |
-
-Estas cuestiones se resolverán durante la fase de especificación y se registrarán en la documentación de decisiones técnicas.
+| Tema | Resolución documentada |
+| ---- | ---------------------- |
+| Planes, almacenamiento y llamadas a la API | Son datos informativos y no añaden costes; aclaraciones AR-001 a AR-003 y decisión DT-020. |
+| Países e impuestos | España, Francia y Alemania, con tasas simplificadas; RF-008 y DT-011. |
+| Identificadores fiscales extranjeros | Validación básica de formato y longitud para Francia y Alemania; RF-002 y DT-018. |
+| Precisión monetaria | Cálculos decimales y redondeo definido en RT-007 y DT-014. |
+| Tipos de cambio | Caché de una hora y uso de tasas anteriores cuando falla la actualización; RF-009 y DT-015. |
+| Historial | Paginación por cliente, orden descendente y carga inicial de diez registros; RF-005 y RF-010. |
 
 ## 5. Plan de implementación
 
@@ -184,7 +178,7 @@ La IA se utilizará como apoyo en las distintas fases del desarrollo, siguiendo 
 
 No se considerará válida una funcionalidad únicamente porque el código haya sido generado sin errores aparentes. Cada resultado deberá comprobarse mediante pruebas o verificaciones adecuadas.
 
-Los prompts relevantes y las decisiones tomadas se documentarán en `02-ai-prompts.md` y `03-technical-decisions.md`.
+Los prompts relevantes y las decisiones tomadas están registrados en `02-ai-prompts.md` y `03-technical-decisions.md`.
 
 ## 7. Estado inicial del proyecto
 
@@ -203,4 +197,4 @@ Antes de comenzar la implementación funcional se ha completado la preparación 
 
 ---
 
-_Este plan podrá evolucionar durante el desarrollo. Los cambios significativos se registrarán y justificarán en la documentación del proyecto._
+_Este documento conserva el plan inicial. Las decisiones y cambios realizados durante el desarrollo se registran en `03-technical-decisions.md` y `04-development-log.md`._

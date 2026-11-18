@@ -1,3 +1,4 @@
+// Expone las llamadas HTTP para registrar y buscar clientes.
 import { apiRequest } from "./client";
 import type { Customer, CreateCustomerInput } from "../types/customer";
 

@@ -1,3 +1,4 @@
+// Verifica códigos HTTP, validaciones y respuestas de las rutas de simulación.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import app from "../../app.js";

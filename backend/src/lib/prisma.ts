@@ -1,3 +1,4 @@
+// Configura el cliente Prisma con el adaptador y la URL de SQLite.
 import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client.js";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";

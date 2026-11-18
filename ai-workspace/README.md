@@ -14,11 +14,11 @@ El proceso se organizó en cinco fases:
 4. **Revisión e iteración:** analizar el código generado, detectar posibles problemas y realizar las correcciones necesarias.
 5. **Validación y entrega:** comprobar el funcionamiento mediante pruebas y documentar los pasos necesarios para ejecutar la aplicación.
 
-Los documentos enlazados registran el plan inicial y los resultados observados durante el desarrollo. Las secciones que describen el estado inicial son históricas.
+Los documentos enlazados registran el plan inicial y los resultados observados durante el desarrollo. Las secciones sobre el estado inicial son históricas.
 
 ## 3. Índice de documentación
 
-Los siguientes documentos recogerán el proceso de desarrollo:
+Estos documentos recogen el proceso de desarrollo:
 
 | Documento                                              | Contenido                                                      |
 | ------------------------------------------------------ | -------------------------------------------------------------- |
@@ -42,7 +42,7 @@ Las secciones que describen la preparación inicial del entorno
 representan el estado histórico del proyecto en ese momento,
 no necesariamente su estado actual.
 
-Las especificaciones funcionales y la documentación técnica de la aplicación se mantendrán por separado en la carpeta `docs/`.
+Las especificaciones funcionales y la documentación técnica de la aplicación se mantienen por separado en la carpeta `docs/`.
 
 ## 4. Preparación inicial del entorno
 
@@ -88,7 +88,7 @@ Estas evidencias corresponden exclusivamente a la preparación del entorno y no 
 
 ## 6. Uso de IA y supervisión técnica
 
-Durante el desarrollo se documentarán las interacciones más relevantes con herramientas de inteligencia artificial, prestando especial atención a:
+Durante el desarrollo se documentaron las interacciones más relevantes con herramientas de inteligencia artificial, prestando especial atención a:
 
 - El objetivo y el contexto de cada prompt importante.
 - Las soluciones o recomendaciones propuestas por la IA.
@@ -96,8 +96,8 @@ Durante el desarrollo se documentarán las interacciones más relevantes con her
 - Los cambios aceptados, descartados o modificados.
 - Las comprobaciones realizadas para verificar el resultado.
 
-La responsabilidad sobre la arquitectura, la corrección del código, la seguridad y la calidad de la solución final permanecerá en todo momento bajo supervisión humana.
+La responsabilidad sobre la arquitectura, la corrección del código, la seguridad y la calidad de la solución final permaneció bajo supervisión humana.
 
 ---
 
-_El índice y el resumen del estado se actualizarán cuando cambien los documentos vinculados._
+_El índice identifica la documentación vigente del espacio de trabajo; los estados y resultados de verificación se consultan en `04-development-log.md` y `05-quality-review.md`._

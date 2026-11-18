@@ -1,3 +1,4 @@
+// Comprueba formatos y reglas de validación de identificadores fiscales.
 import { describe, expect, it } from "vitest";
 import {
   validateSpanishDni,

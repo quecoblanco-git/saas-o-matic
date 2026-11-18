@@ -1,3 +1,4 @@
+// Verifica la creación de clientes y el manejo de identificadores duplicados.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createCustomer } from "./customer.service.js";
 import { Prisma } from "../../generated/prisma/client.js";

@@ -1,4 +1,6 @@
+// Carga y pagina el historial del cliente seleccionado y muestra sus importes.
 import { useEffect, useRef, useState } from "react";
+import { CalendarDays, ChevronDown, Clock3, LoaderCircle } from "lucide-react";
 import { getCustomers } from "../../api/customers";
 import { getSimulations } from "../../api/simulations";
 import type { Customer } from "../../types/customer";
@@ -208,7 +210,7 @@ export function SimulationHistory({
             setLoadMoreError(null);
             setError(null);
           }}
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 p-3"
+          className="min-h-11 w-full rounded-xl border border-slate-700/90 bg-slate-900/70 px-3.5 py-2.5 text-sm text-white transition hover:border-slate-600 focus:border-blue-400/80 focus:bg-slate-900"
         >
           <option value="">Selecciona un cliente</option>
 
@@ -221,17 +223,20 @@ export function SimulationHistory({
       </div>
 
       {!customerId ? (
-        <p className="text-sm text-slate-400">
+        <p className="rounded-xl border border-dashed border-slate-700 px-4 py-5 text-sm leading-5 text-slate-400">
           Selecciona un cliente para consultar su historial.
         </p>
       ) : loading ? (
-        <p className="text-sm text-slate-400">Cargando simulaciones...</p>
+        <p role="status" className="flex items-center gap-2 rounded-xl border border-slate-700/70 bg-slate-900/40 px-4 py-4 text-sm text-slate-300">
+          <LoaderCircle size={16} aria-hidden="true" className="animate-spin text-blue-300" />
+          Cargando simulaciones...
+        </p>
       ) : error ? (
-        <p role="alert" className="text-sm text-red-400">
+        <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
           Error al cargar el historial: {error}
         </p>
       ) : simulations.length === 0 ? (
-        <p className="text-sm text-slate-400">
+        <p className="rounded-xl border border-dashed border-slate-700 px-4 py-5 text-sm leading-5 text-slate-400">
           Este cliente todavía no tiene simulaciones.
         </p>
       ) : (
@@ -239,34 +244,49 @@ export function SimulationHistory({
           {simulations.map((simulation) => (
             <article
               key={simulation.id}
-              className="rounded-lg border border-slate-700 bg-slate-800 p-4"
+              className="overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-800/80 shadow-sm shadow-slate-950/20"
             >
-              <p className="text-xs text-slate-400">
-                {new Date(simulation.createdAt).toLocaleString("es-ES")}
-              </p>
-
-              <div className="mt-3 flex items-center justify-between gap-3">
-                <span className="text-sm text-slate-300">
-                  {simulation.activeUsers} usuarios
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700/70 px-4 py-3">
+                <p className="flex items-center gap-2 text-xs text-slate-400">
+                  <CalendarDays size={14} aria-hidden="true" className="text-slate-500" />
+                  {new Date(simulation.createdAt).toLocaleString("es-ES")}
+                </p>
+                <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-300">
+                  Guardada
                 </span>
-
-                <strong className="text-lg text-emerald-400">
-                  {formatEuros(simulation.totalCents)}
-                </strong>
               </div>
 
-              <CurrencySelector amountCents={simulation.totalCents} />
+              <div className="space-y-4 p-4">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      Total mensual
+                    </p>
+                    <strong className="mt-1 block text-2xl font-semibold tracking-tight text-emerald-200 tabular-nums">
+                      {formatEuros(simulation.totalCents)}
+                    </strong>
+                  </div>
+                  <div className="flex items-center gap-1.5 pb-1 text-xs text-slate-400">
+                    <Clock3 size={14} aria-hidden="true" className="text-blue-300" />
+                    <span>{simulation.activeUsers.toLocaleString("es-ES")} usuarios</span>
+                  </div>
+                </div>
 
-              <p className="mt-2 text-xs text-slate-400">
-                {simulation.planSnapshot} · {simulation.countrySnapshot}
-              </p>
+                <p className="text-xs text-slate-400">
+                  Plan <span className="font-medium text-slate-200">{simulation.planSnapshot}</span>
+                  <span className="px-2 text-slate-600" aria-hidden="true">·</span>
+                  País <span className="font-medium text-slate-200">{simulation.countrySnapshot}</span>
+                </p>
 
-              <details className="mt-4 rounded-lg border border-slate-700 bg-slate-900/50">
-                <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-200 hover:text-white">
-                  Ver detalles
+                <CurrencySelector amountCents={simulation.totalCents} />
+
+                <details className="group rounded-xl border border-slate-700/80 bg-slate-900/40">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-200 outline-none transition hover:bg-slate-800/70 hover:text-white focus-visible:ring-2 focus-visible:ring-blue-400/80 [&::-webkit-details-marker]:hidden">
+                  <span>Ver detalles</span>
+                  <ChevronDown size={16} aria-hidden="true" className="text-slate-400 transition-transform group-open:rotate-180" />
                 </summary>
 
-                <div className="space-y-2 border-t border-slate-700 px-4 py-3 text-sm">
+                <div className="space-y-2.5 border-t border-slate-700/70 px-3.5 py-3 text-sm">
                   <div className="flex justify-between gap-4">
                     <span className="text-slate-400">Usuarios activos</span>
                     <span>
@@ -290,7 +310,7 @@ export function SimulationHistory({
                     </span>
                   </div>
 
-                  <div className="border-t border-slate-700 pt-2">
+                  <div className="border-t border-slate-700/70 pt-2.5">
                     <div className="flex justify-between gap-4">
                       <span className="text-slate-400">Coste de usuarios</span>
                       <span>{formatEuros(simulation.usersCostCents)}</span>
@@ -309,19 +329,20 @@ export function SimulationHistory({
                     <span>{formatEuros(simulation.taxCents)}</span>
                   </div>
 
-                  <div className="flex justify-between gap-4 border-t border-slate-700 pt-2 font-semibold">
+                  <div className="flex justify-between gap-4 border-t border-slate-700/70 pt-2.5 font-semibold">
                     <span>Total mensual</span>
                     <span className="text-emerald-400">
                       {formatEuros(simulation.totalCents)}
                     </span>
                   </div>
                 </div>
-              </details>
+                </details>
+              </div>
             </article>
           ))}
 
           {loadMoreError && (
-            <p role="alert" className="text-sm text-red-400">
+            <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
               Error al cargar más simulaciones: {loadMoreError}
             </p>
           )}
@@ -331,9 +352,9 @@ export function SimulationHistory({
               type="button"
               onClick={() => void handleLoadMore()}
               disabled={loadingMore}
-              className="w-full rounded-lg border border-slate-600 bg-slate-700 px-4 py-3 font-medium text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-600/80 bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loadingMore ? "Cargando más..." : "Mostrar más"}
+              {loadingMore ? <><LoaderCircle size={16} aria-hidden="true" className="animate-spin" />Cargando más...</> : "Mostrar más"}
             </button>
           )}
         </div>

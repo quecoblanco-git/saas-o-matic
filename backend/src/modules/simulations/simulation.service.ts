@@ -1,3 +1,4 @@
+// Calcula vistas previas, persiste simulaciones y pagina su historial.
 import { prisma } from "../../lib/prisma.js";
 import {
   calculateMonthlyBill,

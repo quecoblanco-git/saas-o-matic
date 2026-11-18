@@ -1,3 +1,4 @@
+// Implementa el registro y la búsqueda de clientes mediante Prisma.
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../../lib/prisma.js";
 import type { CreateCustomerInput } from "./customer.schema.js";

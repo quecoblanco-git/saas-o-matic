@@ -1,3 +1,4 @@
+// Implementa las tarifas progresivas, impuestos y cálculos monetarios.
 import { Decimal } from "decimal.js";
 
 export interface UserTierBreakdown {

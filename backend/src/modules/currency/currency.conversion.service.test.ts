@@ -1,3 +1,4 @@
+// Verifica la conversión de importes usando las tasas del servicio.
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { convertSimulationAmount } from "./currency.conversion.service.js";

@@ -1,3 +1,4 @@
+// Verifica conversiones monetarias y sus reglas de redondeo.
 import { describe, expect, it } from "vitest";
 
 import { convertCurrency } from "./currency.converter.js";

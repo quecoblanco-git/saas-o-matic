@@ -1,3 +1,4 @@
+// Define los modelos y las restricciones de persistencia de SQLite.
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"

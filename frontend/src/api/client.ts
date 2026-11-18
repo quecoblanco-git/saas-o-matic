@@ -1,3 +1,4 @@
+// Centraliza las peticiones HTTP y normaliza los errores devueltos por la API.
 const API_BASE_URL = "/api";
 
 export class ApiError extends Error {

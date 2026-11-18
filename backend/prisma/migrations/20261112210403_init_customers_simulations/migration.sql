@@ -1,3 +1,4 @@
+-- Crea las tablas iniciales de clientes y simulaciones.
 -- Crear tabla
 CREATE TABLE "Customer" (
     "id" TEXT NOT NULL PRIMARY KEY,

@@ -1,3 +1,4 @@
+// Configura Vitest para ejecutar las pruebas de interfaz en un DOM simulado.
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 

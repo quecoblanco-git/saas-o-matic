@@ -1,3 +1,4 @@
+// Define las estructuras compartidas para tasas y conversiones monetarias.
 export type CurrencyCode = string;
 
 export interface ExchangeRates {

@@ -1,3 +1,4 @@
+// Verifica respuestas, validaciones y errores de las rutas de clientes.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import app from "../../app.js";

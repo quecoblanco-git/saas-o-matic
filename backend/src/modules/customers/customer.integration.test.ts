@@ -1,3 +1,4 @@
+// Comprueba operaciones de clientes sobre la base SQLite de pruebas.
 import "dotenv/config";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { PrismaClient } from "../../generated/prisma/client.js";

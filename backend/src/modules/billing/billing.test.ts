@@ -1,3 +1,4 @@
+// Verifica los cálculos de tarifas, subtotal, impuestos y redondeos.
 import { describe, expect, it } from "vitest";
 import {
   calculateApiCost,

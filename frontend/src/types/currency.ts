@@ -1,3 +1,4 @@
+// Define los tipos de tasas disponibles y resultados de conversión.
 export type CurrencyCode = string;
 
 export interface AvailableExchangeRates {

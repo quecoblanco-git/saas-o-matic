@@ -6,11 +6,11 @@ Este documento registra la evolución real de SaaS-O-Matic durante su desarrollo
 
 Su finalidad es mostrar las tareas realizadas, las propuestas de la inteligencia artificial, las comprobaciones efectuadas y las modificaciones introducidas como resultado de la revisión humana.
 
-El registro se actualizará progresivamente, evitando documentar como completadas funcionalidades o pruebas que todavía no se hayan realizado.
+El registro refleja los hitos comprobables del desarrollo y distingue los resultados históricos de la verificación vigente.
 
-## 2. Metodología de trabajo
+## 2. Metodología aplicada
 
-Cada iteración seguirá, siempre que resulte aplicable, este proceso:
+Las iteraciones se realizaron, cuando correspondía, mediante este proceso:
 
 1. Definir el objetivo y los criterios de aceptación.
 2. Preparar las instrucciones para la IA.
@@ -18,11 +18,11 @@ Cada iteración seguirá, siempre que resulte aplicable, este proceso:
 4. Aplicar los cambios necesarios.
 5. Ejecutar las comprobaciones correspondientes.
 6. Registrar los resultados, errores y decisiones.
-7. Crear un commit cuando exista un avance verificable.
+7. Registrar el commit cuando se creó un avance verificable.
 
-Las interacciones relevantes con IA se recogerán también en `02-ai-prompts.md`.
+Las interacciones relevantes con IA se registran también en `02-ai-prompts.md`.
 
-## 3. Estado inicial del proyecto
+## 3. Estado inicial del proyecto — 12/11/2026
 
 **Fase:** Preparación inicial del entorno
 **Estado en esa fecha:** Preparación técnica completada; desarrollo funcional aún no iniciado.
@@ -68,63 +68,13 @@ No demuestran todavía que las funcionalidades solicitadas estén implementadas 
 
 ---
 
-## 4. Registro de iteraciones funcionales
+## 4. Seguimiento de problemas
 
-Las iteraciones se incorporarán cronológicamente conforme avance el desarrollo.
+Los problemas significativos se documentan dentro de la iteración en la que aparecen.
 
-Para mantener un registro consistente, utilizaremos la siguiente plantilla.
+Cuando un problema afecta a varias iteraciones, se mantiene una referencia a su estado hasta su resolución.
 
-### Iteración XX — Nombre de la tarea
-
-**Fecha:** AAAA-MM-DD  
-**Fase:** Especificación / Arquitectura / Backend / Frontend / Integración / Calidad  
-**Estado:** Pendiente / En curso / Completada / Bloqueada
-
-**Objetivo**
-
-Describir la funcionalidad o el problema que se pretende resolver.
-
-**Criterios de aceptación**
-
-Definir qué condiciones deben cumplirse para considerar satisfactoria la tarea.
-
-**Asistencia de IA**
-
-Indicar qué herramienta se utilizó y enlazar la interacción correspondiente de `02-ai-prompts.md`.
-
-**Implementación**
-
-Resumir los archivos creados o modificados y las principales decisiones aplicadas.
-
-**Revisión humana**
-
-Explicar qué aspectos de la propuesta se revisaron, aceptaron, modificaron o rechazaron.
-
-**Validación**
-
-Registrar los comandos, pruebas y comprobaciones ejecutados, junto con sus resultados.
-
-**Problemas y correcciones**
-
-Describir los errores detectados, sus causas conocidas y las correcciones realizadas. Si no se detectaron problemas, indicarlo expresamente.
-
-**Evidencias**
-
-Añadir referencias a capturas, resultados de pruebas o archivos relevantes, cuando existan.
-
-**Commit relacionado**
-
-Registrar el identificador del commit una vez creado.
-
----
-
-## 5. Seguimiento de problemas
-
-Los problemas significativos se documentarán dentro de la iteración en la que aparezcan.
-
-Cuando un problema afecte a varias iteraciones, se mantendrá una referencia a su estado hasta su resolución.
-
-Se prestará especial atención a:
+La revisión consideró especialmente:
 
 - Errores en los cálculos de facturación.
 - Validaciones fiscales incorrectas.
@@ -134,7 +84,7 @@ Se prestará especial atención a:
 - Problemas de seguridad y validación de entradas.
 - Regresiones detectadas mediante pruebas.
 
-## 6. Criterios para cerrar una iteración
+## 5. Criterios para cerrar una iteración
 
 Una iteración se considerará completada cuando:
 
@@ -145,6 +95,10 @@ Una iteración se considerará completada cuando:
 - El registro refleje el resultado real de la tarea.
 
 La existencia de código generado no será suficiente, por sí sola, para considerar completada una funcionalidad.
+
+## 6. Registro cronológico de iteraciones
+
+Las entradas siguientes resumen los hitos principales en orden cronológico. Los resultados históricos se conservan tal como se registraron; la verificación vigente se detalla en la entrada del 18/11/2026 y en `05-quality-review.md`.
 
 ## 13/11/2026 — Adaptación a las aclaraciones oficiales de Roams
 
@@ -283,6 +237,9 @@ Las pruebas específicas posteriores incorporaron nuevos
 casos que todavía deben verificarse conjuntamente mediante
 una nueva ejecución de toda la batería del frontend.
 
+La verificación completa del 18/11, registrada más adelante,
+actualizó este estado histórico.
+
 ### Commits relacionados
 
 - `e4dd098` — feat: add real-time billing preview and active users slider
@@ -301,6 +258,8 @@ el entorno de desarrollo, las pruebas y la revisión visual
 de la aplicación.
 
 ## 17/11/2026 — Desglose de facturación y monedas dinámicas
+
+**Herramienta de IA:** Codex Desktop.
 
 ### Objetivo
 
@@ -323,9 +282,58 @@ Mejorar el detalle de la vista previa de facturación y permitir seleccionar las
 - El chequeo TypeScript del frontend señaló `TS6133` por el import `act` sin uso en `frontend/src/features/customers/CustomerList.test.tsx:3`. No se modificó ese archivo en esta iteración.
 - No se ejecutaron las baterías completas ni el build de producción del frontend durante esta iteración.
 
+Estas limitaciones corresponden a la revisión del 17/11. El import sin uso se retiró y las baterías completas se ejecutaron el 18/11; véase la entrada de esa fecha.
+
 ### Resultado
 
 Las monedas disponibles se obtienen del backend y el importe original permanece en EUR. Los resultados anteriores son pruebas focalizadas; no representan una nueva ejecución completa del proyecto.
+
+## 18/11/2026 — Verificación completa y preparación de la entrega
+
+**Herramienta de IA:** Codex Desktop.
+
+### Cambios realizados
+
+- Se eliminó el import `act` sin uso de `frontend/src/features/customers/CustomerList.test.tsx`.
+- Se añadieron comandos desde la raíz para preparar dependencias y base de datos (`npm run setup`), iniciar ambos servidores (`npm run dev`) y ejecutar la verificación completa (`npm run verify`).
+- Se añadió `backend/.env.example`; la preparación conserva cualquier archivo `backend/.env` existente.
+- Se revisaron las instrucciones de instalación, arquitectura, calidad y uso de IA. Se incorporaron los dos prompts originales con la ruta local anonimizada.
+
+### Verificación
+
+- `npm run verify`: backend 450/450 pruebas y frontend 30/30; chequeos de tipos y builds superados.
+- El lint del frontend finalizó correctamente con dos avisos `react(set-state-in-effect)` en `SimulationHistory.tsx` y `SimulationForm.tsx`.
+- Prueba de arranque de `npm run dev`: `/health` respondió `ok` y el frontend devolvió HTTP 200.
+- `git diff --check` no detectó errores.
+- No se ejecutó `npm run setup` sobre un clon limpio; este comando instala dependencias con `npm ci`.
+
+Los resultados completos se detallan en `05-quality-review.md`.
+
+## 18/11/2026 — Rediseño progresivo de la interfaz principal
+
+**Herramienta de IA:** Codex Desktop, siguiendo el prompt de rediseño facilitado para el proyecto.
+
+### Objetivo
+
+Mejorar la claridad visual y la consistencia del dashboard, conservando las funcionalidades, las reglas de negocio y la arquitectura existentes.
+
+### Cambios realizados
+
+- Se unificaron la identidad visual, la cabecera, los paneles y los estilos globales.
+- Se mejoraron el formulario, el buscador y las tarjetas verticales de clientes.
+- Se reorganizaron los controles del simulador y se destacaron el total mensual, el desglose y la diferencia entre vista previa y simulación guardada.
+- Se rediseñaron las tarjetas del historial y el desplegable «Ver detalles», y se integró visualmente el selector de divisas.
+- No se modificaron endpoints, reglas de negocio, persistencia ni dependencias.
+
+### Verificación y límites
+
+- `npm run verify`: backend 450/450 pruebas y frontend 30/30; TypeScript y builds superados.
+- El lint terminó correctamente con dos avisos `react(set-state-in-effect)` en `SimulationHistory.tsx` y `SimulationForm.tsx`.
+- `git diff --check`: correcto.
+- Se revisaron estáticamente la estructura semántica, las etiquetas y los puntos de adaptación responsive. No se completó una inspección visual en varios tamaños ni una prueba manual integral.
+- `npm run dev` mostró el inicio de los servidores, pero el navegador integrado no logró cargar `localhost:5174` (`ERR_CONNECTION_TIMED_OUT`). No se tomó ni se presenta una captura nueva como evidencia visual.
+
+El resumen y los resultados vigentes constan en `05-quality-review.md`.
 
 ---
 

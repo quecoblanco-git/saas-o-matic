@@ -1,3 +1,4 @@
+// Normaliza y valida identificadores fiscales de los países admitidos.
 const DNI_LETTERS = "TRWAGMYFPDXBNJZSQVHLCKE";
 
 export function validateSpanishDni(dni: string): boolean {

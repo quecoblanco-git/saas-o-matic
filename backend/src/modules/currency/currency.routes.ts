@@ -1,3 +1,4 @@
+// Define los endpoints para consultar tasas y convertir importes.
 import { Router } from "express";
 
 import { currencyConversionSchema } from "./currency.schema.js";

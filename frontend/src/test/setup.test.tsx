@@ -1,3 +1,4 @@
+// Comprueba que la configuración común de pruebas renderiza componentes.
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 

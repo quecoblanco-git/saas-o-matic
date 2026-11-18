@@ -962,10 +962,10 @@ Las decisiones que concretan aspectos no especificados por el enunciado se docum
 | CP-005 | Resuelta: SIREN para Francia y USt-IdNr. para Alemania                                                                       | Validación básica de formato y longitud, definida en RF-002 |
 | CP-006 | Resuelta: decimal.js, ROUND_HALF_UP y dos decimales                                                                          | Política de cálculo monetario definida en RT-007            |
 | CP-007 | Resuelta: caché de divisas de 1 hora, uso de tasas anteriores ante fallos y mantenimiento de EUR si no hay tasas disponibles | Política de contingencia definida en DT-015 y RF-009        |
-| CP-008 | Resuelta: historial por cliente, orden descendente y 10 registros iniciales con opción «Mostrar más»                         | Presentación del historial definida en RF-010               |
+| CP-008 | Resuelta: historial por cliente, orden descendente y 10 registros iniciales con opción «Mostrar más»                         | Historial en RF-005 y acceso desde el dashboard en RF-010    |
 | CP-009 | Resuelta: slider de 0 a 500 usuarios, incremento de 1, valor inicial de 10 y campo numérico para cantidades superiores       | Vista previa inmediata sin guardado automático              |
 
-Todas las cuestiones de especificación identificadas inicialmente han sido resueltas mediante decisiones explícitas y documentadas. Si durante el desarrollo surgen nuevas cuestiones, se incorporarán a este registro antes de implementar las funcionalidades afectadas.
+Todas las cuestiones de especificación identificadas durante el desarrollo quedaron resueltas mediante decisiones explícitas y documentadas. El registro refleja las aclaraciones disponibles para esta entrega.
 
 ## 6. Trazabilidad y pruebas
 

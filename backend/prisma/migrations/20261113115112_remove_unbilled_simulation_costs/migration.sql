@@ -1,3 +1,4 @@
+-- Elimina de Simulation los costes que dejaron de facturarse.
 /*
   Advertencias:
 

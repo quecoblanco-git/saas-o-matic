@@ -12,19 +12,13 @@ Este documento reúne la estrategia de calidad y los resultados comprobados. Dis
 - **Comprobaciones estáticas:** TypeScript, lint y builds de producción.
 - Las pruebas de servicios externos usan respuestas simuladas y no dependen de la disponibilidad de Internet.
 
-Comandos documentados:
+Verificación completa desde la raíz:
 
 ```bash
-# Desde backend/
-npm test
-npm run typecheck
-npm run build
-
-# Desde frontend/
-npx vitest run
-npm run lint
-npm run build
+npm run verify
 ```
+
+Para comprobaciones individuales, usar los scripts de cada paquete (`backend/` y `frontend/`).
 
 ## Verificación completa — 18/11/2026
 
@@ -39,21 +33,26 @@ npm run build
 
 Se eliminó el import `act` sin uso de `frontend/src/features/customers/CustomerList.test.tsx`. La verificación del frontend ya no presenta el error `TS6133`.
 
-## Pendiente de verificación
+## Alcance no cubierto por esta verificación
 
-- Instalación limpia a partir de los archivos de bloqueo.
-- Prueba manual de los flujos principales y revisión responsive actualizada.
-- Evaluar y resolver los dos avisos de lint antes de establecer una política de lint sin avisos.
+- `npm run setup` no se ejecutó desde un clon limpio; se verificó la sintaxis del script y el comando `npm run dev`, pero no se reinstalaron las dependencias con `npm ci`.
+- No se realizó una prueba manual completa de todos los flujos de usuario. En el intento posterior al rediseño, los servidores de desarrollo indicaron que habían iniciado, pero el navegador integrado no consiguió cargar `localhost:5174` y devolvió `ERR_CONNECTION_TIMED_OUT`.
+- El 18/11/2026 se revisaron estáticamente las clases responsive, las etiquetas, los estados de foco y la semántica de los controles modificados. La revisión visual en varios tamaños no pudo completarse; la última comprobación responsive visual registrada es del 16/11/2026.
+- El lint terminó con código satisfactorio, aunque conserva los dos avisos indicados en la tabla de resultados.
 
-Las comprobaciones de esta sección se ejecutaron el 18/11/2026. Las capturas históricas de `docs/evidence/` no representan esta ejecución.
+Las capturas de `docs/evidence/` son históricas y no representan la ejecución del 18/11/2026.
 
-## Criterios de aceptación de calidad
+## Criterios de calidad cubiertos
 
-Antes de la entrega final se comprobará que:
+La ejecución de `npm run verify` del 18/11/2026, realizada después del rediseño, comprobó las suites completas de backend y frontend, el tipado, el lint y los builds. Las pruebas existentes cubren reglas de facturación, validación fiscal, rutas principales, persistencia, conversiones de divisas y componentes de interfaz. La revisión estática de responsive y accesibilidad no sustituye a una inspección visual en navegador. La prueba manual integral y la instalación desde un clon limpio siguen pendientes.
 
-1. Las reglas de facturación y sus límites tienen pruebas automatizadas.
-2. Los identificadores fiscales y las entradas inválidas se validan.
-3. Los endpoints principales y la persistencia funcionan conjuntamente.
-4. La interfaz completa los flujos principales y gestiona errores previsibles.
-5. Las pruebas de divisas no dependen del servicio externo.
-6. Los builds, pruebas y documentación reflejan los resultados realmente obtenidos.
+## Comprobaciones manuales pendientes
+
+Al realizar la revisión en un navegador, preferiblemente con una base de datos local desechable, comprobar:
+
+- Dashboard a 320–375 px, 768 px y 1280 px o más: sin desbordamiento horizontal; tarjetas de clientes siempre en columna.
+- Registro de cliente con datos de prueba, validación visible y búsqueda por empresa e identificador fiscal.
+- Sincronización del campo y deslizador de usuarios; cambios de vista previa sin persistencia y guardado solo al confirmar.
+- Acceso al historial desde una tarjeta, desplegable «Ver detalles» y botón «Mostrar más».
+- Conversión entre EUR, USD y GBP, importe original, tasa y fecha; estados de carga, error y tasa desactualizada.
+- Navegación por teclado, foco visible y apertura del desplegable con teclado.

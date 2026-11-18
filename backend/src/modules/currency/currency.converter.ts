@@ -1,3 +1,4 @@
+// Convierte importes desde EUR aplicando precisión decimal y redondeo.
 import { Decimal } from "decimal.js";
 
 import type { CurrencyCode, ExchangeRates } from "./currency.types.js";

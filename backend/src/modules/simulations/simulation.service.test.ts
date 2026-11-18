@@ -1,3 +1,4 @@
+// Verifica cálculos de vista previa, persistencia y consulta paginada.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createSimulation,

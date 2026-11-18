@@ -1,3 +1,4 @@
+// Comprueba filtros y ordenación de la búsqueda de clientes.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { listCustomers } from "./customer.service.js";
 

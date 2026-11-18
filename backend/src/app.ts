@@ -1,3 +1,4 @@
+// Configura Express, registra las rutas y expone la comprobación de salud.
 import express from "express";
 import { customerRouter } from "./modules/customers/customer.routes.js";
 import { errorHandler } from "./middleware/error-handler.js";

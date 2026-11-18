@@ -23,72 +23,37 @@ Aplicación full-stack para gestionar clientes empresariales y simular su factur
 
 ## Requisitos
 
-Node.js, npm y Git. El backend y el frontend se ejecutan en terminales separadas.
+Node.js, npm y Git. La primera preparación necesita acceso al registro de paquetes de npm.
 
 ## Instalación y ejecución local
 
-1. Clona el repositorio y accede a su carpeta:
+Clona el repositorio y entra en la carpeta del proyecto:
 
-   ```bash
-   git clone https://github.com/quecoblanco-git/saas-o-matic.git
-   cd saas-o-matic
-   ```
+```bash
+git clone https://github.com/quecoblanco-git/saas-o-matic.git
+cd saas-o-matic
+```
 
-2. Instala y prepara el backend:
+Prepara dependencias y base de datos, y después inicia el backend y el frontend:
 
-   ```bash
-   cd backend
-   npm install
-   ```
+```bash
+npm run setup
+npm run dev
+```
 
-   Crea `backend/.env` con la URL de SQLite:
+El comando de preparación instala las dependencias según los archivos de bloqueo, crea `backend/.env` a partir de `backend/.env.example` si aún no existe y prepara Prisma y SQLite. No reemplaza un `.env` existente. El comando de desarrollo inicia ambos servidores en una terminal; pulsa `Ctrl+C` para detenerlos.
 
-   ```env
-   DATABASE_URL="file:./dev.db"
-   ```
-
-   Aplica las migraciones y genera el cliente de Prisma:
-
-   ```bash
-   npx prisma migrate deploy --config prisma7.config.ts
-   npx prisma generate --config prisma7.config.ts
-   ```
-
-   Inicia la API:
-
-   ```bash
-   npm run dev
-   ```
-
-   La API escucha en `http://localhost:3001`.
-
-3. En otra terminal, instala e inicia el frontend:
-
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-   Abre `http://localhost:5173`. Vite reenvía las solicitudes `/api` a la API local.
+Abre `http://localhost:5173`. La API está disponible en `http://localhost:3001` y su comprobación de salud en `http://localhost:3001/health`. Vite reenvía las solicitudes `/api` a la API local.
 
 ## Comprobaciones
 
-Desde `backend/`:
+Ejecuta la verificación completa desde la raíz:
 
 ```bash
-npm test
-npm run typecheck
-npm run build
+npm run verify
 ```
 
-Desde `frontend/`:
-
-```bash
-npx vitest run
-npm run lint
-npm run build
-```
+Este comando ejecuta las pruebas, el chequeo de tipos, el lint y los builds de backend y frontend. Para ejecutar una comprobación individual, consulta los scripts de `backend/package.json` y `frontend/package.json`.
 
 ## Documentación
 
@@ -96,4 +61,4 @@ npm run build
 - [Arquitectura y modelo de datos](docs/architecture.md)
 - [Planificación y decisiones del desarrollo asistido por IA](ai-workspace/README.md)
 
-El repositorio está preparado para desarrollo local. No incluye configuración de despliegue en producción.
+El repositorio está preparado para desarrollo y evaluación local. No incluye configuración de despliegue en producción.

@@ -1,3 +1,4 @@
+// Expone las llamadas HTTP para consultar tasas y convertir importes.
 import { apiRequest } from "./client";
 
 import type {

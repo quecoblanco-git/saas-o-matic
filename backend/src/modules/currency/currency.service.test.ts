@@ -1,3 +1,4 @@
+// Verifica consulta, caché y recuperación ante fallos del proveedor de tasas.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {

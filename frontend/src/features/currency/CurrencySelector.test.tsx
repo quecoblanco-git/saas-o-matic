@@ -1,3 +1,4 @@
+// Verifica selección de monedas, conversiones y estados de error o carga.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   act,
