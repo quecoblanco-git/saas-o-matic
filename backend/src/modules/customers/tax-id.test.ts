@@ -62,6 +62,28 @@ describe("Spanish tax ID validation", () => {
     });
 
     it.each([
+      "A12345674",
+      "B12345674",
+      "C12345674",
+      "D12345674",
+      "E12345674",
+      "F12345674",
+      "G12345674",
+      "H12345674",
+      "J12345674",
+      "N12345674",
+      "P1234567D",
+      "Q1234567D",
+      "R12345674",
+      "S1234567D",
+      "U12345674",
+      "V12345674",
+      "W1234567D",
+    ])("accepts a valid entity NIF for supported prefix: %s", (nif) => {
+      expect(validateSpanishEntityNif(nif)).toBe(true);
+    });
+
+    it.each([
       "A1234567D",
       "P12345674",
       "B12345675",

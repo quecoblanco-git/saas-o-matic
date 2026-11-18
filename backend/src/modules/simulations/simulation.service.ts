@@ -1,16 +1,12 @@
 import { prisma } from "../../lib/prisma.js";
 import {
   calculateMonthlyBill,
+  calculateUserTierBreakdown,
   calculateUsersCost,
   eurosToCents,
+  getTaxRate,
 } from "../billing/billing.js";
 import type { CreateSimulationInput } from "./simulation.schema.js";
-
-const TAX_RATES: Record<string, string> = {
-  ES: "0.21",
-  FR: "0.20",
-  DE: "0.19",
-};
 
 export class CustomerNotFoundError extends Error {
   constructor() {
@@ -38,11 +34,7 @@ export async function previewSimulation(input: CreateSimulationInput) {
     country: customer.country,
   });
 
-  const taxRate = TAX_RATES[customer.country];
-
-  if (taxRate === undefined) {
-    throw new RangeError("Invalid customer country");
-  }
+  const taxRate = getTaxRate(customer.country);
 
   const usersCost = calculateUsersCost(input.activeUsers);
 
@@ -54,6 +46,7 @@ export async function previewSimulation(input: CreateSimulationInput) {
     plan: customer.plan,
     country: customer.country,
     taxRate,
+    tierBreakdown: calculateUserTierBreakdown(input.activeUsers),
     usersCostCents: eurosToCents(usersCost.toFixed(2)),
     subtotalCents: eurosToCents(bill.subtotal.toFixed(2)),
     taxCents: eurosToCents(bill.tax.toFixed(2)),
@@ -62,6 +55,7 @@ export async function previewSimulation(input: CreateSimulationInput) {
 }
 
 export async function createSimulation(input: CreateSimulationInput) {
+  // Reutilizar la vista previa mantiene las mismas reglas y validaciones al guardar.
   const preview = await previewSimulation(input);
 
   return prisma.simulation.create({
@@ -86,6 +80,7 @@ export async function listSimulations(customerId: string, skip = 0, take = 10) {
     where: {
       customerId,
     },
+    // El id desempata fechas iguales y mantiene estable la paginación.
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     skip,
     take,

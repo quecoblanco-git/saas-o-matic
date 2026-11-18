@@ -2,15 +2,11 @@
 
 ## 1. Objetivo
 
-Esta carpeta documenta el proceso de ingeniería y desarrollo asistido por inteligencia artificial seguido durante la realización del reto técnico **SaaS-O-Matic (Dynamic Billing & Subscription Optimizer)**.
-
-El objetivo no es únicamente mostrar el resultado final de la aplicación, sino también proporcionar evidencias de la planificación, el diseño de la arquitectura, las decisiones técnicas, las iteraciones de desarrollo y las actividades de control de calidad realizadas durante el proyecto.
-
-Se seguirá una metodología basada en **Spec-Driven Development**, definiendo los requisitos y comportamientos esperados antes de implementar las funcionalidades. La inteligencia artificial se utilizará como herramienta de apoyo, manteniendo la supervisión y el criterio técnico del desarrollador.
+Esta carpeta reúne la planificación, las decisiones técnicas, el registro de iteraciones y las verificaciones del proyecto **SaaS-O-Matic**. La IA se utilizó como apoyo; las decisiones y la aceptación de resultados permanecieron bajo supervisión humana.
 
 ## 2. Metodología de desarrollo
 
-El trabajo se organizará en cinco fases:
+El proceso se organizó en cinco fases:
 
 1. **Análisis de requisitos:** identificar las funcionalidades obligatorias, las reglas de negocio, las restricciones y las posibles ambigüedades del enunciado.
 2. **Planificación y arquitectura:** definir la estructura de la aplicación, el diseño de la base de datos, los contratos de la API y las etapas de implementación.
@@ -18,7 +14,7 @@ El trabajo se organizará en cinco fases:
 4. **Revisión e iteración:** analizar el código generado, detectar posibles problemas y realizar las correcciones necesarias.
 5. **Validación y entrega:** comprobar el funcionamiento mediante pruebas y documentar los pasos necesarios para ejecutar la aplicación.
 
-Estas fases representan la metodología prevista. Las actividades y sus resultados se documentarán conforme se vayan realizando.
+Los documentos enlazados registran el plan inicial y los resultados observados durante el desarrollo. Las secciones que describen el estado inicial son históricas.
 
 ## 3. Índice de documentación
 
@@ -32,6 +28,8 @@ Los siguientes documentos recogerán el proceso de desarrollo:
 | [04-development-log.md](04-development-log.md)         | Registro cronológico de iteraciones, problemas y validaciones. |
 | [05-quality-review.md](05-quality-review.md)           | Revisión del código, pruebas y controles de calidad.           |
 | [ai-development-log.md](ai-development-log.md)         | Casos prácticos del uso de IA durante el desarrollo.           |
+| [Requisitos](../docs/requirements.md)                   | Especificación funcional y técnica vigente.                   |
+| [Arquitectura](../docs/architecture.md)                 | Componentes, datos y comunicación entre frontend y backend.   |
 
 El registro `04-development-log.md` conserva la evolución
 cronológica del proyecto y los resultados de cada fase.
@@ -71,7 +69,7 @@ Durante esta fase se han realizado las siguientes tareas:
 - Compilación satisfactoria del frontend inicial.
 - Validación correcta del esquema inicial de Prisma.
 
-En este punto todavía no se han implementado las funcionalidades de la aplicación, los modelos de datos ni las reglas de negocio.
+En esa fase inicial todavía no se habían implementado las funcionalidades, los modelos de datos ni las reglas de negocio. El desarrollo posterior se registra en `04-development-log.md`.
 
 ## 5. Evidencias de la preparación inicial
 
@@ -102,4 +100,4 @@ La responsabilidad sobre la arquitectura, la corrección del código, la segurid
 
 ---
 
-_Este documento se actualizará progresivamente a medida que avance el desarrollo del proyecto._
+_El índice y el resumen del estado se actualizarán cuando cambien los documentos vinculados._

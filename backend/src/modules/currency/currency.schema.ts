@@ -3,7 +3,7 @@ import { z } from "zod";
 export const currencyConversionSchema = z
   .object({
     amountCents: z.number().int().nonnegative().safe(),
-    currency: z.enum(["EUR", "USD", "GBP"]),
+    currency: z.string().regex(/^[A-Z]{3}$/, "Invalid currency code"),
   })
   .strict();
 

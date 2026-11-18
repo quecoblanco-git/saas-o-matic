@@ -1,8 +1,8 @@
 # Especificación de requisitos — SaaS-O-Matic
 
 **Proyecto:** Dynamic Billing & Subscription Optimizer
-**Versión:** 0.1
-**Estado:** Borrador inicial, pendiente de resolver decisiones de negocio
+**Versión:** 1.0
+**Estado:** Especificación consolidada. La implementación y las comprobaciones vigentes se registran en `ai-workspace/05-quality-review.md`.
 
 ## 1. Objetivo
 
@@ -118,7 +118,6 @@ Para Alemania se admitirá únicamente USt-IdNr., sin incluir otros identificado
 
 Esta selección constituye una simplificación funcional del simulador y no pretende representar todos los identificadores legalmente válidos en ambos países.
 
-**Estado:** Reglas generales de validación definidas para España, Francia y Alemania. Pendiente de revisar los casos especiales del NIF español y preparar las pruebas automatizadas antes de implementar el validador.
 
 **Referencias técnicas**
 
@@ -159,7 +158,6 @@ El dashboard permitirá buscar clientes registrados por nombre de empresa o iden
 - El usuario puede reintentar una búsqueda fallida.
 - Se incluyen pruebas automatizadas para búsquedas parciales, búsquedas sin distinción de mayúsculas y minúsculas y búsquedas sin coincidencias.
 
-**Estado:** Comportamiento funcional definido. Pendiente de implementación y pruebas.
 
 ### 2.2. Simulaciones
 
@@ -189,7 +187,6 @@ Cada solicitud incluirá:
 - Si el cliente no existe o los datos son inválidos, la API devuelve un error HTTP controlado y no almacena ninguna simulación.
 - Se incluyen pruebas automatizadas para la creación correcta, los valores límite, las entradas inválidas y los clientes inexistentes.
 
-**Estado:** Reglas de creación, validación y límites técnicos de entrada definidos. Pendiente de implementación y pruebas.
 
 **RF-005 — Historial de simulaciones**
 
@@ -206,7 +203,7 @@ El dashboard permitirá consultar el historial de simulaciones almacenadas de ca
 - No se mostrarán registros duplicados al cargar nuevas páginas del historial.
 - Las simulaciones históricas conservarán los valores originales de entrada, los importes calculados y las instantáneas del plan, país y porcentaje de impuestos.
 - La consulta del historial no modificará los registros almacenados.
-- Los importes originales se conservarán en EUR. Su visualización en USD o GBP seguirá las reglas de RF-009 sin modificar los datos persistidos.
+- Los importes originales se conservarán en EUR. Su visualización en otras divisas seguirá RF-009 y no modificará los datos persistidos.
 - La interfaz mostrará estados de carga, historial vacío y error de consulta.
 
 **Criterios de aceptación**
@@ -229,7 +226,6 @@ El dashboard permitirá consultar el historial de simulaciones almacenadas de ca
 - `RF-009`: conversión de divisas para visualización.
 - `CP-008`: comportamiento del historial y carga incremental.
 
-**Estado:** Comportamiento del historial definido. Pendiente de implementación y pruebas.
 
 ### 2.3. Motor de facturación
 
@@ -287,92 +283,25 @@ Para un número entero no negativo de usuarios `n`:
 - El valor 0 es válido y produce un coste por usuarios de 0 €.
 - El límite máximo técnico admitido por la API se establecerá antes de implementar la validación correspondiente.
 
+
 ### RF-007 — Planes de suscripción y datos de consumo sin coste adicional
 
 El precio base mensual de una suscripción se calculará exclusivamente a partir del número de usuarios activos, aplicando los tramos acumulativos definidos en los requisitos de facturación.
 
 El plan seleccionado, el almacenamiento y las llamadas a la API serán datos informativos y no modificarán el precio.
 
-**Planes disponibles**
-
-| Plan         | Cuota mensual |
-| ------------ | ------------: |
-| Starter      |           0 € |
-| Professional |           0 € |
-| Enterprise   |           0 € |
-
-Los tres planes son opciones disponibles para clasificar a los clientes. La elección de uno u otro no afecta al cálculo económico.
-
-**Almacenamiento y llamadas a la API**
-
-| Concepto          | Coste mensual |
-| ----------------- | ------------: |
-| Almacenamiento    |           0 € |
-| Llamadas a la API |           0 € |
-
-El sistema deberá registrar y mostrar los GB de almacenamiento y el número estimado de llamadas a la API en cada simulación, aunque no generen costes adicionales.
-
-**Reglas de facturación**
-
-- El coste base mensual depende exclusivamente de los tramos acumulativos de usuarios activos.
-- El plan seleccionado no añade ninguna cuota.
-- El almacenamiento no genera costes adicionales.
-- Las llamadas a la API no generan costes adicionales.
-- Los impuestos por país se aplican posteriormente al coste base, conforme a las decisiones documentadas del proyecto.
-
-**Origen y justificación**
-
-Estas reglas reflejan las aclaraciones oficiales recibidas de Roams el 13/11/2026.
-
-Se mantienen los nombres Starter, Professional y Enterprise como decisión propia del proyecto, dado que Roams permite definir libremente los planes disponibles.
-
-Esta versión sustituye las tarifas adicionales inicialmente propuestas.
-
-**Referencias:** DT-020 y AR-001 a AR-005.
-
-**Fórmula de cálculo**
-
-El subtotal mensual antes de impuestos será:
-
-`subtotal = costeUsuarios + cuotaPlan + (almacenamientoGB × 0,10) + (llamadasAPI / 1000)`
-
-El coste por usuarios seguirá los tramos acumulativos establecidos en RF-006.
-
-**Ejemplo de cálculo actualizado (13/11/2026)**
-
-Para un cliente con plan Professional, 15 usuarios activos, 100 GB de almacenamiento y 5.000 llamadas a la API:
-
-| Concepto                         |      Importe |
-| -------------------------------- | -----------: |
-| Primeros 10 usuarios (10 × 10 €) |     100,00 € |
-| Siguientes 5 usuarios (5 × 8 €)  |      40,00 € |
-| Plan Professional                |       0,00 € |
-| Almacenamiento (100 GB)          |       0,00 € |
-| Llamadas API (5.000)             |       0,00 € |
-| **Subtotal sin impuestos**       | **140,00 €** |
-| Impuestos España (21 %)          |      29,40 € |
-| **Total mensual**                | **169,40 €** |
-
-El coste base mensual se calcula exclusivamente mediante los tramos acumulativos de usuarios activos.
-
-El plan seleccionado, el almacenamiento y las llamadas a la API se registran como información de la simulación, pero no modifican el precio.
-
-El porcentaje de impuestos aplicado corresponde a la decisión de diseño documentada para España.
-
-**Referencia:** aclaraciones oficiales de Roams del 13/11/2026 y decisión DT-020.
+Los planes disponibles son Starter, Professional y Enterprise. El almacenamiento y las llamadas estimadas a la API deben conservarse y mostrarse en cada simulación, pero los tres conceptos son informativos y no añaden costes. Estas reglas incorporan las aclaraciones oficiales de Roams del 13/11/2026 (`DT-020`).
 
 **Criterios de aceptación**
 
-- El cliente debe tener asignado uno de los tres planes disponibles.
-- La cuota fija del plan se incluye una sola vez en cada simulación mensual.
-- El cálculo por usuarios es idéntico para todos los planes.
-- El almacenamiento se factura proporcionalmente a los GB contratados.
-- Las llamadas API se facturan proporcionalmente, sin redondear a bloques completos.
-- El cálculo permite identificar por separado los cuatro componentes del subtotal.
+- El cliente debe tener asignado uno de los tres planes disponibles: Starter, Professional o Enterprise.
+- El plan, el almacenamiento y las llamadas a la API no alteran el coste de usuarios.
+- El almacenamiento y las llamadas a la API se conservan en cada simulación.
+- El subtotal coincide con el coste calculado según RF-006; los impuestos se aplican conforme a RF-008.
 - Los importes se calculan inicialmente en euros.
-- Los cálculos monetarios seguirán la política de precisión y redondeo establecida en RT-007.
+- Los cálculos monetarios siguen la política de precisión y redondeo establecida en RT-007.
+- Se incluyen pruebas automatizadas que verifican que el plan, el almacenamiento y las llamadas a la API no modifican el precio.
 
-**Estado:** Especificación completada. Tarifas y fórmula definidas; política de precisión monetaria establecida en RT-007 e impuestos definidos en RF-008 y DT-011. Pendiente de implementación y pruebas.
 
 **RF-008 — Impuestos por país**
 
@@ -390,12 +319,7 @@ Estas tasas representan una simplificación de diseño para SaaS-O-Matic. No con
 
 **Reglas de cálculo**
 
-La base imponible será el subtotal mensual formado por:
-
-- Coste acumulativo de usuarios.
-- Cuota fija del plan.
-- Coste de almacenamiento.
-- Coste de llamadas API.
+La base imponible será el coste de usuarios calculado según RF-006 y RF-007. Los planes, el almacenamiento y las llamadas a la API no añaden costes.
 
 El impuesto se calculará aplicando la tasa correspondiente al país del cliente.
 
@@ -440,13 +364,12 @@ La configuración fiscal es estática y está destinada exclusivamente a la simu
 
 No se contemplan reglas especiales por tipo de cliente, operaciones intracomunitarias, exenciones fiscales ni cambios históricos de tasas.
 
-**Estado:** Especificación completada. Países, tasas y reglas de cálculo definidos conforme a DT-011 y RT-007. Pendiente de implementación y pruebas.
 
 ### 2.4. Conversión de divisas
 
 **RF-009 — Conversión de divisas**
 
-El sistema permitirá visualizar los importes de las simulaciones en euros (EUR), dólares estadounidenses (USD) y libras esterlinas (GBP), utilizando tipos de cambio obtenidos de una API pública.
+El sistema conservará EUR como moneda de cálculo y permitirá convertir los importes a las divisas válidas disponibles que comunique el backend. USD y GBP deben estar disponibles cuando la fuente de tasas las proporcione.
 
 **Moneda base**
 
@@ -461,7 +384,7 @@ El backend consultará la siguiente API pública:
 
 `https://open.er-api.com/v6/latest/EUR`
 
-Se utilizarán los tipos de cambio correspondientes a USD y GBP.
+El backend expondrá las tasas válidas mediante `GET /currency/rates`, junto con la moneda base y la fecha de actualización.
 
 El backend validará que la respuesta del servicio sea correcta y que contenga tasas numéricas, positivas y utilizables.
 
@@ -472,7 +395,7 @@ El backend validará que la respuesta del servicio sea correcta y que contenga t
 - Mientras la caché sea válida, no será necesario consultar nuevamente el servicio externo.
 - Una vez transcurrida una hora, el backend intentará obtener tasas actualizadas.
 - Si la actualización falla y existen tasas anteriores, se utilizarán como respaldo y la interfaz indicará expresamente que están desactualizadas.
-- Si no existen tasas disponibles, la conversión a USD y GBP no se realizará.
+- Si no existen tasas disponibles, se conservará el importe en EUR y se informará del problema.
 
 **Precisión monetaria**
 
@@ -483,7 +406,7 @@ El backend validará que la respuesta del servicio sea correcta y que contenga t
 
 **Comportamiento del frontend**
 
-- El usuario podrá seleccionar EUR, USD o GBP.
+- El usuario podrá seleccionar EUR y las divisas disponibles comunicadas por el backend.
 - La interfaz mostrará un estado de carga mientras se obtienen los tipos de cambio.
 - Se mostrará la fecha de actualización de las tasas cuando esté disponible.
 - Si se utilizan tasas desactualizadas, la interfaz lo indicará claramente.
@@ -498,7 +421,7 @@ La caché en memoria se perderá cuando se reinicie el backend. No se implementa
 
 **Criterios de aceptación**
 
-- El sistema permite seleccionar EUR, USD y GBP.
+- El sistema permite seleccionar EUR y las divisas válidas devueltas por el backend, incluidas USD y GBP cuando estén disponibles.
 - El importe en EUR coincide con el resultado original de la simulación.
 - Las conversiones utilizan tasas obtenidas de la API pública.
 - Los resultados convertidos respetan la política de precisión monetaria.
@@ -534,7 +457,7 @@ Cada tarjeta permitirá acceder al historial de simulaciones del cliente corresp
 - El listado de clientes se obtendrá mediante la API del backend.
 - La búsqueda y el filtrado de clientes seguirán las reglas establecidas en RF-003.
 - Cada cliente tendrá acceso a su propio historial de simulaciones, conforme a RF-005.
-- Los importes de las simulaciones podrán visualizarse en EUR, USD o GBP siguiendo RF-009.
+- Los importes de las simulaciones podrán visualizarse en EUR y en las divisas disponibles siguiendo RF-009.
 - Se mostrará un estado de carga mientras se recuperan los clientes.
 - Si todavía no existen clientes registrados, se mostrará un mensaje informativo.
 - Si se produce un error al recuperar los clientes, se mostrará un aviso y una opción para reintentar la consulta.
@@ -558,7 +481,6 @@ Cada tarjeta permitirá acceder al historial de simulaciones del cliente corresp
 - `RF-005`: historial de simulaciones.
 - `RF-009`: conversión de divisas.
 
-**Estado:** Comportamiento general del dashboard definido. Pendiente de implementación y pruebas.
 
 **RF-011 — Simulación interactiva**
 
@@ -606,7 +528,6 @@ El usuario podrá modificar el número de usuarios mediante un control deslizant
 - `RT-007`: precisión monetaria.
 - `CP-009`: comportamiento del selector de usuarios.
 
-**Estado:** Comportamiento interactivo y límites técnicos de entrada definidos. Pendiente de implementación y pruebas.
 
 **RF-012 — Diseño responsive**
 
@@ -643,7 +564,6 @@ La interfaz se adaptará a pantallas de escritorio, tabletas y dispositivos móv
 - `RF-010`: visualización de clientes.
 - `RF-011`: simulación interactiva.
 
-**Estado:** Requisitos generales de adaptación responsive definidos. Pendiente de implementación y comprobación visual.
 
 ---
 
@@ -808,7 +728,7 @@ Esto evita contradicciones con la política de redondeo establecida en `RT-007`.
 
 SaaS-O-Matic utilizará una arquitectura cliente-servidor con frontend React y backend Express, ambos desarrollados en TypeScript.
 
-La aplicación se organizará por funcionalidades y mantendrá separadas las responsabilidades de presentación, validación, lógica de negocio y persistencia.
+La aplicación se organiza por funcionalidades y mantiene separadas las responsabilidades de presentación, validación, lógica de negocio y persistencia.
 
 **Arquitectura general**
 
@@ -819,39 +739,25 @@ La aplicación se organizará por funcionalidades y mantendrá separadas las res
 - **Validación:** Zod en el backend.
 - **Cálculos monetarios:** `decimal.js`.
 
-**Organización del frontend**
-
-El frontend se organizará mediante las siguientes carpetas:
+**Estructura actual del frontend**
 
 ```text
 frontend/src/
-├── components/
+├── api/
 ├── features/
 │   ├── customers/
 │   ├── simulations/
 │   └── currency/
-├── pages/
-├── services/
-├── hooks/
 ├── types/
-└── utils/
+├── App.tsx
+└── main.tsx
 ```
 
-Responsabilidades:
+Las llamadas HTTP están en `api/`; la interfaz se organiza por funcionalidad en `features/`.
 
-- `components`: componentes visuales reutilizables.
-- `features/customers`: búsqueda, listado y tarjetas de clientes.
-- `features/simulations`: formularios, simulaciones e historial.
-- `features/currency`: selección y visualización de divisas.
-- `pages`: páginas principales de la aplicación.
-- `services`: comunicación HTTP con el backend.
-- `hooks`: lógica reutilizable de React.
-- `types`: definiciones compartidas de tipos del frontend.
-- `utils`: funciones auxiliares generales.
+**Estructura actual del backend**
 
-**Organización del backend**
-
-El backend se organizará mediante las siguientes carpetas:
+El backend se organiza mediante las siguientes carpetas:
 
 ```text
 backend/src/
@@ -860,20 +766,18 @@ backend/src/
 │   ├── simulations/
 │   ├── billing/
 │   └── currency/
-├── config/
 ├── lib/
 ├── middleware/
 ├── app.ts
 └── server.ts
 ```
 
-Responsabilidades:
+Los módulos agrupan las rutas, validaciones, servicios y pruebas relacionadas:
 
 - `modules/customers`: registro, consulta y validación de clientes.
 - `modules/simulations`: creación y consulta de simulaciones.
-- `modules/billing`: cálculo de tarifas, consumo, impuestos y totales.
+- `modules/billing`: cálculo de tarifas por usuarios, impuestos y totales.
 - `modules/currency`: obtención, almacenamiento temporal y conversión de tipos de cambio.
-- `config`: configuración centralizada de planes, tarifas e impuestos.
 - `lib`: inicialización y acceso a herramientas compartidas, incluido Prisma.
 - `middleware`: gestión centralizada de errores y funcionalidades transversales.
 - `app.ts`: configuración de Express y registro de rutas.
@@ -893,14 +797,12 @@ Los módulos utilizarán, cuando corresponda, las siguientes capas:
 
 **Motor de facturación independiente**
 
-El módulo `billing` implementará las reglas de facturación mediante funciones independientes de Express y Prisma.
+El módulo `billing` implementa las reglas de facturación mediante funciones independientes de Express y Prisma.
 
 Sus responsabilidades incluirán:
 
 - Calcular el precio acumulativo por tramos de usuarios.
-- Aplicar la cuota fija del plan.
-- Calcular el coste del almacenamiento.
-- Calcular el coste proporcional de llamadas API.
+- Mantener los planes, el almacenamiento y las llamadas API como datos informativos, sin coste adicional.
 - Obtener el subtotal.
 - Aplicar los impuestos correspondientes.
 - Calcular el total mensual.
@@ -957,9 +859,8 @@ Se comprobarán de forma aislada las funciones y servicios que implementan regla
 Los casos prioritarios incluirán:
 
 - Cálculo acumulativo de usuarios para 0, 1, 10, 11, 15, 50 y 51 usuarios.
-- Aplicación de las cuotas de los planes Starter, Professional y Enterprise.
-- Cálculo de costes de almacenamiento.
-- Cálculo proporcional de llamadas API, incluyendo 0, 1, 1000 y 1500 llamadas.
+- Verificación de que los planes y los datos de consumo no alteran el precio.
+- Conservación de almacenamiento y llamadas a la API como datos informativos.
 - Aplicación de los impuestos de España, Francia y Alemania.
 - Precisión decimal y redondeo `ROUND_HALF_UP`.
 - Validación de DNI/NIF, NIE y NIF de entidades españolas.
@@ -1001,7 +902,7 @@ Las respuestas de la API pública de tipos de cambio se simularán durante las p
 
 Se comprobarán los siguientes escenarios:
 
-- Respuesta válida con tasas EUR/USD/GBP.
+- Respuesta válida con códigos de divisa de tres letras y tasas positivas; USD y GBP se esperan cuando la fuente las ofrezca.
 - Respuesta incorrecta o incompleta.
 - Caché válida.
 - Caché caducada con actualización correcta.
@@ -1046,28 +947,17 @@ No se establecerá inicialmente un porcentaje mínimo arbitrario de cobertura. S
 
 ---
 
-## 4. Decisiones de diseño propuestas
+## 4. Decisiones de diseño
 
-Las siguientes propuestas no son requisitos explícitos del enunciado. Deberán confirmarse durante el diseño:
-
-| Propuesta                                                             | Justificación                               |
-| --------------------------------------------------------------------- | ------------------------------------------- |
-| Separar el cálculo de facturación de los controladores HTTP           | Facilitar pruebas unitarias y reutilización |
-| Utilizar un servicio común para simulaciones guardadas y proyecciones | Evitar diferencias entre resultados         |
-| Mantener EUR como moneda base                                         | Simplificar los cálculos y la conversión    |
-| Registrar la fecha de cada simulación                                 | Facilitar el historial                      |
-| Definir una política explícita de precisión monetaria                 | Evitar errores de redondeo                  |
-| Utilizar respuestas de error estructuradas                            | Simplificar la integración frontend/backend |
-
-Estas propuestas se concretarán en los documentos de arquitectura y contratos de API.
+Las decisiones que concretan aspectos no especificados por el enunciado se documentan en `ai-workspace/03-technical-decisions.md`. Las aclaraciones recibidas de Roams prevalecen sobre las hipótesis anteriores.
 
 ## 5. Registro de cuestiones de especificación
 
 | ID     | Cuestión                                                                                                                     | Impacto                                                     |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| CP-001 | Resuelta: Starter (0 €), Professional (29 €) y Enterprise (99 €) mensuales                                                   | Decisión de diseño propia del proyecto                      |
-| CP-002 | Resuelta: 0,10 € por GB al mes                                                                                               | Tarifa proporcional                                         |
-| CP-003 | Resuelta: 1 € por cada 1.000 llamadas API                                                                                    | Facturación proporcional, sin bloques completos             |
+| CP-001 | Sustituida por AR-001: los planes son informativos y no añaden cuotas                                                        | Aclaración oficial de Roams                                 |
+| CP-002 | Sustituida por AR-002: el almacenamiento no genera costes adicionales                                                       | Aclaración oficial de Roams                                 |
+| CP-003 | Sustituida por AR-003: las llamadas a la API no generan costes adicionales                                                  | Aclaración oficial de Roams                                 |
 | CP-004 | Resuelta: España (21 %), Francia (20 %) y Alemania (19 %)                                                                    | Configuración fiscal simplificada para simulaciones         |
 | CP-005 | Resuelta: SIREN para Francia y USt-IdNr. para Alemania                                                                       | Validación básica de formato y longitud, definida en RF-002 |
 | CP-006 | Resuelta: decimal.js, ROUND_HALF_UP y dos decimales                                                                          | Política de cálculo monetario definida en RT-007            |
@@ -1090,71 +980,19 @@ Los resultados de las pruebas se registrarán en `ai-workspace/05-quality-review
 
 ## 7. Estado del documento
 
-Esta versión constituye una especificación inicial basada en el enunciado de Roams y en las decisiones de organización adoptadas durante la planificación.
-
-No representa todavía una especificación cerrada: las cuestiones pendientes deberán resolverse y revisarse antes de implementar las funcionalidades relacionadas.
+Esta es la especificación consolidada de SaaS-O-Matic e incorpora las aclaraciones oficiales recibidas el 13/11/2026. Define el comportamiento esperado; el avance y las verificaciones de la implementación se mantienen en `ai-workspace/05-quality-review.md`.
 
 ---
 
-## Actualización de requisitos — Aclaraciones oficiales de Roams (13/11/2026)
+## Aclaraciones oficiales de Roams — 13/11/2026
 
-Esta sección recoge las aclaraciones recibidas por correo electrónico del equipo de Roams y prevalece sobre cualquier requisito o decisión anterior que establezca tarifas adicionales para los planes, el almacenamiento o las llamadas a la API.
+Estas aclaraciones sustituyen las hipótesis iniciales incompatibles:
 
-### AR-001 — Coste de los planes de suscripción
-
-Los planes de suscripción son exclusivamente informativos y no afectan al precio de la simulación.
-
-Se mantienen los planes Starter, Professional y Enterprise como opciones disponibles para registrar clientes.
-
-Ninguno de estos planes añade una cuota fija al importe mensual.
-
-### AR-002 — Coste por almacenamiento
-
-La cantidad de almacenamiento utilizada por el cliente, expresada en GB, debe registrarse y mostrarse en las simulaciones.
-
-El almacenamiento no genera ningún coste adicional.
-
-### AR-003 — Coste por llamadas a la API
-
-El número estimado de llamadas a la API debe registrarse y mostrarse en las simulaciones.
-
-Las llamadas a la API no generan ningún coste adicional.
-
-### AR-004 — Cálculo del importe mensual
-
-El coste base mensual se calcula exclusivamente a partir del número de usuarios activos, utilizando los tramos acumulativos establecidos en el enunciado:
-
-| Tramo                   | Coste por usuario |
-| ----------------------- | ----------------- |
-| Usuarios 1–10           | 10 €              |
-| Usuarios 11–50          | 8 €               |
-| Usuarios 51 en adelante | 5 €               |
-
-**Ejemplo:** para 15 usuarios activos, el coste base mensual es de 140 €.
-
-El plan seleccionado, el almacenamiento y las llamadas a la API no modifican este importe.
-
-Los impuestos por país se aplicarán posteriormente conforme a las decisiones documentadas del proyecto. Estas tasas constituyen una simplificación adoptada para la prueba.
-
-### AR-005 — Presentación de la simulación
-
-Cada simulación debe mostrar:
-
-- El cliente y su plan de suscripción.
-- El número de usuarios activos.
-- La cantidad de almacenamiento utilizada.
-- El número estimado de llamadas a la API.
-- El coste base calculado por usuarios.
-- Los impuestos aplicados y el importe mensual final.
-
-No se presentarán tarifas adicionales por plan, almacenamiento o llamadas a la API.
-
-### AR-006 — Documentación y decisiones propias
-
-La documentación del proyecto puede redactarse en español.
-
-Cuando el enunciado no especifique un comportamiento, se tomará una decisión técnica o funcional justificada y se documentará en `/ai-workspace`.
-
-Estas aclaraciones sustituyen las hipótesis anteriores incompatibles con ellas. La implementación y las pruebas automatizadas deberán adaptarse para verificar las reglas actualizadas.
-
-_Documento preparado antes del desarrollo funcional de SaaS-O-Matic._
+| ID | Aclaración | Aplicación en el proyecto |
+| -- | ---------- | ------------------------- |
+| AR-001 | Los planes son informativos. | No se añade cuota por Starter, Professional o Enterprise. |
+| AR-002 | El almacenamiento debe registrarse y mostrarse. | No genera costes. |
+| AR-003 | Las llamadas API deben registrarse y mostrarse. | No generan costes. |
+| AR-004 | El importe base depende solo de usuarios. | Se aplican los tramos acumulativos de RF-006. |
+| AR-005 | La simulación presenta los datos y resultados económicos. | Se muestran consumo, subtotal, impuesto y total. |
+| AR-006 | Se permite documentar en español y adoptar decisiones justificadas. | Las decisiones propias se registran en `ai-workspace/03-technical-decisions.md`. |

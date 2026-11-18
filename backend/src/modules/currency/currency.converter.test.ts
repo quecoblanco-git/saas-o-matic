@@ -8,6 +8,7 @@ const mockExchangeRates: ExchangeRates = {
   rates: {
     USD: "1.15",
     GBP: "0.85",
+    JPY: "180",
   },
   fetchedAt: "2026-11-13T12:00:00.000Z",
 };
@@ -23,6 +24,10 @@ describe("convertCurrency", () => {
 
   it("converts EUR to GBP", () => {
     expect(convertCurrency(16800, "GBP", mockExchangeRates)).toBe("142.80");
+  });
+
+  it("converts EUR to other available currencies", () => {
+    expect(convertCurrency(100, "JPY", mockExchangeRates)).toBe("180.00");
   });
 
   it("returns zero correctly", () => {
@@ -43,6 +48,17 @@ describe("convertCurrency", () => {
 
   it("rejects negative amounts", () => {
     expect(() => convertCurrency(-100, "EUR")).toThrow(
+      "Invalid amount in cents",
+    );
+  });
+
+  it.each([
+    [1.5, "decimal"],
+    [NaN, "NaN"],
+    [Infinity, "Infinity"],
+    [Number.MAX_SAFE_INTEGER + 1, "unsafe integer"],
+  ])("rejects an invalid amount in cents: %s (%s)", (amount) => {
+    expect(() => convertCurrency(amount, "EUR")).toThrow(
       "Invalid amount in cents",
     );
   });

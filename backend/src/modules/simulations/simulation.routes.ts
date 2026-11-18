@@ -102,6 +102,7 @@ simulationRouter.get("/", async (req, res) => {
 
     skip = Number(skipParam);
 
+    // Rechazar offsets no representables con exactitud evita paginación imprecisa.
     if (!Number.isSafeInteger(skip)) {
       res.status(400).json({
         error: "ValidationError",

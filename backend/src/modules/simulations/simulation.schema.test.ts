@@ -135,6 +135,62 @@ describe("createSimulationSchema", () => {
       ).toBe(true);
     }
   });
+
+  it.each([
+    ["activeUsers", "15"],
+    ["storageGb", "100"],
+    ["apiCalls", "5000"],
+    ["activeUsers", null],
+    ["storageGb", true],
+    ["apiCalls", false],
+  ] as const)(
+    "rejects an incorrect data type for %s: %s",
+    (field, invalidValue) => {
+      const input: Record<string, unknown> = {
+        customerId: "customer-123",
+        activeUsers: 15,
+        storageGb: 100,
+        apiCalls: 5000,
+      };
+
+      input[field] = invalidValue;
+
+      const result = createSimulationSchema.safeParse(input);
+
+      expect(result.success).toBe(false);
+
+      if (!result.success) {
+        expect(
+          result.error.issues.some((issue) => issue.path[0] === field),
+        ).toBe(true);
+      }
+    },
+  );
+
+  it.each(["activeUsers", "storageGb", "apiCalls"] as const)(
+    "rejects a simulation when %s is missing",
+    (missingField) => {
+      const input: Record<string, unknown> = {
+        customerId: "customer-123",
+        activeUsers: 15,
+        storageGb: 100,
+        apiCalls: 5000,
+      };
+
+      delete input[missingField];
+
+      const result = createSimulationSchema.safeParse(input);
+
+      expect(result.success).toBe(false);
+
+      if (!result.success) {
+        expect(
+          result.error.issues.some((issue) => issue.path[0] === missingField),
+        ).toBe(true);
+      }
+    },
+  );
+
   it("accepts the maximum allowed usage values", () => {
     const input = {
       customerId: "customer-123",

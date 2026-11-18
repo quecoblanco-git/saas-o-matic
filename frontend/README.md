@@ -1,32 +1,24 @@
-# React + TypeScript + Vite
+# Frontend de SaaS-O-Matic
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interfaz React y TypeScript construida con Vite y Tailwind CSS. El código de producto se organiza por funciones en `src/features/`; las llamadas HTTP compartidas están en `src/api/`.
 
-Currently, two official plugins are available:
+## Desarrollo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Desde esta carpeta:
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Vite sirve la aplicación en `http://localhost:5173` y redirige `/api` a `http://localhost:3001`. Para utilizar los flujos conectados, inicia también el backend siguiendo las instrucciones del [README principal](../README.md).
+
+## Comprobaciones
+
+```bash
+npx vitest run
+npm run lint
+npm run build
+```
+
+Vitest ejecuta las pruebas; Oxlint analiza el código y el build ejecuta TypeScript y genera los archivos de producción en `dist/`.

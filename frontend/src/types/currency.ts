@@ -1,4 +1,11 @@
-export type CurrencyCode = "EUR" | "USD" | "GBP";
+export type CurrencyCode = string;
+
+export interface AvailableExchangeRates {
+  baseCurrency: "EUR";
+  rates: Record<string, string>;
+  ratesUpdatedAt: string;
+  isStale: boolean;
+}
 
 export interface CurrencyConversion {
   originalAmountCents: number;

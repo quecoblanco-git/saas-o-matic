@@ -1,206 +1,99 @@
 # SaaS-O-Matic
 
-Dynamic Billing & Subscription Optimizer
+_Dynamic Billing & Subscription Optimizer_
 
-## Vista general de la aplicación
+Aplicación full-stack para gestionar clientes empresariales y simular su facturación mensual. Se desarrolló como prueba técnica para el proceso Full-Stack AI-Augmented de Roams.
 
-La siguiente captura muestra el panel principal de SaaS-O-Matic,
-incluyendo la gestión de clientes, la simulación de facturación
-con vista previa en tiempo real y el historial de resultados.
+![Dashboard de SaaS-O-Matic](docs/evidence/dashboard.png)
 
-![Panel principal de SaaS-O-Matic](docs/evidence/dashboard.png)
+## Funcionalidad
 
-Aplicación full-stack desarrollada como prueba técnica para el proceso de selección Full-Stack AI-Augmented de Roams.
-
-## Descripción
-
-SaaS-O-Matic permite gestionar clientes empresariales, realizar simulaciones de facturación mensual y consultar el historial de simulaciones.
-
-La aplicación incluye:
-
-- Registro y consulta de clientes.
-- Búsqueda de clientes por nombre de empresa.
-- Simulación de facturación con tarifas por tramos de usuarios.
-- Vista previa de costes en tiempo real.
-- Aplicación de impuestos según el país del cliente.
-- Historial de simulaciones con paginación.
-- Visualización de importes en diferentes divisas.
-- Interfaz responsive.
+- Registro, búsqueda y consulta de clientes.
+- Simulaciones con precios progresivos por usuarios: 10 € para los primeros 10, 8 € del 11 al 50 y 5 € a partir del 51.
+- Impuestos simplificados según país. Los planes, el almacenamiento y las llamadas a la API son informativos y no añaden costes.
+- Vista previa de facturación que no guarda datos hasta confirmar la simulación.
+- Historial paginado por cliente y visualización de importes en las divisas disponibles.
 
 ## Tecnologías
 
-### Frontend
+- **Frontend:** React, TypeScript, Vite y Tailwind CSS.
+- **Backend:** Node.js, Express, TypeScript, Zod y Prisma.
+- **Persistencia:** SQLite.
+- **Calidad:** Vitest, React Testing Library y Supertest.
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- Vitest
-- React Testing Library
+## Requisitos
 
-### Backend
+Node.js, npm y Git. El backend y el frontend se ejecutan en terminales separadas.
 
-- Node.js
-- Express
-- TypeScript
-- Prisma
-- SQLite
-- Zod
-- Vitest
+## Instalación y ejecución local
 
-## Documentación
-
-Los requisitos funcionales y técnicos se encuentran en `docs/requirements.md`.
-
-Las instrucciones de instalación, ejecución, pruebas y la documentación de arquitectura se completarán en las siguientes secciones.
-
-## Instalación y ejecución
-
-### Requisitos previos
-
-- Node.js
-- npm
-- Git
-
-### Configuración del backend
-
-1. Clonar el repositorio:
+1. Clona el repositorio y accede a su carpeta:
 
    ```bash
    git clone https://github.com/quecoblanco-git/saas-o-matic.git
    cd saas-o-matic
    ```
 
-2. Instalar las dependencias:
+2. Instala y prepara el backend:
 
    ```bash
    cd backend
    npm install
    ```
 
-3. Crear un archivo `.env` dentro de `backend` con el siguiente contenido:
+   Crea `backend/.env` con la URL de SQLite:
 
    ```env
    DATABASE_URL="file:./dev.db"
    ```
 
-4. Aplicar las migraciones de SQLite:
+   Aplica las migraciones y genera el cliente de Prisma:
 
    ```bash
    npx prisma migrate deploy --config prisma7.config.ts
-   ```
-
-5. Generar el cliente de Prisma:
-
-   ```bash
    npx prisma generate --config prisma7.config.ts
    ```
 
-6. Iniciar el servidor de desarrollo:
+   Inicia la API:
 
    ```bash
    npm run dev
    ```
 
-El backend se ejecuta en `http://localhost:3001`.
+   La API escucha en `http://localhost:3001`.
 
-### Comandos adicionales del backend
-
-Desde la carpeta `backend`:
-
-```bash
-npm run build
-npm start
-npm run typecheck
-npm test
-```
-
-### Configuración del frontend
-
-El frontend está desarrollado con React, TypeScript, Vite y Tailwind CSS.
-
-Para ejecutarlo, abre una segunda terminal desde la raíz del proyecto.
-
-1. Acceder a la carpeta del frontend:
+3. En otra terminal, instala e inicia el frontend:
 
    ```bash
    cd frontend
-   ```
-
-2. Instalar las dependencias:
-
-   ```bash
    npm install
-   ```
-
-3. Iniciar el servidor de desarrollo:
-
-   ```bash
    npm run dev
    ```
 
-La aplicación estará disponible en:
+   Abre `http://localhost:5173`. Vite reenvía las solicitudes `/api` a la API local.
 
-http://localhost:5173
+## Comprobaciones
 
-Para utilizar todas las funcionalidades, el backend debe estar ejecutándose simultáneamente en `http://localhost:3001`.
-
-### Comandos adicionales del frontend
-
-Desde la carpeta `frontend`:
+Desde `backend/`:
 
 ```bash
-# Compilar para producción
+npm test
+npm run typecheck
 npm run build
-
-# Visualizar la compilación de producción
-npm run preview
-
-# Ejecutar el análisis estático
-npm run lint
-
-# Ejecutar las pruebas automatizadas
-npx vitest run
 ```
 
-### Ejecución conjunta
+Desde `frontend/`:
 
-Durante el desarrollo deben mantenerse abiertas dos terminales:
+```bash
+npx vitest run
+npm run lint
+npm run build
+```
 
-- **Terminal 1 — Backend:** ejecutar `npm run dev` desde `backend`.
-- **Terminal 2 — Frontend:** ejecutar `npm run dev` desde `frontend`.
+## Documentación
 
-Después, abrir `http://localhost:5173` en el navegador.
+- [Requisitos funcionales y técnicos](docs/requirements.md)
+- [Arquitectura y modelo de datos](docs/architecture.md)
+- [Planificación y decisiones del desarrollo asistido por IA](ai-workspace/README.md)
 
-## Comunicación entre frontend y backend
-
-El frontend utiliza un cliente HTTP compartido situado en
-`frontend/src/api/client.ts`.
-
-Todas las peticiones a la API utilizan el prefijo `/api`.
-
-Durante el desarrollo, Vite utiliza un proxy configurado en
-`frontend/vite.config.ts` para redirigir las peticiones al
-servidor Express.
-
-Por ejemplo:
-
-1. React solicita `GET /api/customers`.
-2. El proxy de Vite elimina el prefijo `/api`.
-3. La petición se envía a `http://localhost:3001/customers`.
-4. Express procesa la solicitud y devuelve la respuesta.
-
-Esta configuración permite ejecutar frontend y backend en
-servidores independientes durante el desarrollo, evitando
-configurar manualmente una URL absoluta para cada petición.
-
-### Configuración para producción
-
-El proxy de Vite se utiliza únicamente durante el desarrollo.
-
-Para desplegar la aplicación en producción, será necesario
-configurar un servidor o proxy inverso que sirva el frontend
-compilado y redirija las solicitudes `/api` al backend Express.
-
-El repositorio incluye la configuración de desarrollo local,
-pero no una configuración de despliegue en producción.
+El repositorio está preparado para desarrollo local. No incluye configuración de despliegue en producción.

@@ -1,5 +1,7 @@
 # 01 — Planificación inicial de SaaS-O-Matic
 
+> Este documento conserva el plan de la fase inicial. Las cuestiones que entonces estaban abiertas se resolvieron durante el desarrollo; el estado y las comprobaciones actuales se registran en `04-development-log.md` y `05-quality-review.md`.
+
 ## 1. Contexto y objetivo
 
 SaaS-O-Matic es una herramienta interna destinada a facilitar al equipo comercial la gestión de clientes corporativos y la simulación de costes mensuales de suscripciones SaaS.
@@ -88,7 +90,9 @@ El coste mensual deberá incluir el impuesto correspondiente al país del client
 
 Antes de implementar esta funcionalidad se definirán los países admitidos, los tipos impositivos utilizados y el tratamiento de países no contemplados.
 
-## 4. Aspectos pendientes de especificación
+## 4. Ambigüedades identificadas al inicio
+
+Las preguntas siguientes se detectaron durante la planificación. Se resolvieron posteriormente en `docs/requirements.md` y `03-technical-decisions.md`.
 
 El enunciado deja algunos detalles abiertos que deberán resolverse y justificarse antes de implementar las funcionalidades correspondientes.
 
@@ -195,7 +199,7 @@ Antes de comenzar la implementación funcional se ha completado la preparación 
 - Compilación inicial del frontend verificada.
 - Esquema inicial de Prisma validado.
 
-**Estado actual:** planificación y documentación inicial en curso. No se han implementado todavía las funcionalidades del reto.
+**Estado en la fase inicial:** preparación del entorno completada antes de comenzar el desarrollo funcional. Este estado es histórico y no describe la versión actual.
 
 ---
 

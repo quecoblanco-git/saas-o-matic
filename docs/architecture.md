@@ -27,6 +27,7 @@ El backend se encarga de:
 - Gestionar los clientes.
 - Aplicar las reglas de facturación.
 - Calcular impuestos según el país.
+- Calcular la tarifa progresiva de usuarios y devolver el desglose de tramos para la vista previa.
 - Guardar simulaciones y consultar su historial.
 - Acceder a la base de datos mediante Prisma.
 
@@ -43,6 +44,18 @@ que Vite redirige al backend mediante un proxy.
 
 Este diseño separa la presentación, la lógica de negocio
 y la persistencia de datos.
+
+### Endpoints principales
+
+| Método y ruta | Uso |
+| ------------- | --- |
+| `GET /customers`, `POST /customers` | Buscar y registrar clientes. |
+| `POST /simulations/preview` | Calcular una vista previa sin persistirla. |
+| `POST /simulations`, `GET /simulations` | Guardar simulaciones y consultar el historial paginado por cliente. |
+| `GET /currency/rates` | Obtener las tasas y divisas disponibles. |
+| `POST /currency/convert` | Convertir un importe desde EUR. |
+
+En desarrollo, el frontend usa `/api` y Vite lo redirige a Express. El backend conserva las tasas en memoria durante una hora y puede reutilizar tasas anteriores si falla una actualización. EUR permanece como moneda base; la interfaz presenta las monedas que devuelve el endpoint.
 
 ## 4. Diagrama de arquitectura general
 
@@ -194,7 +207,8 @@ Subtotal: 470 €.
 | Francia (FR)  | 20 %     |
 | Alemania (DE) | 19 %     |
 
-El impuesto se aplica al subtotal calculado.
+El impuesto se aplica al coste progresivo de usuarios. Los planes,
+el almacenamiento y las llamadas a la API no añaden costes.
 
 ### Otros parámetros
 
@@ -311,31 +325,16 @@ y problemas de construcción antes de entregar el proyecto.
 Se ejecutaron las baterías completas de pruebas automatizadas
 del backend y del frontend el 16 de noviembre de 2026.
 
-#### Resultados del backend
+#### Capturas históricas
 
-Se completaron satisfactoriamente 402 pruebas
-distribuidas en 18 archivos.
+Estas imágenes corresponden a ejecuciones registradas el
+16/11/2026. No representan las verificaciones más recientes;
+los resultados actuales se mantienen en
+[la revisión de calidad](../ai-workspace/05-quality-review.md).
 
-![Resultados de las pruebas del backend](evidence/backend-tests.png)
+![Captura de pruebas del backend](evidence/backend-tests.png)
 
-#### Resultados del frontend
-
-Se completaron satisfactoriamente 18 pruebas
-distribuidas en 4 archivos.
-
-![Resultados de las pruebas del frontend](evidence/frontend-tests.png)
-
-#### Resumen
-
-| Componente | Archivos | Pruebas superadas |
-| ---------- | -------: | ----------------: |
-| Backend    |       18 |               402 |
-| Frontend   |        4 |                18 |
-| **Total**  |   **22** |           **420** |
-
-Estos resultados corresponden a las ejecuciones verificadas
-el 16 de noviembre de 2026 y reflejan el estado del proyecto
-en ese momento.
+![Captura de pruebas del frontend](evidence/frontend-tests.png)
 
 ## 9. Diagramas disponibles como imágenes
 

@@ -8,6 +8,8 @@ Su finalidad es justificar las elecciones de arquitectura, tecnologías y organi
 
 Las decisiones se documentarán de forma progresiva. Cuando una decisión cambie durante el desarrollo, se registrará el motivo y sus consecuencias.
 
+Las decisiones sustituidas se conservan como historial. La decisión vigente se identifica expresamente para evitar que las propuestas iniciales se interpreten como reglas actuales.
+
 ## 2. Criterios generales
 
 Las decisiones técnicas se evaluarán teniendo en cuenta:
@@ -235,7 +237,7 @@ Se mantendrá una terminología consistente a lo largo de los documentos.
 
 ### DT-012 — Modelo de planes SaaS con cuota fija
 
-**Estado:** Adoptada
+**Estado:** Histórica; sustituida por DT-020.
 **Fase:** Especificación funcional
 **Fecha:** 2026-11-12
 
@@ -289,7 +291,7 @@ Se conserva la decisión inicial para documentar la evolución del proyecto y ju
 - Evita introducir reglas de facturación innecesariamente complejas.
 - Permite probar de forma independiente el coste del plan y el coste por usuarios.
 
-**Consecuencias**
+**Consecuencias de la propuesta inicial (no vigentes)**
 
 - Cada cliente tendrá asignado uno de los tres planes.
 - La cuota fija del plan se sumará una sola vez por simulación mensual.
@@ -301,7 +303,7 @@ Se conserva la decisión inicial para documentar la evolución del proyecto y ju
 
 ### DT-013 — Modelo de facturación de almacenamiento y llamadas API
 
-**Estado:** Adoptada
+**Estado:** Histórica; sustituida por DT-020.
 **Fase:** Especificación funcional
 **Fecha:** 2026-11-12
 
@@ -341,7 +343,7 @@ Se conserva la decisión inicial para documentar la evolución del proyecto y ju
 
 **Decisión vigente: DT-020.**
 
-**Fórmulas**
+**Fórmulas de la propuesta inicial (no vigentes)**
 
 `costeAlmacenamiento = almacenamientoGB × 0,10`
 
@@ -355,7 +357,7 @@ Se conserva la decisión inicial para documentar la evolución del proyecto y ju
 - Facilita mostrar un desglose comprensible de cada simulación.
 - No modifica las tarifas acumulativas por usuarios exigidas por el enunciado.
 
-**Consecuencias**
+**Consecuencias de la propuesta inicial (no vigentes)**
 
 - El motor de facturación deberá calcular ambos componentes por separado.
 - Los importes se incorporarán al subtotal antes de impuestos.
@@ -397,7 +399,7 @@ Se adopta una configuración fiscal estática con tres países:
 | Francia  | FR         | TVA          | 20 % |
 | Alemania | DE         | Umsatzsteuer | 19 % |
 
-Las tasas se aplicarán sobre el subtotal mensual, formado por el coste de usuarios, la cuota del plan, el almacenamiento y las llamadas API.
+Las tasas se aplicarán sobre el coste de usuarios. Los planes, el almacenamiento y las llamadas a la API no añaden costes, conforme a DT-020.
 
 El cálculo de impuestos se realizará en euros antes de cualquier conversión de divisas.
 
@@ -433,7 +435,7 @@ No se contemplan exenciones, operaciones intracomunitarias con inversión del su
 
 **Contexto**
 
-SaaS-O-Matic debe calcular importes monetarios a partir de tarifas por usuarios, cuotas de suscripción, almacenamiento, llamadas API e impuestos.
+SaaS-O-Matic calcula importes monetarios a partir de tarifas por usuarios e impuestos. Los planes, el almacenamiento y las llamadas API son datos informativos, conforme a DT-020.
 
 El uso directo de números de coma flotante puede producir errores de precisión en operaciones decimales, por lo que es necesario establecer una estrategia de cálculo consistente y verificable.
 
@@ -651,7 +653,7 @@ Todos los límites son inclusivos y únicamente se admitirán números enteros.
 
 **Requisitos relacionados:** `RF-004`, `RF-011`, `RT-007`.
 
-**Estado:** Decisión aprobada. Pendiente de implementación y pruebas.
+**Estado:** Adoptada. Su implementación y verificación se registran en `ai-workspace/05-quality-review.md`.
 
 ### DT-009 — Modelo de datos y persistencia histórica
 
@@ -755,7 +757,7 @@ Las simulaciones conservan sus resultados originales, pero no incluyen inicialme
 
 **Contexto**
 
-SaaS-O-Matic debe permitir visualizar los importes de las simulaciones en EUR, USD y GBP mediante tipos de cambio obtenidos de una API pública.
+SaaS-O-Matic mantiene EUR como moneda base y convierte los importes a las divisas válidas comunicadas por el backend, incluidas USD y GBP cuando la fuente las proporcione.
 
 Es necesario establecer cómo se consultarán las tasas, cómo se evitarán peticiones innecesarias y cómo se gestionarán los errores del servicio externo sin afectar al funcionamiento general de la aplicación.
 
@@ -768,13 +770,11 @@ Es necesario establecer cómo se consultarán las tasas, cómo se evitarán peti
 
 **Decisión**
 
-La conversión de divisas se realizará utilizando EUR como moneda base.
-
-El backend consultará la API pública:
+La conversión utiliza EUR como moneda base. El backend consulta la API pública y publica las divisas válidas mediante `GET /currency/rates`; desde el 17/11/2026, el frontend carga esa lista y muestra el código cuando no tiene una etiqueta localizada.
 
 `https://open.er-api.com/v6/latest/EUR`
 
-Se utilizarán los tipos de cambio correspondientes a USD y GBP.
+El backend valida las tasas antes de exponerlas.
 
 **Gestión de caché**
 
@@ -783,7 +783,7 @@ Se utilizarán los tipos de cambio correspondientes a USD y GBP.
 - Mientras la caché sea válida, se reutilizarán las tasas almacenadas.
 - Una vez transcurrida una hora, el backend intentará obtener tasas actualizadas.
 - Si la actualización falla y existen tasas anteriores, podrán utilizarse como respaldo, indicando que están desactualizadas.
-- Si no hay tasas disponibles, se deshabilitará temporalmente la conversión a USD y GBP, manteniendo visible el importe original en EUR.
+- Si no hay tasas disponibles, se conservará el importe original en EUR y la interfaz informará del problema.
 
 **Precisión monetaria**
 
@@ -803,7 +803,7 @@ La caché de tasas se perderá cuando se reinicie el backend.
 
 **Comportamiento de la interfaz**
 
-- El usuario podrá seleccionar EUR, USD o GBP.
+- El usuario podrá seleccionar EUR y las divisas válidas devueltas por el backend.
 - Se mostrarán estados de carga durante la obtención de tasas.
 - Se informará de los errores del servicio externo.
 - Se mostrará la fecha de actualización cuando esté disponible.
@@ -821,11 +821,10 @@ La caché de tasas se perderá cuando se reinicie el backend.
 
 **Consecuencias**
 
-- Se implementará un servicio de tipos de cambio en el backend.
-- Se validarán las respuestas de la API externa antes de utilizar sus tasas.
-- Se gestionarán los estados de caché válida, desactualizada y no disponible.
-- Se implementarán pruebas para conversiones, caché y errores de red.
-- El frontend consumirá la información de conversión proporcionada por el backend.
+- El backend cuenta con un servicio de tipos de cambio y gestiona caché válida, desactualizada y no disponible.
+- Las respuestas de la API externa se validan antes de utilizar sus tasas.
+- Las pruebas cubren conversiones, caché y errores de red.
+- El frontend consume la lista de divisas y los resultados de conversión del backend.
 - Los importes en USD y GBP tendrán carácter orientativo.
 
 **Limitaciones**
@@ -874,17 +873,13 @@ El código se organizará por funcionalidades, manteniendo separadas las respons
 
 **Organización del frontend**
 
-El frontend utilizará las siguientes áreas:
+La estructura implementada se organiza en estas áreas:
 
-- `components`: componentes reutilizables.
+- `api`: cliente HTTP y funciones de acceso al backend.
 - `features/customers`: búsqueda y visualización de clientes.
 - `features/simulations`: creación y consulta de simulaciones.
 - `features/currency`: selección y visualización de divisas.
-- `pages`: páginas principales.
-- `services`: comunicación HTTP.
-- `hooks`: lógica reutilizable de React.
 - `types`: definiciones TypeScript.
-- `utils`: funciones auxiliares.
 
 **Organización del backend**
 
@@ -895,9 +890,8 @@ El backend utilizará módulos independientes:
 - `modules/billing`: motor de cálculo de facturación.
 - `modules/currency`: consulta, caché y conversión de tipos de cambio.
 
-Además, contará con:
+Además, cuenta con:
 
-- `config`: configuración de planes, tarifas e impuestos.
 - `lib`: inicialización de dependencias compartidas, incluido Prisma.
 - `middleware`: tratamiento centralizado de errores.
 - `app.ts`: configuración de Express y registro de rutas.
@@ -919,14 +913,12 @@ No será obligatorio crear todas las capas para funcionalidades que no las neces
 
 **Motor de facturación independiente**
 
-El módulo `billing` contendrá funciones de cálculo independientes de Express y Prisma.
+El módulo `billing` contiene funciones de cálculo independientes de Express y Prisma.
 
 Se encargará de:
 
 - Calcular tarifas acumulativas por tramos de usuarios.
-- Aplicar cuotas fijas de planes.
-- Calcular costes de almacenamiento.
-- Calcular costes proporcionales de llamadas API.
+- Mantener planes, almacenamiento y llamadas a la API como datos sin coste adicional, conforme a DT-020.
 - Aplicar impuestos.
 - Obtener subtotales y totales.
 - Respetar la política de precisión monetaria.
@@ -952,12 +944,12 @@ El motor recibirá datos de entrada y devolverá resultados estructurados sin re
 
 **Consecuencias**
 
-- Se crearán módulos independientes para clientes, simulaciones, facturación y divisas.
+- Se mantienen módulos independientes para clientes, simulaciones, facturación y divisas.
 - Las reglas de negocio no se implementarán directamente en los controladores.
 - El frontend consumirá la API mediante servicios HTTP reutilizables.
 - El acceso a SQLite se encapsulará mediante Prisma.
 - Se implementará un tratamiento centralizado de errores.
-- La estructura podrá ampliarse sin reorganizar completamente el proyecto.
+- La estructura puede ampliarse sin reorganizar completamente el proyecto.
 
 **Limitaciones**
 
@@ -1127,15 +1119,11 @@ Se actualiza el modelo de facturación con las siguientes reglas:
 - El almacenamiento en GB y las llamadas a la API continúan registrándose, pero no aumentan el importe de la simulación.
 - Se mantienen los impuestos por país definidos previamente como una decisión propia del proyecto, diferenciando el coste base de usuarios del importe final con impuestos.
 
-### Impacto técnico
+### Cambios realizados
 
-Será necesario revisar:
-
-- El motor de facturación y sus funciones de cálculo.
-- Las pruebas automatizadas afectadas por las tarifas anteriores.
-- La estructura de los datos monetarios de las simulaciones.
-- Los requisitos funcionales y demás documentación que mencione tarifas adicionales.
-- La información económica presentada en el futuro dashboard.
+- Se actualizó el motor de facturación y sus pruebas para eliminar los cargos por plan y consumo.
+- Se retiraron del modelo de simulación los campos de costes que ya no se facturan y se aplicó la migración correspondiente.
+- Se actualizaron los requisitos y la información económica del dashboard.
 
 ### Justificación
 
@@ -1147,14 +1135,7 @@ Se conservan las decisiones iniciales como parte del historial del proyecto, ind
 
 ## 4. Decisiones pendientes
 
-Las siguientes cuestiones deberán resolverse antes de implementar las funcionalidades afectadas.
-
-| ID  | Decisión pendiente | Motivo |
-| --- | ------------------ | ------ |
-
-Estas decisiones se desarrollarán durante la fase de especificaciones y arquitectura.
-
-No quedan decisiones técnicas iniciales pendientes de resolución.
+No quedan decisiones iniciales pendientes. Las nuevas cuestiones de diseño identificadas durante el mantenimiento se registrarán antes de aplicar cambios que dependan de ellas.
 
 Durante la implementación podrán identificarse nuevas decisiones o ajustes, que se documentarán en este archivo antes de aplicarse.
 

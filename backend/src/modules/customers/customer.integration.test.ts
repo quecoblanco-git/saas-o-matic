@@ -186,4 +186,13 @@ describe("Customer SQLite integration", () => {
       firstCustomer.id,
     ]);
   });
+
+  it("returns an empty list when no customers match the search", async () => {
+    const results = await listCustomers(
+      "NO_MATCH_CUSTOMER_SEARCH_987654321",
+      testPrisma,
+    );
+
+    expect(results).toEqual([]);
+  });
 });

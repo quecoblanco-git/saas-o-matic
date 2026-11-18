@@ -24,6 +24,80 @@ describe("Simulation integration tests", () => {
     await prisma.$disconnect();
   });
 
+  it("does not persist a simulation when the customer does not exist", async () => {
+    const customerId = "non-existent-customer-integration-test";
+
+    const countBefore = await prisma.simulation.count({
+      where: { customerId },
+    });
+
+    const response = await request(app).post("/simulations").send({
+      customerId,
+      activeUsers: 15,
+      storageGb: 100,
+      apiCalls: 5000,
+    });
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: "CustomerNotFoundError",
+      message: "Customer not found",
+    });
+
+    const countAfter = await prisma.simulation.count({
+      where: { customerId },
+    });
+
+    expect(countAfter).toBe(countBefore);
+    expect(countAfter).toBe(0);
+  });
+
+  it("does not persist a simulation when requesting a billing preview", async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        companyName: "Simulation Preview Integration Test",
+        taxId: "TEST-PREVIEW-001",
+        email: "preview-integration@example.com",
+        country: "ES",
+        plan: "Professional",
+      },
+    });
+
+    // Registrar el cliente para eliminarlo al finalizar las pruebas.
+    createdCustomerIds.push(customer.id);
+
+    const countBefore = await prisma.simulation.count({
+      where: { customerId: customer.id },
+    });
+
+    const response = await request(app).post("/simulations/preview").send({
+      customerId: customer.id,
+      activeUsers: 15,
+      storageGb: 100,
+      apiCalls: 5000,
+    });
+
+    expect(response.status).toBe(200);
+
+    expect(response.body).toMatchObject({
+      customerId: customer.id,
+      activeUsers: 15,
+      storageGb: 100,
+      apiCalls: 5000,
+      usersCostCents: 14000,
+      subtotalCents: 14000,
+      taxCents: 2940,
+      totalCents: 16940,
+    });
+
+    const countAfter = await prisma.simulation.count({
+      where: { customerId: customer.id },
+    });
+
+    expect(countAfter).toBe(countBefore);
+    expect(countAfter).toBe(0);
+  });
+
   it("creates and persists a simulation through POST /simulations", async () => {
     const customer = await prisma.customer.create({
       data: {
@@ -336,6 +410,72 @@ describe("Simulation integration tests", () => {
 
     expect(dates).toEqual([...dates].sort((a, b) => b - a));
   });
+
+  it("paginates 11 persisted simulations without duplicates", async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        companyName: "Simulation Pagination Integration Test",
+        taxId: "TEST-PAGINATION-001",
+        email: "pagination-integration@example.com",
+        country: "ES",
+        plan: "Professional",
+      },
+    });
+
+    createdCustomerIds.push(customer.id);
+
+    // Crear 11 simulaciones reales en SQLite.
+    for (let index = 0; index < 11; index++) {
+      const response = await request(app)
+        .post("/simulations")
+        .send({
+          customerId: customer.id,
+          activeUsers: index + 1,
+          storageGb: 100,
+          apiCalls: 5000,
+        });
+
+      expect(response.status).toBe(201);
+    }
+
+    const firstPage = await request(app).get("/simulations").query({
+      customerId: customer.id,
+      skip: 0,
+    });
+
+    expect(firstPage.status).toBe(200);
+    expect(firstPage.body).toHaveLength(10);
+
+    const secondPage = await request(app).get("/simulations").query({
+      customerId: customer.id,
+      skip: 10,
+    });
+
+    expect(secondPage.status).toBe(200);
+    expect(secondPage.body).toHaveLength(1);
+
+    const simulations = [...firstPage.body, ...secondPage.body];
+
+    const ids = simulations.map((simulation: { id: string }) => simulation.id);
+
+    expect(new Set(ids).size).toBe(11);
+
+    // El identificador desempata fechas iguales para mantener el orden estable.
+    const expectedOrder = [...simulations].sort(
+      (
+        a: { createdAt: string; id: string },
+        b: { createdAt: string; id: string },
+      ) => {
+        const dateComparison =
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+
+        return dateComparison !== 0 ? dateComparison : b.id.localeCompare(a.id);
+      },
+    );
+
+    expect(ids).toEqual(expectedOrder.map((simulation) => simulation.id));
+  });
+
   it("returns only the simulations belonging to the requested customer", async () => {
     const firstCustomer = await prisma.customer.create({
       data: {

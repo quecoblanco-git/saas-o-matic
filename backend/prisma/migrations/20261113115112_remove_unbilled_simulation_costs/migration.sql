@@ -1,12 +1,12 @@
 /*
-  Warnings:
+  Advertencias:
 
-  - You are about to drop the column `apiCostCents` on the `Simulation` table. All the data in the column will be lost.
-  - You are about to drop the column `planCostCents` on the `Simulation` table. All the data in the column will be lost.
-  - You are about to drop the column `storageCostCents` on the `Simulation` table. All the data in the column will be lost.
+  - Se eliminará la columna `apiCostCents` de `Simulation` y se perderán sus datos.
+  - Se eliminará la columna `planCostCents` de `Simulation` y se perderán sus datos.
+  - Se eliminará la columna `storageCostCents` de `Simulation` y se perderán sus datos.
 
 */
--- RedefineTables
+-- Redefinir tablas
 PRAGMA defer_foreign_keys=ON;
 PRAGMA foreign_keys=OFF;
 CREATE TABLE "new_Simulation" (

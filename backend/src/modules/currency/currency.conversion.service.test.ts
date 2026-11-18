@@ -78,4 +78,74 @@ describe("convertSimulationAmount", () => {
     expect(result.targetCurrency).toBe("GBP");
     expect(result.exchangeRate).toBe("0.85");
   });
+
+  it("converts EUR to another currency available from the provider", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          result: "success",
+          base_code: "EUR",
+          rates: { JPY: 180 },
+        }),
+      }),
+    );
+
+    const result = await convertSimulationAmount(100, "JPY");
+
+    expect(result.convertedAmount).toBe("180.00");
+    expect(result.targetCurrency).toBe("JPY");
+    expect(result.exchangeRate).toBe("180");
+  });
+
+  it("marks a conversion as stale when cached exchange rates are outdated", async () => {
+    vi.useFakeTimers();
+
+    try {
+      vi.setSystemTime(new Date("2026-11-13T12:00:00.000Z"));
+
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            result: "success",
+            base_code: "EUR",
+            rates: {
+              USD: 1.15,
+              GBP: 0.85,
+            },
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 503,
+        });
+
+      vi.stubGlobal("fetch", fetchMock);
+
+      // La primera conversión carga y almacena las tasas.
+      const firstResult = await convertSimulationAmount(16800, "USD");
+
+      expect(firstResult.isStale).toBe(false);
+
+      // Forzar la caducidad de la caché.
+      vi.setSystemTime(new Date("2026-11-13T13:00:01.000Z"));
+
+      // Si falla la actualización, se conservan las tasas anteriores como obsoletas.
+      const secondResult = await convertSimulationAmount(16800, "USD");
+
+      expect(secondResult.originalAmountCents).toBe(16800);
+      expect(secondResult.convertedAmount).toBe("193.20");
+      expect(secondResult.exchangeRate).toBe("1.15");
+      expect(secondResult.isStale).toBe(true);
+
+      expect(secondResult.ratesUpdatedAt).toBe(firstResult.ratesUpdatedAt);
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

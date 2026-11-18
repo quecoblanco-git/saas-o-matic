@@ -11,7 +11,7 @@ describe("fetchExchangeRates", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns valid EUR exchange rates for USD and GBP", async () => {
+  it("returns valid EUR exchange rates for available currencies", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
@@ -20,6 +20,9 @@ describe("fetchExchangeRates", () => {
         rates: {
           USD: 1.15,
           GBP: 0.85,
+          JPY: 180,
+          invalid: 2,
+          CAD: -1,
         },
       }),
     });
@@ -33,6 +36,7 @@ describe("fetchExchangeRates", () => {
     expect(result.rates).toEqual({
       USD: "1.15",
       GBP: "0.85",
+      JPY: "180",
     });
 
     expect(result.fetchedAt).toEqual(expect.any(String));
@@ -42,6 +46,22 @@ describe("fetchExchangeRates", () => {
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith(
       "https://open.er-api.com/v6/latest/EUR",
     );
+  });
+
+  it("rejects a response without any valid foreign exchange rates", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          result: "success",
+          base_code: "EUR",
+          rates: { EUR: 1, invalid: 3, JPY: 0 },
+        }),
+      }),
+    );
+
+    await expect(fetchExchangeRates()).rejects.toThrow("Invalid exchange rates");
   });
   it("rejects unsuccessful HTTP responses", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
@@ -77,7 +97,7 @@ describe("fetchExchangeRates", () => {
     );
   });
 
-  it("rejects negative exchange rates", async () => {
+  it("ignores invalid rates when other currencies are available", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -93,9 +113,10 @@ describe("fetchExchangeRates", () => {
       }),
     );
 
-    await expect(fetchExchangeRates()).rejects.toThrow(
-      "Exchange rates must be positive",
-    );
+    expect(await fetchExchangeRates()).toMatchObject({
+      baseCurrency: "EUR",
+      rates: { GBP: "0.85" },
+    });
   });
 });
 
@@ -163,7 +184,6 @@ describe("getExchangeRates cache", () => {
     expect(secondResult).toEqual(firstResult);
     expect(secondResult.isStale).toBe(false);
 
-    // Solo se consulta la API una vez.
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
   it("refreshes exchange rates when the cache expires", async () => {
@@ -202,7 +222,7 @@ describe("getExchangeRates cache", () => {
     expect(firstResult.exchangeRates.rates.USD).toBe("1.15");
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    // Simulamos que ha pasado una hora y un segundo.
+    // Avanzar más allá de la caducidad de una hora.
     vi.setSystemTime(new Date("2026-11-13T13:00:01.000Z"));
 
     const secondResult = await getExchangeRates();
@@ -214,7 +234,6 @@ describe("getExchangeRates cache", () => {
 
     expect(secondResult.isStale).toBe(false);
 
-    // La API se ha consultado nuevamente.
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
   it("uses stale cached rates when the API fails after expiration", async () => {
@@ -241,27 +260,24 @@ describe("getExchangeRates cache", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    // Primera consulta: obtenemos tasas válidas.
+    // Cargar tasas antes de que caduque la caché.
     const firstResult = await getExchangeRates();
 
     expect(firstResult.isStale).toBe(false);
 
-    // Simulamos que la caché ha caducado.
+    // Forzar la caducidad de la caché.
     vi.setSystemTime(new Date("2026-11-13T13:00:01.000Z"));
 
-    // Segunda consulta: la API falla.
+    // La API falla al intentar actualizar las tasas.
     const secondResult = await getExchangeRates();
 
-    // Conservamos las tasas anteriores.
     expect(secondResult.exchangeRates.rates).toEqual({
       USD: "1.15",
       GBP: "0.85",
     });
 
-    // Indicamos que están desactualizadas.
     expect(secondResult.isStale).toBe(true);
 
-    // Se ha intentado actualizar la caché.
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
   it("throws an error when the API fails and no cached rates exist", async () => {

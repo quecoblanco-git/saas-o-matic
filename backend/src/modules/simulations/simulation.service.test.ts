@@ -257,6 +257,11 @@ describe("previewSimulation", () => {
       plan: "Enterprise",
       country: "FR",
       taxRate: "0.20",
+      tierBreakdown: [
+        { tier: 1, userCount: 10, unitPriceCents: 1000, totalCents: 10000 },
+        { tier: 2, userCount: 10, unitPriceCents: 800, totalCents: 8000 },
+        { tier: 3, userCount: 0, unitPriceCents: 500, totalCents: 0 },
+      ],
       usersCostCents: 18000,
       subtotalCents: 18000,
       taxCents: 3600,
@@ -269,7 +274,6 @@ describe("previewSimulation", () => {
       },
     });
 
-    // La vista previa nunca debe guardar una simulación.
     expect(createMock).not.toHaveBeenCalled();
   });
 
@@ -293,7 +297,6 @@ describe("previewSimulation", () => {
       },
     });
 
-    // No debe guardar ninguna simulación.
     expect(createMock).not.toHaveBeenCalled();
   });
 });

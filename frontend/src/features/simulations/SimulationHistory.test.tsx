@@ -10,7 +10,6 @@ import { SimulationHistory } from "./SimulationHistory";
 import { getCustomers } from "../../api/customers";
 import { getSimulations } from "../../api/simulations";
 
-// Simular las peticiones HTTP para no depender del backend.
 vi.mock("../../api/customers", () => ({
   getCustomers: vi.fn().mockResolvedValue([]),
 }));
@@ -19,7 +18,6 @@ vi.mock("../../api/simulations", () => ({
   getSimulations: vi.fn().mockResolvedValue([]),
 }));
 
-// Evitar peticiones de divisas durante las pruebas del historial.
 vi.mock("../currency/CurrencySelector", () => ({
   CurrencySelector: () => <div>Selector de divisas</div>,
 }));
@@ -42,20 +40,38 @@ const mockSimulations = Array.from({ length: 11 }, (_, index) => ({
   id: `simulation-${index + 1}`,
   customerId: mockCustomer.id,
   createdAt: new Date(Date.now() - index * 60_000).toISOString(),
-  totalCents: 12100,
+
   activeUsers: 10,
-  plan: "Starter",
-  country: "ES",
+  storageGb: 100,
+  apiCalls: 5000,
+
+  planSnapshot: "Starter",
+  countrySnapshot: "ES",
+  taxRateSnapshot: "21",
+
+  usersCostCents: 10000,
+  subtotalCents: 10000,
+  taxCents: 2100,
+  totalCents: 12100,
 }));
 
 const mockSimulationsCustomer2 = Array.from({ length: 3 }, (_, index) => ({
   id: `customer-2-simulation-${index + 1}`,
   customerId: mockCustomer2.id,
   createdAt: new Date(Date.now() - index * 60_000).toISOString(),
-  totalCents: 24200,
+
   activeUsers: 20,
-  plan: "Professional",
-  country: "FR",
+  storageGb: 250,
+  apiCalls: 12000,
+
+  planSnapshot: "Professional",
+  countrySnapshot: "FR",
+  taxRateSnapshot: "20",
+
+  usersCostCents: 18000,
+  subtotalCents: 18000,
+  taxCents: 3600,
+  totalCents: 21600,
 }));
 
 function createDeferredPromise<T>() {
@@ -78,19 +94,16 @@ describe("SimulationHistory", () => {
       screen.getByText("Selecciona un cliente para consultar su historial."),
     ).toBeInTheDocument();
 
-    // Esperar a que termine la carga asíncrona de clientes.
     const customerSelect = await screen.findByRole("combobox");
 
     expect(customerSelect).toBeInTheDocument();
   });
 
   it("requests the first 10 simulations when a customer is selected", async () => {
-    // Preparar el cliente ficticio.
     vi.mocked(getCustomers).mockResolvedValueOnce([
       mockCustomer,
     ] as unknown as Awaited<ReturnType<typeof getCustomers>>);
 
-    // Simular la paginación del backend: 10 elementos por petición.
     vi.mocked(getSimulations).mockImplementationOnce(
       async (_customerId, skip = 0) =>
         mockSimulations.slice(skip, skip + 10) as unknown as Awaited<
@@ -100,27 +113,22 @@ describe("SimulationHistory", () => {
 
     render(<SimulationHistory />);
 
-    // Esperar a que aparezca el cliente en el selector.
     const customerOption = await screen.findByRole("option", {
       name: "Empresa de pruebas",
     });
 
     expect(customerOption).toBeInTheDocument();
 
-    // Seleccionar el cliente ficticio.
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: mockCustomer.id },
     });
 
-    // Comprobar que se solicita la primera página del historial.
     await waitFor(() => {
       expect(getSimulations).toHaveBeenCalledWith(mockCustomer.id, 0);
     });
 
-    // Comprobar que aparecen las 10 simulaciones iniciales.
     expect(await screen.findAllByText("Selector de divisas")).toHaveLength(10);
 
-    // Debe existir el botón para cargar la simulación restante.
     expect(
       screen.getByRole("button", { name: "Mostrar más" }),
     ).toBeInTheDocument();
@@ -196,15 +204,12 @@ describe("SimulationHistory", () => {
 
     const customerSelect = screen.getByRole("combobox");
 
-    // Seleccionar la primera empresa.
     fireEvent.change(customerSelect, {
       target: { value: mockCustomer.id },
     });
 
-    // La primera empresa tiene 10 simulaciones visibles.
     expect(await screen.findAllByText("Selector de divisas")).toHaveLength(10);
 
-    // Cambiar a la segunda empresa.
     fireEvent.change(customerSelect, {
       target: { value: mockCustomer2.id },
     });
@@ -214,12 +219,11 @@ describe("SimulationHistory", () => {
       expect(screen.getAllByText("Selector de divisas")).toHaveLength(3);
     });
 
-    // Ninguna simulación de la primera empresa debe seguir visible.
     expect(screen.queryByText("121,00 €")).not.toBeInTheDocument();
   });
 
   it("ignores an outdated load-more response after switching customers", async () => {
-    // Esta promesa representa la segunda página del primer cliente.
+    // Mantener pendiente la respuesta antigua mientras se cambia de cliente.
     const delayedResponse =
       createDeferredPromise<Awaited<ReturnType<typeof getSimulations>>>();
 
@@ -230,7 +234,6 @@ describe("SimulationHistory", () => {
 
     vi.mocked(getSimulations).mockImplementation(
       async (customerId, skip = 0) => {
-        // Retrasar únicamente la segunda página del primer cliente.
         if (customerId === mockCustomer.id && skip === 10) {
           return delayedResponse.promise;
         }
@@ -254,21 +257,18 @@ describe("SimulationHistory", () => {
 
     const customerSelect = screen.getByRole("combobox");
 
-    // 1. Seleccionar el primer cliente.
     fireEvent.change(customerSelect, {
       target: { value: mockCustomer.id },
     });
 
     expect(await screen.findAllByText("Selector de divisas")).toHaveLength(10);
 
-    // 2. Solicitar una segunda página que todavía no responderá.
     fireEvent.click(screen.getByRole("button", { name: "Mostrar más" }));
 
     await waitFor(() => {
       expect(getSimulations).toHaveBeenCalledWith(mockCustomer.id, 10);
     });
 
-    // 3. Cambiar al segundo cliente antes de recibir la respuesta.
     fireEvent.change(customerSelect, {
       target: { value: mockCustomer2.id },
     });
@@ -278,7 +278,6 @@ describe("SimulationHistory", () => {
       expect(screen.getAllByText("Selector de divisas")).toHaveLength(3);
     });
 
-    // 4. Completar la petición antigua del primer cliente.
     await act(async () => {
       delayedResponse.resolve(
         mockSimulations.slice(10, 11) as unknown as Awaited<
@@ -289,7 +288,6 @@ describe("SimulationHistory", () => {
       await delayedResponse.promise;
     });
 
-    // 5. El historial debe seguir mostrando solo el segundo cliente.
     expect(screen.getAllByText("Selector de divisas")).toHaveLength(3);
 
     expect(
@@ -325,5 +323,44 @@ describe("SimulationHistory", () => {
     await waitFor(() => {
       expect(getSimulations).toHaveBeenCalledWith("customer-auto-123", 0);
     });
+  });
+
+  it("shows the original inputs and billing breakdown in simulation details", async () => {
+    vi.mocked(getCustomers).mockResolvedValueOnce([
+      mockCustomer,
+    ] as unknown as Awaited<ReturnType<typeof getCustomers>>);
+
+    vi.mocked(getSimulations).mockResolvedValueOnce([
+      mockSimulations[0],
+    ] as unknown as Awaited<ReturnType<typeof getSimulations>>);
+
+    render(<SimulationHistory />);
+
+    await screen.findByRole("option", {
+      name: "Empresa de pruebas",
+    });
+
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: mockCustomer.id },
+    });
+
+    const detailsButton = await screen.findByText("Ver detalles");
+
+    fireEvent.click(detailsButton);
+
+    expect(screen.getByText("Almacenamiento")).toBeVisible();
+    expect(screen.getByText("100 GB")).toBeVisible();
+
+    expect(screen.getByText("Llamadas a la API")).toBeVisible();
+    expect(screen.getByText("5.000")).toBeVisible();
+
+    expect(screen.getByText("Coste de usuarios")).toBeVisible();
+    expect(screen.getByText("Subtotal")).toBeVisible();
+    expect(screen.getByText("Impuestos (21%)")).toBeVisible();
+
+    expect(screen.getAllByText("100,00 €")).toHaveLength(2);
+    expect(screen.getByText("21,00 €")).toBeVisible();
+
+    expect(screen.getAllByText("121,00 €")).toHaveLength(2);
   });
 });

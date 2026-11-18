@@ -214,7 +214,6 @@ describe("POST /simulations/preview", () => {
 
     expect(previewSimulation).toHaveBeenCalledExactlyOnceWith(input);
 
-    // La ruta de vista previa no debe crear simulaciones.
     expect(createSimulation).not.toHaveBeenCalled();
   });
 
@@ -283,7 +282,6 @@ describe("POST /simulations/preview", () => {
 
     expect(previewSimulation).toHaveBeenCalledExactlyOnceWith(input);
 
-    // Una vista previa nunca debe ejecutar la creación.
     expect(createSimulation).not.toHaveBeenCalled();
   });
 

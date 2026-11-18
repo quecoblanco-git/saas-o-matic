@@ -23,7 +23,13 @@ export function convertCurrency(
     throw new Error("Exchange rates are required");
   }
 
-  const rate = new Decimal(exchangeRates.rates[targetCurrency]);
+  const exchangeRate = exchangeRates.rates[targetCurrency];
+
+  if (exchangeRate === undefined) {
+    throw new Error("Exchange rate is unavailable");
+  }
+
+  const rate = new Decimal(exchangeRate);
 
   if (!rate.isFinite() || rate.lte(0)) {
     throw new Error("Invalid exchange rate");

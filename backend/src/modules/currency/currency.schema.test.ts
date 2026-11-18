@@ -12,8 +12,8 @@ describe("currencyConversionSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("accepts USD and GBP currencies", () => {
-    for (const currency of ["USD", "GBP"]) {
+  it("accepts any uppercase three-letter currency code", () => {
+    for (const currency of ["USD", "GBP", "JPY"]) {
       const result = currencyConversionSchema.safeParse({
         amountCents: 16800,
         currency,
@@ -50,10 +50,10 @@ describe("currencyConversionSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects unsupported currencies", () => {
+  it("rejects malformed currency codes", () => {
     const result = currencyConversionSchema.safeParse({
       amountCents: 16800,
-      currency: "JPY",
+      currency: "USDD",
     });
 
     expect(result.success).toBe(false);
@@ -66,6 +66,32 @@ describe("currencyConversionSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it.each([
+    ["missing", undefined],
+    ["string", "16800"],
+    ["null", null],
+    ["boolean", true],
+    ["NaN", NaN],
+  ] as const)(
+    "rejects an invalid amountCents value: %s",
+    (_description, amountCents) => {
+      const input = {
+        amountCents,
+        currency: "EUR",
+      };
+
+      const result = currencyConversionSchema.safeParse(input);
+
+      expect(result.success).toBe(false);
+
+      if (!result.success) {
+        expect(
+          result.error.issues.some((issue) => issue.path[0] === "amountCents"),
+        ).toBe(true);
+      }
+    },
+  );
 
   it("rejects additional fields", () => {
     const result = currencyConversionSchema.safeParse({

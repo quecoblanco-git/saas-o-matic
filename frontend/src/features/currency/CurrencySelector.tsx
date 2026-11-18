@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 
-import { convertCurrency } from "../../api/currency";
+import { convertCurrency, getAvailableCurrencies } from "../../api/currency";
 import type { CurrencyCode, CurrencyConversion } from "../../types/currency";
 
 interface CurrencySelectorProps {
   amountCents: number;
 }
 
-const currencyLabels: Record<CurrencyCode, string> = {
+const currencyLabels: Record<string, string> = {
   EUR: "Euro (EUR)",
   USD: "Dólar estadounidense (USD)",
   GBP: "Libra esterlina (GBP)",
 };
 
-const currencyLocales: Record<CurrencyCode, string> = {
+const currencyLocales: Record<string, string> = {
   EUR: "es-ES",
   USD: "en-US",
   GBP: "en-GB",
@@ -21,9 +21,40 @@ const currencyLocales: Record<CurrencyCode, string> = {
 
 export function CurrencySelector({ amountCents }: CurrencySelectorProps) {
   const [currency, setCurrency] = useState<CurrencyCode>("EUR");
+  const [currencies, setCurrencies] = useState<string[]>(["EUR"]);
+  const [ratesError, setRatesError] = useState(false);
   const [conversion, setConversion] = useState<CurrencyConversion | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAvailableCurrencies() {
+      try {
+        const response = await getAvailableCurrencies();
+        if (!cancelled) {
+          const available = [
+            "EUR",
+            ...Object.keys(response.rates)
+              .filter((code) => code !== "EUR")
+              .sort(),
+          ];
+          setCurrencies(available);
+          setCurrency((selected) =>
+            available.includes(selected) ? selected : "EUR",
+          );
+        }
+      } catch {
+        if (!cancelled) setRatesError(true);
+      }
+    }
+
+    void loadAvailableCurrencies();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -66,7 +97,7 @@ export function CurrencySelector({ amountCents }: CurrencySelectorProps) {
   }).format(amountCents / 100);
 
   const convertedAmount = conversion
-    ? new Intl.NumberFormat(currencyLocales[currency], {
+    ? new Intl.NumberFormat(currencyLocales[currency] ?? "es-ES", {
         style: "currency",
         currency,
       }).format(Number(conversion.convertedAmount))
@@ -84,13 +115,19 @@ export function CurrencySelector({ amountCents }: CurrencySelectorProps) {
           onChange={(event) => setCurrency(event.target.value as CurrencyCode)}
           className="w-full rounded-lg border border-slate-600 bg-slate-800 p-2 text-white"
         >
-          {Object.entries(currencyLabels).map(([code, label]) => (
+          {currencies.map((code) => (
             <option key={code} value={code}>
-              {label}
+              {currencyLabels[code] ?? code}
             </option>
           ))}
         </select>
       </label>
+
+      {ratesError && (
+        <p role="alert" className="text-sm text-amber-400">
+          No se ha podido cargar la lista de divisas disponibles.
+        </p>
+      )}
 
       <p className="text-sm text-slate-400">
         Importe original: {originalAmount}

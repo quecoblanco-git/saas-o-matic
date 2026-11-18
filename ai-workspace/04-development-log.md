@@ -24,8 +24,8 @@ Las interacciones relevantes con IA se recogerán también en `02-ai-prompts.md`
 
 ## 3. Estado inicial del proyecto
 
-**Fase:** Preparación del entorno y planificación  
-**Estado:** Preparación técnica inicial completada; desarrollo funcional pendiente
+**Fase:** Preparación inicial del entorno
+**Estado en esa fecha:** Preparación técnica completada; desarrollo funcional aún no iniciado.
 
 ### Trabajo realizado
 
@@ -48,6 +48,8 @@ Las interacciones relevantes con IA se recogerán también en `02-ai-prompts.md`
 | Modelos funcionales de la base de datos  | Pendiente  |
 | Interfaz del dashboard                   | Pendiente  |
 | Pruebas funcionales y de integración     | Pendientes |
+
+Esta tabla es una fotografía histórica de la preparación inicial; no describe el estado actual. Las verificaciones vigentes se registran en `05-quality-review.md`.
 
 ### Evidencias
 
@@ -298,4 +300,33 @@ Cada cambio se incorporó y verificó progresivamente mediante
 el entorno de desarrollo, las pruebas y la revisión visual
 de la aplicación.
 
-_Registro iniciado durante la preparación del proyecto. Las iteraciones funcionales se añadirán conforme se desarrollen y verifiquen._
+## 17/11/2026 — Desglose de facturación y monedas dinámicas
+
+### Objetivo
+
+Mejorar el detalle de la vista previa de facturación y permitir seleccionar las divisas que devuelve el servicio de tasas.
+
+### Cambios realizados
+
+1. Se añadió el selector de divisa a la vista previa de simulaciones.
+2. La respuesta de vista previa incorporó el desglose por tramos de usuarios.
+3. La interfaz muestra los tramos con usuarios activos en EUR.
+4. El backend expone las tasas válidas en `GET /currency/rates` y acepta códigos de moneda de tres letras para la conversión.
+5. El selector carga las divisas desde la API, conserva nombres conocidos y muestra el código de otras monedas.
+6. Se añadió cobertura para el fallo al cargar la lista; EUR permanece disponible y la interfaz informa del error.
+
+### Validación
+
+- Backend: 86 pruebas focalizadas de facturación y simulaciones; 49 pruebas focalizadas de divisas; TypeScript sin errores.
+- Frontend: 17 pruebas focalizadas de `CurrencySelector` y `SimulationForm`; después, 9 pruebas de `CurrencySelector` tras añadir el caso de error de carga.
+- `git diff --check` no informó errores de espacios en los cambios revisados.
+- El chequeo TypeScript del frontend señaló `TS6133` por el import `act` sin uso en `frontend/src/features/customers/CustomerList.test.tsx:3`. No se modificó ese archivo en esta iteración.
+- No se ejecutaron las baterías completas ni el build de producción del frontend durante esta iteración.
+
+### Resultado
+
+Las monedas disponibles se obtienen del backend y el importe original permanece en EUR. Los resultados anteriores son pruebas focalizadas; no representan una nueva ejecución completa del proyecto.
+
+---
+
+_Registro cronológico del desarrollo; las verificaciones vigentes se resumen en `05-quality-review.md`._

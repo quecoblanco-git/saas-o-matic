@@ -20,8 +20,13 @@ export async function convertSimulationAmount(
     };
   }
 
-  // USD y GBP necesitan tipos de cambio.
+  // Las divisas distintas de EUR necesitan tipos de cambio.
   const { exchangeRates, isStale } = await getExchangeRates();
+  const exchangeRate = exchangeRates.rates[targetCurrency];
+
+  if (exchangeRate === undefined) {
+    throw new Error("Exchange rate is unavailable");
+  }
 
   return {
     originalAmountCents: amountCents,
@@ -32,7 +37,7 @@ export async function convertSimulationAmount(
       exchangeRates,
     ),
     targetCurrency,
-    exchangeRate: exchangeRates.rates[targetCurrency],
+    exchangeRate,
     ratesUpdatedAt: exchangeRates.fetchedAt,
     isStale,
   };

@@ -7,6 +7,7 @@ import {
   calculateSubtotal,
   calculateTax,
   calculateUsersCost,
+  calculateUserTierBreakdown,
   eurosToCents,
   type SubscriptionPlan,
 } from "./billing.js";
@@ -32,6 +33,24 @@ describe("calculateUsersCost", () => {
       expect(() => calculateUsersCost(users)).toThrow(RangeError);
     },
   );
+});
+
+describe("calculateUserTierBreakdown", () => {
+  it("breaks down 15 users across the first two tiers", () => {
+    expect(calculateUserTierBreakdown(15)).toEqual([
+      { tier: 1, userCount: 10, unitPriceCents: 1000, totalCents: 10000 },
+      { tier: 2, userCount: 5, unitPriceCents: 800, totalCents: 4000 },
+      { tier: 3, userCount: 0, unitPriceCents: 500, totalCents: 0 },
+    ]);
+  });
+
+  it("assigns users above 50 to the third tier", () => {
+    expect(calculateUserTierBreakdown(51)).toEqual([
+      { tier: 1, userCount: 10, unitPriceCents: 1000, totalCents: 10000 },
+      { tier: 2, userCount: 40, unitPriceCents: 800, totalCents: 32000 },
+      { tier: 3, userCount: 1, unitPriceCents: 500, totalCents: 500 },
+    ]);
+  });
 });
 
 describe("calculatePlanCost", () => {

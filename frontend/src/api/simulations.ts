@@ -8,6 +8,12 @@ export interface SimulationPreview {
   plan: string;
   country: string;
   taxRate: string;
+  tierBreakdown: {
+    tier: 1 | 2 | 3;
+    userCount: number;
+    unitPriceCents: number;
+    totalCents: number;
+  }[];
   usersCostCents: number;
   subtotalCents: number;
   taxCents: number;

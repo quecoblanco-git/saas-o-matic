@@ -29,14 +29,12 @@ export function SimulationHistory({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados de paginación.
   const [visibleCount, setVisibleCount] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
   const historyVersionRef = useRef(0);
 
-  // Seleccionar un cliente desde el listado de clientes.
   useEffect(() => {
     if (!selectedCustomerId) {
       return;
@@ -54,7 +52,6 @@ export function SimulationHistory({
     setError(null);
   }, [selectedCustomerId]);
 
-  // Cargar clientes registrados.
   useEffect(() => {
     let active = true;
 
@@ -83,8 +80,7 @@ export function SimulationHistory({
     };
   }, [customerRefreshKey]);
 
-  // Cargar la primera página cuando cambia el cliente
-  // o se registra una nueva simulación.
+  // Recargar la primera página al cambiar de cliente o guardar una simulación.
   useEffect(() => {
     let active = true;
 
@@ -100,7 +96,6 @@ export function SimulationHistory({
       setError(null);
       setLoadMoreError(null);
 
-      // Reiniciar paginación.
       setSimulations([]);
       setVisibleCount(0);
       setHasMore(false);
@@ -136,14 +131,12 @@ export function SimulationHistory({
     };
   }, [customerId, refreshKey]);
 
-  // Cargar la siguiente página del historial.
-  // IMPORTANTE: esta función está fuera del useEffect.
   async function handleLoadMore() {
     if (!customerId || loading || loadingMore || !hasMore) {
       return;
     }
 
-    // Identificar la versión del historial al iniciar la petición.
+    // Asociar la petición con la versión del historial que la inició.
     const requestVersion = historyVersionRef.current;
 
     setLoadingMore(true);
@@ -267,6 +260,63 @@ export function SimulationHistory({
               <p className="mt-2 text-xs text-slate-400">
                 {simulation.planSnapshot} · {simulation.countrySnapshot}
               </p>
+
+              <details className="mt-4 rounded-lg border border-slate-700 bg-slate-900/50">
+                <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-slate-200 hover:text-white">
+                  Ver detalles
+                </summary>
+
+                <div className="space-y-2 border-t border-slate-700 px-4 py-3 text-sm">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-slate-400">Usuarios activos</span>
+                    <span>
+                      {simulation.activeUsers.toLocaleString("es-ES")}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-slate-400">Almacenamiento</span>
+                    <span>
+                      {simulation.storageGb.toLocaleString("es-ES")} GB
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-slate-400">Llamadas a la API</span>
+                    <span>
+                      {new Intl.NumberFormat("es-ES", {
+                        useGrouping: "always",
+                      }).format(simulation.apiCalls)}
+                    </span>
+                  </div>
+
+                  <div className="border-t border-slate-700 pt-2">
+                    <div className="flex justify-between gap-4">
+                      <span className="text-slate-400">Coste de usuarios</span>
+                      <span>{formatEuros(simulation.usersCostCents)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-slate-400">Subtotal</span>
+                    <span>{formatEuros(simulation.subtotalCents)}</span>
+                  </div>
+
+                  <div className="flex justify-between gap-4">
+                    <span className="text-slate-400">
+                      Impuestos ({simulation.taxRateSnapshot}%)
+                    </span>
+                    <span>{formatEuros(simulation.taxCents)}</span>
+                  </div>
+
+                  <div className="flex justify-between gap-4 border-t border-slate-700 pt-2 font-semibold">
+                    <span>Total mensual</span>
+                    <span className="text-emerald-400">
+                      {formatEuros(simulation.totalCents)}
+                    </span>
+                  </div>
+                </div>
+              </details>
             </article>
           ))}
 

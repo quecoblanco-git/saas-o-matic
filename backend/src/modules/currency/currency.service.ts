@@ -6,10 +6,7 @@ const EXCHANGE_RATES_URL = "https://open.er-api.com/v6/latest/EUR";
 interface ExchangeRateApiResponse {
   result?: string;
   base_code?: string;
-  rates?: {
-    USD?: unknown;
-    GBP?: unknown;
-  };
+  rates?: Record<string, unknown>;
 }
 
 export async function fetchExchangeRates(): Promise<ExchangeRates> {
@@ -35,31 +32,28 @@ export async function fetchExchangeRates(): Promise<ExchangeRates> {
     throw new Error("Invalid exchange rate API response");
   }
 
-  const usdRate = data.rates?.USD;
-  const gbpRate = data.rates?.GBP;
+  const rates: Record<string, string> = {};
 
-  if (
-    typeof usdRate !== "number" ||
-    typeof gbpRate !== "number" ||
-    !Number.isFinite(usdRate) ||
-    !Number.isFinite(gbpRate)
-  ) {
-    throw new Error("Invalid exchange rates");
+  // Se descartan códigos con formato inesperado y tasas no numéricas o no positivas.
+  for (const [currency, value] of Object.entries(data.rates ?? {})) {
+    if (currency === "EUR" || !/^[A-Z]{3}$/.test(currency)) {
+      continue;
+    }
+
+    if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
+      continue;
+    }
+
+    rates[currency] = new Decimal(value).toString();
   }
 
-  const usd = new Decimal(usdRate);
-  const gbp = new Decimal(gbpRate);
-
-  if (usd.lte(0) || gbp.lte(0)) {
-    throw new Error("Exchange rates must be positive");
+  if (Object.keys(rates).length === 0) {
+    throw new Error("Invalid exchange rates");
   }
 
   return {
     baseCurrency: "EUR",
-    rates: {
-      USD: usd.toString(),
-      GBP: gbp.toString(),
-    },
+    rates,
     fetchedAt: new Date().toISOString(),
   };
 }

@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 
 import { CustomerList } from "./CustomerList";
 import { getCustomers } from "../../api/customers";
@@ -38,33 +43,26 @@ describe("CustomerList", () => {
       createdAt: "2026-11-16T10:00:00.000Z",
     };
 
-    // La primera petición falla y la segunda funciona.
     vi.mocked(getCustomers)
       .mockRejectedValueOnce(new Error("Error de conexión"))
       .mockResolvedValueOnce([mockCustomer]);
 
     render(<CustomerList />);
 
-    // Esperar al error inicial.
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Error de conexión",
     );
 
-    // Pulsar el botón de reintento.
     fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
 
-    // Comprobar que aparece el cliente recuperado.
     expect(await screen.findByText("Empresa de pruebas")).toBeInTheDocument();
 
-    // Comprobar que se realizaron dos peticiones.
     await waitFor(() => {
       expect(getCustomers).toHaveBeenCalledTimes(2);
     });
 
-    // El mensaje de error debe desaparecer.
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 
-    // El botón de reintento ya no debe mostrarse.
     expect(
       screen.queryByRole("button", { name: "Reintentar" }),
     ).not.toBeInTheDocument();
@@ -93,5 +91,48 @@ describe("CustomerList", () => {
 
     expect(onViewHistory).toHaveBeenCalledTimes(1);
     expect(onViewHistory).toHaveBeenCalledWith("customer-history-123");
+  });
+
+  it("displays the required customer information in each card", async () => {
+    const mockCustomers = [
+      {
+        id: "customer-card-1",
+        companyName: "Tecnología Palencia SL",
+        taxId: "B12345674",
+        email: "contacto@tecnologia.es",
+        country: "ES" as const,
+        plan: "Professional" as const,
+        createdAt: "2026-11-16T10:00:00.000Z",
+      },
+      {
+        id: "customer-card-2",
+        companyName: "Empresa Francia",
+        taxId: "123456789",
+        email: "contact@entreprise.fr",
+        country: "FR" as const,
+        plan: "Starter" as const,
+        createdAt: "2026-11-16T11:00:00.000Z",
+      },
+    ];
+
+    vi.mocked(getCustomers).mockResolvedValueOnce(mockCustomers);
+
+    render(<CustomerList />);
+
+    const firstCustomer = await screen.findByText("Tecnología Palencia SL");
+    const secondCustomer = screen.getByText("Empresa Francia");
+
+    expect(firstCustomer).toBeVisible();
+    expect(secondCustomer).toBeVisible();
+
+    expect(screen.getByText("B12345674")).toBeVisible();
+    expect(screen.getByText("ES")).toBeVisible();
+    expect(screen.getByText("Professional")).toBeVisible();
+
+    expect(screen.getByText("123456789")).toBeVisible();
+    expect(screen.getByText("FR")).toBeVisible();
+    expect(screen.getByText("Starter")).toBeVisible();
+
+    expect(getCustomers).toHaveBeenCalledWith("");
   });
 });

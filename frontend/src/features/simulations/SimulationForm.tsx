@@ -4,6 +4,7 @@ import { createSimulation, previewSimulation } from "../../api/simulations";
 import type { SimulationPreview } from "../../api/simulations";
 import type { Customer } from "../../types/customer";
 import type { CreateSimulationInput, Simulation } from "../../types/simulation";
+import { CurrencySelector } from "../currency/CurrencySelector";
 
 interface SimulationFormProps {
   onSimulationCreated: (simulation: Simulation) => void;
@@ -302,6 +303,35 @@ export function SimulationForm({
           </p>
         ) : preview ? (
           <div className="space-y-2">
+            <div className="space-y-2 border-b border-slate-700 pb-3">
+              <p className="text-sm font-medium text-slate-300">
+                Desglose por tramos
+              </p>
+              {preview.tierBreakdown
+                .filter((tier) => tier.userCount > 0)
+                .map((tier) => (
+                  <div
+                    key={tier.tier}
+                    className="flex justify-between gap-3 text-sm"
+                  >
+                    <span>
+                      Tramo {tier.tier}: {tier.userCount} ×{" "}
+                      {(tier.unitPriceCents / 100).toLocaleString("es-ES", {
+                        style: "currency",
+                        currency: "EUR",
+                      })}
+                      /usuario
+                    </span>
+                    <span>
+                      {(tier.totalCents / 100).toLocaleString("es-ES", {
+                        style: "currency",
+                        currency: "EUR",
+                      })}
+                    </span>
+                  </div>
+                ))}
+            </div>
+
             <div className="flex justify-between">
               <span>Coste de usuarios</span>
               <span>
@@ -353,6 +383,8 @@ export function SimulationForm({
           </p>
         )}
       </div>
+
+      {preview && <CurrencySelector amountCents={preview.totalCents} />}
 
       {error && (
         <p role="alert" className="text-sm text-red-400">

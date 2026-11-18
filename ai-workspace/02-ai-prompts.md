@@ -12,7 +12,8 @@ No se pretende registrar cada mensaje intercambiado, sino conservar las interacc
 
 | Herramienta | Uso                                                                                                |
 | ----------- | -------------------------------------------------------------------------------------------------- |
-| ChatGPT     | Asistencia en la preparación del entorno, planificación inicial y organización de la documentación |
+| ChatGPT     | Preparación del entorno, planificación inicial y organización de la documentación. |
+| Codex Desktop | Revisión e implementación incremental, pruebas focalizadas y revisión documental (17/11/2026). |
 
 Se añadirán otras herramientas únicamente si se utilizan realmente durante el proyecto.
 
@@ -129,12 +130,27 @@ Se inició la documentación con un índice del espacio de trabajo y un plan ini
 
 ## 5. Interacciones durante el desarrollo
 
-Las nuevas interacciones se añadirán cronológicamente a medida que se realicen.
+### Interacción 03 — Mejora incremental de facturación y divisas
 
-Para las tareas de implementación se conservarán los prompts originales relevantes, junto con las propuestas de la IA, las decisiones tomadas y los resultados de las comprobaciones.
+**Fecha:** 2026-11-17
+**Fase:** Implementación y documentación
+**Herramienta:** Codex Desktop
 
-Cuando una propuesta genere errores o requiera modificaciones, se documentará también la corrección realizada.
+**Objetivo**
+
+Aplicar mejoras autorizadas de forma secuencial, manteniendo la arquitectura y verificando cada cambio.
+
+**Registro**
+
+Resumen de la conversación, no transcripción literal. Se trabajó en la vista previa y el desglose de tarifas por tramos, la disponibilidad dinámica de divisas y la prueba del fallback cuando falla su carga. Después se solicitó una revisión amplia de la documentación.
+
+**Resultado y verificación**
+
+- Backend: 86 pruebas focalizadas de facturación/simulaciones y 49 de divisas; comprobación TypeScript satisfactoria.
+- Frontend: 17 pruebas focalizadas de selector y vista previa; después, 9 pruebas del selector, incluida la carga fallida.
+- La comprobación TypeScript del frontend mantiene un error `TS6133` por un import `act` no utilizado en `CustomerList.test.tsx`.
+- La implementación y los resultados se registran en `04-development-log.md` y `05-quality-review.md`.
 
 ---
 
-_Este registro se ampliará durante el desarrollo real de SaaS-O-Matic._
+_Registro resumido de interacciones relevantes; no conserva una transcripción completa de las conversaciones._

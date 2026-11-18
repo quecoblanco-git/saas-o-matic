@@ -1,4 +1,4 @@
--- CreateTable
+-- Crear tabla
 CREATE TABLE "Customer" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "companyName" TEXT NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "Customer" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- CreateTable
+-- Crear tabla
 CREATE TABLE "Simulation" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "customerId" TEXT NOT NULL,
@@ -30,5 +30,5 @@ CREATE TABLE "Simulation" (
     CONSTRAINT "Simulation_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- CreateIndex
+-- Crear índice
 CREATE UNIQUE INDEX "Customer_country_taxId_key" ON "Customer"("country", "taxId");

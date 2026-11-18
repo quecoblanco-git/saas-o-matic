@@ -11,6 +11,7 @@ import { SimulationForm } from "./SimulationForm";
 import { getCustomers } from "../../api/customers";
 import type { Customer } from "../../types/customer";
 import { createSimulation, previewSimulation } from "../../api/simulations";
+import { convertCurrency } from "../../api/currency";
 
 vi.mock("../../api/customers", () => ({
   getCustomers: vi.fn(),
@@ -19,6 +20,16 @@ vi.mock("../../api/customers", () => ({
 vi.mock("../../api/simulations", () => ({
   createSimulation: vi.fn(),
   previewSimulation: vi.fn(),
+}));
+
+vi.mock("../../api/currency", () => ({
+  convertCurrency: vi.fn(),
+  getAvailableCurrencies: vi.fn().mockResolvedValue({
+    baseCurrency: "EUR",
+    rates: { USD: "1.1", GBP: "0.85" },
+    ratesUpdatedAt: "2026-11-16T10:00:00.000Z",
+    isStale: false,
+  }),
 }));
 
 const mockCustomer: Customer = {
@@ -49,6 +60,26 @@ const mockPreview = {
   plan: "Enterprise",
   country: "FR",
   taxRate: "0.20",
+  tierBreakdown: [
+    {
+      tier: 1 as const,
+      userCount: 10,
+      unitPriceCents: 1000,
+      totalCents: 10000,
+    },
+    {
+      tier: 2 as const,
+      userCount: 10,
+      unitPriceCents: 800,
+      totalCents: 8000,
+    },
+    {
+      tier: 3 as const,
+      userCount: 0,
+      unitPriceCents: 500,
+      totalCents: 0,
+    },
+  ],
   usersCostCents: 18000,
   subtotalCents: 18000,
   taxCents: 3600,
@@ -85,7 +116,6 @@ describe("SimulationForm", () => {
 
     expect(slider).toHaveValue("10");
 
-    // Esperar a que finalice la carga asíncrona de clientes.
     expect(
       await screen.findByRole("option", {
         name: "Empresa de pruebas Francia",
@@ -110,7 +140,6 @@ describe("SimulationForm", () => {
       name: "Ajustar usuarios con el deslizador (0–500)",
     });
 
-    // Mover el slider debe actualizar el campo numérico.
     fireEvent.change(slider, {
       target: { value: "150" },
     });
@@ -118,7 +147,6 @@ describe("SimulationForm", () => {
     expect(activeUsersInput).toHaveValue(150);
     expect(slider).toHaveValue("150");
 
-    // Modificar el campo numérico debe actualizar el slider.
     fireEvent.change(activeUsersInput, {
       target: { value: "300" },
     });
@@ -126,14 +154,12 @@ describe("SimulationForm", () => {
     expect(activeUsersInput).toHaveValue(300);
     expect(slider).toHaveValue("300");
 
-    // El campo admite más de 500 usuarios.
     fireEvent.change(activeUsersInput, {
       target: { value: "750" },
     });
 
     expect(activeUsersInput).toHaveValue(750);
 
-    // El slider permanece limitado a 500.
     expect(slider).toHaveValue("500");
   });
 
@@ -143,17 +169,14 @@ describe("SimulationForm", () => {
 
     render(<SimulationForm onSimulationCreated={vi.fn()} />);
 
-    // Esperar a que se cargue el cliente.
     await screen.findByRole("option", {
       name: "Empresa de pruebas Francia",
     });
 
-    // Seleccionar el cliente.
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: mockCustomer.id },
     });
 
-    // Completar los datos de la simulación.
     fireEvent.change(
       screen.getByRole("spinbutton", { name: "Usuarios activos" }),
       { target: { value: "20" } },
@@ -175,16 +198,59 @@ describe("SimulationForm", () => {
       apiCalls: 1000,
     };
 
-    // Esperar a la petición automática de vista previa.
     await waitFor(() => {
       expect(previewSimulation).toHaveBeenCalledWith(expectedInput);
     });
 
-    // Comprobar el total calculado por el backend simulado.
     expect(await screen.findByText("216,00 €")).toBeInTheDocument();
+    expect(screen.getByText(/Tramo 1: 10 × 10,00/)).toBeInTheDocument();
+    expect(screen.getByText(/Tramo 2: 10 × 8,00/)).toBeInTheDocument();
+    expect(screen.getByText(/100,00/)).toBeInTheDocument();
+    expect(screen.getByText(/^80,00/)).toBeInTheDocument();
 
-    // La vista previa no debe crear ninguna simulación.
     expect(createSimulation).not.toHaveBeenCalled();
+  });
+
+  it("converts the live preview total to the selected currency", async () => {
+    vi.mocked(getCustomers).mockResolvedValue([mockCustomer]);
+    vi.mocked(previewSimulation).mockResolvedValue(mockPreview);
+    vi.mocked(convertCurrency).mockResolvedValue({
+      originalAmountCents: mockPreview.totalCents,
+      originalCurrency: "EUR",
+      convertedAmount: "237.60",
+      targetCurrency: "USD",
+      exchangeRate: "1.1",
+      ratesUpdatedAt: "2026-11-16T10:00:00.000Z",
+      isStale: false,
+    });
+
+    render(<SimulationForm onSimulationCreated={vi.fn()} />);
+
+    await screen.findByRole("option", {
+      name: "Empresa de pruebas Francia",
+    });
+    fireEvent.change(screen.getByRole("combobox"), {
+      target: { value: mockCustomer.id },
+    });
+    fireEvent.change(
+      screen.getByRole("spinbutton", { name: "Almacenamiento (GB)" }),
+      { target: { value: "100" } },
+    );
+    fireEvent.change(screen.getByRole("spinbutton", { name: "Llamadas API" }), {
+      target: { value: "1000" },
+    });
+
+    await screen.findByText("216,00 €");
+    await screen.findByRole("option", { name: "Dólar estadounidense (USD)" });
+    fireEvent.change(screen.getByLabelText("Divisa de visualización"), {
+      target: { value: "USD" },
+    });
+
+    expect(await screen.findByText("$237.60")).toBeInTheDocument();
+    expect(convertCurrency).toHaveBeenCalledWith({
+      amountCents: mockPreview.totalCents,
+      currency: "USD",
+    });
   });
 
   it("recalculates the preview when active users change", async () => {
@@ -227,15 +293,12 @@ describe("SimulationForm", () => {
       target: { value: "1000" },
     });
 
-    // Primera estimación: 20 usuarios.
     expect(await screen.findByText("216,00 €")).toBeInTheDocument();
 
-    // Cambiar a 50 usuarios mediante el slider.
     fireEvent.change(screen.getByRole("slider"), {
       target: { value: "50" },
     });
 
-    // Segunda estimación: 50 usuarios.
     await waitFor(() => {
       expect(previewSimulation).toHaveBeenCalledWith({
         customerId: mockCustomer.id,
@@ -247,7 +310,6 @@ describe("SimulationForm", () => {
 
     expect(await screen.findByText("504,00 €")).toBeInTheDocument();
 
-    // No se ha guardado ninguna simulación.
     expect(createSimulation).not.toHaveBeenCalled();
   });
 
@@ -290,19 +352,16 @@ describe("SimulationForm", () => {
       target: { value: "1000" },
     });
 
-    // Primera estimación: cliente francés.
     fireEvent.change(customerSelect, {
       target: { value: mockCustomer.id },
     });
 
     expect(await screen.findByText("216,00 €")).toBeInTheDocument();
 
-    // Cambiar al cliente español.
     fireEvent.change(customerSelect, {
       target: { value: mockCustomerES.id },
     });
 
-    // Debe solicitar una nueva estimación para el cliente español.
     await waitFor(() => {
       expect(previewSimulation).toHaveBeenCalledWith({
         customerId: mockCustomerES.id,
@@ -312,13 +371,10 @@ describe("SimulationForm", () => {
       });
     });
 
-    // El total debe incluir el 21 % de impuestos de España.
     expect(await screen.findByText("217,80 €")).toBeInTheDocument();
 
-    // No debe mantenerse el importe anterior.
     expect(screen.queryByText("216,00 €")).not.toBeInTheDocument();
 
-    // Ninguna vista previa debe crear simulaciones.
     expect(createSimulation).not.toHaveBeenCalled();
   });
 
@@ -345,13 +401,11 @@ describe("SimulationForm", () => {
       target: { value: "1000" },
     });
 
-    // Introducir un número de usuarios superior al permitido.
     fireEvent.change(
       screen.getByRole("spinbutton", { name: "Usuarios activos" }),
       { target: { value: "100001" } },
     );
 
-    // Esperar más que los 300 ms del debounce.
     await new Promise((resolve) => setTimeout(resolve, 400));
 
     expect(previewSimulation).not.toHaveBeenCalled();
@@ -395,7 +449,6 @@ describe("SimulationForm", () => {
       target: { value: "1000" },
     });
 
-    // Esperar a que falle la petición de vista previa.
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "No se pudo conectar con el servidor",
     );
@@ -407,7 +460,6 @@ describe("SimulationForm", () => {
       apiCalls: 1000,
     });
 
-    // El error de la vista previa no debe guardar una simulación.
     expect(createSimulation).not.toHaveBeenCalled();
   });
 
@@ -442,7 +494,6 @@ describe("SimulationForm", () => {
       name: "Usuarios activos",
     });
 
-    // Completar el formulario.
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: mockCustomer.id },
     });
@@ -456,7 +507,7 @@ describe("SimulationForm", () => {
       target: { value: "1000" },
     });
 
-    // Primera petición: 20 usuarios. Dejaremos su respuesta pendiente.
+    // La respuesta pendiente no debe sustituir la estimación más reciente.
     fireEvent.change(activeUsersInput, {
       target: { value: "20" },
     });
@@ -470,24 +521,20 @@ describe("SimulationForm", () => {
       });
     });
 
-    // Segunda petición: 50 usuarios.
     fireEvent.change(activeUsersInput, {
       target: { value: "50" },
     });
 
     expect(await screen.findByText("504,00 €")).toBeInTheDocument();
 
-    // La petición antigua de 20 usuarios termina después.
     await act(async () => {
       delayedResponse.resolve(mockPreview);
       await delayedResponse.promise;
     });
 
-    // La respuesta antigua no debe reemplazar la estimación actual.
     expect(screen.getByText("504,00 €")).toBeInTheDocument();
     expect(screen.queryByText("216,00 €")).not.toBeInTheDocument();
 
-    // Ninguna petición de vista previa debe guardar simulaciones.
     expect(createSimulation).not.toHaveBeenCalled();
   });
 });

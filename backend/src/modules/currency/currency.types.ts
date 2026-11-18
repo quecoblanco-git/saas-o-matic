@@ -1,11 +1,8 @@
-export type CurrencyCode = "EUR" | "USD" | "GBP";
+export type CurrencyCode = string;
 
 export interface ExchangeRates {
   baseCurrency: "EUR";
-  rates: {
-    USD: string;
-    GBP: string;
-  };
+  rates: Record<string, string>;
   fetchedAt: string;
 }
 
