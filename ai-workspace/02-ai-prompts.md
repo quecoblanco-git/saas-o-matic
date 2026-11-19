@@ -116,11 +116,13 @@ Resumen de la conversación, no transcripción literal. Se trabajó en la vista 
 
 **Resultado y verificación**
 
-- Backend: 86 pruebas focalizadas de facturación/simulaciones y 49 de divisas; comprobación TypeScript satisfactoria.
-- Frontend: 17 pruebas focalizadas de selector y vista previa; después, 9 pruebas del selector, incluida la carga fallida.
-- La comprobación del 17/11 detectó un import `act` sin uso en `CustomerList.test.tsx`; se eliminó el 18/11.
-- Verificación completa del 18/11: 460 pruebas de backend y 52 de frontend superadas; tipos y builds satisfactorios. El lint del frontend informa de dos avisos sobre `setState` dentro de efectos.
-- La implementación y los resultados se registran en `04-development-log.md` y `05-quality-review.md`.
+- Se realizaron pruebas focalizadas de facturación, simulaciones y divisas, además de comprobaciones de TypeScript.
+- En el frontend se comprobaron el selector de divisas, la actualización de la vista previa y el comportamiento ante fallos de carga.
+- Durante las verificaciones del 17/11 se registraron 446 pruebas de backend y 26 de frontend superadas.
+- Durante el 18/11 se alcanzaron 450 pruebas de backend y 30 de frontend en una verificación posterior.
+- La comprobación del 17/11 detectó un import `act` sin uso en `CustomerList.test.tsx`, que se eliminó posteriormente.
+- Estas cifras corresponden a verificaciones intermedias del proyecto, no necesariamente al cierre individual de cada mejora descrita.
+- La implementación y los resultados se detallan en `04-development-log.md` y `05-quality-review.md`.
 
 ### Interacción 04 — Rediseño de la interfaz principal
 
@@ -138,10 +140,13 @@ Resumen de la interacción, no transcripción literal. El usuario autorizó los 
 
 **Resultado y verificación**
 
-- Se ejecutó `npm run verify`: 460 pruebas de backend y 52 de frontend superadas; TypeScript y builds correctos.
-- El lint finalizó con dos avisos existentes sobre actualizaciones de estado dentro de efectos.
-- La revisión responsive y de accesibilidad fue estática. La comprobación visual en navegador quedó pendiente porque el navegador integrado no pudo cargar el servidor local.
-- Los cambios, verificaciones y límites se detallan en `04-development-log.md` y `05-quality-review.md`.
+- Se renovó la presentación visual del dashboard manteniendo sus funcionalidades principales.
+- Se realizaron comprobaciones del frontend y backend durante el desarrollo para detectar posibles regresiones.
+- Durante el 18/11 se registró una verificación intermedia con 450 pruebas de backend y 30 de frontend superadas. No se atribuye esta cifra al cierre exacto del rediseño sin disponer de su registro individual.
+- Las comprobaciones de TypeScript y las compilaciones realizadas durante el proceso resultaron satisfactorias.
+- Se identificaron dos advertencias del lint relacionadas con actualizaciones de estado dentro de efectos React.
+- La revisión responsive y de accesibilidad realizada por Codex fue principalmente estática. La comprobación visual mediante su navegador integrado quedó limitada porque no pudo acceder al servidor local.
+- Los cambios, verificaciones y limitaciones se detallan en `04-development-log.md` y `05-quality-review.md`.
 
 ### Interacción 05 — Eliminación segura de clientes y simulaciones
 
@@ -155,14 +160,16 @@ Añadir la eliminación confirmada de clientes y simulaciones, conservar la inte
 
 **Registro**
 
-Se implementaron endpoints `DELETE` con respuestas 204/404. La eliminación de clientes borra sus simulaciones dentro de una transacción Prisma; la eliminación individual utiliza una operación acotada a la simulación solicitada. El frontend usa confirmaciones nativas accesibles, contempla errores y gestiona respuestas 204 sin intentar leer JSON. Se actualizaron requisitos, arquitectura, README y registros del proceso.
+Se implementaron endpoints `DELETE` con respuestas 204/404. La eliminación de clientes borra sus simulaciones dentro de una transacción Prisma; la eliminación individual utiliza una operación acotada a la simulación solicitada. El frontend usa confirmaciones nativas, contempla errores y gestiona respuestas 204 sin intentar leer JSON. Se actualizaron requisitos, arquitectura, README y registros del proceso.
 
 **Resultado y verificación**
 
-- `npm run verify` (19/11/2026): 460 pruebas de backend y 52 de frontend superadas; TypeScript y compilaciones correctos.
-- El lint finalizó con dos avisos `react(set-state-in-effect)` en componentes de simulaciones.
-- Las pruebas de integración con SQLite verificaron el borrado de clientes con y sin simulaciones, la ausencia de huérfanos y la conservación del cliente y de otras simulaciones al borrar un único registro.
-- El 19/11/2026, se revisó manualmente todas las características y se confirmó que funcionan correctamente.
+- En la verificación completa del 19/11/2026, el backend superó **460 pruebas distribuidas en 18 archivos**.
+- El frontend superó **52 pruebas distribuidas en 7 archivos**.
+- Se superaron las comprobaciones de TypeScript y las compilaciones de backend y frontend.
+- El lint finalizó con cero errores y dos advertencias `react(set-state-in-effect)` en componentes de simulaciones.
+- Las pruebas de integración con SQLite verificaron el borrado de clientes con y sin simulaciones, la ausencia de registros huérfanos y la conservación del cliente y de otras simulaciones al eliminar una simulación individual.
+- La prueba manual de instalación y funcionamiento realizada previamente permitió comprobar las funcionalidades principales desde una copia descargada de GitHub. Esta comprobación no constituye, por sí sola, una validación manual posterior de todas las nuevas operaciones de eliminación.
 - El prompt íntegro se reproduce como Prompt 5.
 
 ---
@@ -183,7 +190,12 @@ Se crearon `docs/installation-guide.md` y `docs/user-guide.md`, se añadieron en
 
 **Verificación**
 
-Se revisaron estáticamente los comandos, rutas, ejemplos, enlaces y estructura Markdown. Los ejemplos de validación se contrastaron con los esquemas y pruebas existentes; se ejecutaron las pruebas focalizadas de validadores fiscales y facturación. No se alteró código ni se realizó una instalación nueva en esta intervención.
+- Se revisaron estáticamente los comandos, rutas, ejemplos, enlaces y estructura Markdown.
+- Los ejemplos de validación se contrastaron con los esquemas y las pruebas existentes.
+- Se realizaron comprobaciones focalizadas de validadores fiscales y facturación durante el proceso de desarrollo.
+- No se modificó la lógica funcional de la aplicación ni se realizó una instalación nueva durante esta intervención documental.
+- Tras las últimas modificaciones, la verificación completa del proyecto ejecutada el 19/11/2026 finalizó con **460 pruebas de backend y 52 de frontend superadas**, un total de **512 pruebas**.
+- Las comprobaciones de tipos y las compilaciones fueron satisfactorias. El lint presentó cero errores y dos advertencias no bloqueantes.
 
 **Prompt íntegro:** Prompt 6.
 
@@ -195,215 +207,295 @@ Los siguientes bloques reproducen los seis prompts más relevantes facilitados d
 
 ### Prompt 1 — Desarrollo inicial de SaaS-O-Matic
 
-- **Fecha original:** 13/11/2026
-- **Herramienta:** Codex.
-- **Objetivo:** Definir el alcance inicial, el stack, la metodología de desarrollo, los criterios de calidad y el plan previo a la implementación.
-
+- Fecha original: 13/11/2026
+- Herramienta: Codex.
+- Objetivo: Definir el alcance inicial, el stack, la metodología de desarrollo, los criterios de calidad y el plan previo a la implementación.
 <details>
-
 <summary>Mostrar el prompt completo</summary>
 
 ```text
 Prompt inicial - desarrollo de saas-o-matic
+
 1. Contexto del proyecto
+
 Voy a desarrollar una aplicación denominada SaaS-O-Matic (Dynamic Billing & Subscription Optimizer) como parte de una prueba técnica para un proceso de selección de Desarrollador Full-Stack AI-Augmented en Roams.
-El objetivo es construir una aplicación web funcional, bien estructurada, mantenible y correctamente documentada que permita gestionar clientes SaaS y realizar simulaciones de facturación.
-Te proporcionaré el enunciado oficial de la prueba técnica, que deberá considerarse la principal fuente de requisitos.
-Quiero que actúes como un desarrollador Full-Stack sénior, arquitecto de software y mentor técnico, ayudándome durante todo el proceso de análisis, planificación, implementación, pruebas y documentación.
-El desarrollo debe demostrar tanto mis capacidades técnicas como mi habilidad para utilizar herramientas de inteligencia artificial de forma responsable y eficiente.
+
+El objetivo es construir una aplicación web funcional, bien estructurada, mantenible y correctamente documentada que permita gestionar clientes SaaS y realizar simulaciones de facturación. Te proporcionaré el enunciado oficial de la prueba técnica, que deberá considerarse la principal fuente de requisitos.
+
+Quiero que actúes como un desarrollador Full-Stack sénior, arquitecto de software y mentor técnico, ayudándome durante todo el proceso de análisis, planificación, implementación, pruebas y documentación. El desarrollo debe demostrar tanto mis capacidades técnicas como mi habilidad para utilizar herramientas de inteligencia artificial de forma responsable y eficiente.
+
 2. Objetivos principales
+
 La aplicación deberá permitir, conforme al enunciado:
-    • Registrar y gestionar clientes.
-    • Validar los datos introducidos, incluidos sus identificadores fiscales.
-    • Buscar y consultar clientes registrados.
-    • Seleccionar planes SaaS.
-    • Realizar simulaciones de facturación.
-    • Calcular importes utilizando las reglas económicas establecidas.
-    • Aplicar los impuestos correspondientes.
-    • Consultar simulaciones anteriores.
-    • Visualizar los resultados mediante una interfaz clara e intuitiva.
-    • Incorporar las funcionalidades adicionales que exija el enunciado, como la conversión de divisas.
+
+- Registrar y gestionar clientes.
+- Validar los datos introducidos, incluidos sus identificadores fiscales.
+- Buscar y consultar clientes registrados.
+- Seleccionar planes SaaS.
+- Realizar simulaciones de facturación.
+- Calcular importes utilizando las reglas económicas establecidas.
+- Aplicar los impuestos correspondientes.
+- Consultar simulaciones anteriores.
+- Visualizar los resultados mediante una interfaz clara e intuitiva.
+- Incorporar las funcionalidades adicionales que exija el enunciado, como la conversión de divisas.
+
 No debes inventar reglas de negocio ni introducir funcionalidades que contradigan el enunciado.
+
 Si detectas ambigüedades, contradicciones o aspectos insuficientemente definidos, identifícalos y explícame sus posibles interpretaciones antes de implementar una solución.
+
 3. Tecnologías seleccionadas
+
 Utilizaremos el siguiente stack tecnológico:
+
 Frontend
-    • React con TypeScript.
-    • Vite.
-    • Tailwind CSS.
-    • Componentes funcionales y hooks.
-    • Vitest y React Testing Library.
+
+- React con TypeScript.
+- Vite.
+- Tailwind CSS.
+- Componentes funcionales y hooks.
+- Vitest y React Testing Library.
+
 Backend
-    • Node.js.
-    • Express.
-    • TypeScript.
-    • Zod para validaciones.
-    • Prisma ORM.
-    • SQLite.
-    • Vitest y Supertest.
+
+- Node.js.
+- Express.
+- TypeScript.
+- Zod para validaciones.
+- Prisma ORM.
+- SQLite.
+- Vitest y Supertest.
+
 Herramientas
-    • Visual Studio Code.
-    • Git y GitHub.
-    • npm.
-    • Windows y PowerShell.
-    • Herramientas de inteligencia artificial para apoyar el desarrollo.
+
+- Visual Studio Code.
+- Git y GitHub.
+- npm.
+- Windows y PowerShell.
+- Herramientas de inteligencia artificial para apoyar el desarrollo.
+
 Prioriza soluciones sencillas, modernas y compatibles entre sí.
+
 Evita incorporar dependencias innecesarias o tecnologías adicionales sin justificar su utilidad.
+
 4. Estructura del proyecto
+
 El proyecto se desarrollará en la siguiente ubicación:
+
 saas-o-matic/
+
 La organización principal será:
+
 saas-o-matic/
+
 ├── ai-workspace/
 ├── backend/
 ├── docs/
 ├── frontend/
 ├── README.md
 └── .gitignore
+
 frontend/
+
 Contendrá la aplicación React, los componentes, las llamadas a la API, los tipos de datos, los estilos y las pruebas.
+
 backend/
+
 Contendrá la API REST, los módulos de negocio, los servicios, las validaciones, la configuración de Prisma y las pruebas automatizadas.
+
 docs/
+
 Contendrá los requisitos, la arquitectura, las decisiones de diseño y la documentación funcional y técnica.
+
 ai-workspace/
+
 Registrará el uso de inteligencia artificial durante el desarrollo: planificación, prompts, decisiones técnicas, evolución del proyecto y revisión de calidad.
+
 La estructura podrá ampliarse cuando sea necesario, pero deberá mantenerse coherente y evitar una fragmentación excesiva.
+
 5. Metodología de desarrollo
+
 Quiero desarrollar el proyecto de forma incremental, ordenada y comprensible.
+
 Seguiremos estas fases generales:
+
 Fase 1. Análisis
-    1. Leer íntegramente el enunciado.
-    2. Identificar los requisitos funcionales y no funcionales.
-    3. Detectar dudas, limitaciones y ambigüedades.
-    4. Proponer una arquitectura adecuada.
-    5. Justificar las tecnologías seleccionadas.
+
+1. Leer íntegramente el enunciado.
+2. Identificar los requisitos funcionales y no funcionales.
+3. Detectar dudas, limitaciones y ambigüedades.
+4. Proponer una arquitectura adecuada.
+5. Justificar las tecnologías seleccionadas.
+
 Fase 2. Preparación
-    1. Comprobar el entorno de desarrollo.
-    2. Crear y organizar las carpetas.
-    3. Configurar el frontend y el backend.
-    4. Instalar y configurar las dependencias.
-    5. Preparar TypeScript, Prisma, SQLite y las herramientas de pruebas.
-    6. Inicializar el repositorio Git.
+
+1. Comprobar el entorno de desarrollo.
+2. Crear y organizar las carpetas.
+3. Configurar el frontend y el backend.
+4. Instalar y configurar las dependencias.
+5. Preparar TypeScript, Prisma, SQLite y las herramientas de pruebas.
+6. Inicializar el repositorio Git.
+
 Fase 3. Backend
-    1. Diseñar los modelos de datos.
-    2. Configurar la base de datos.
-    3. Implementar las validaciones.
-    4. Implementar la lógica de negocio.
-    5. Crear los servicios y endpoints REST.
-    6. Gestionar adecuadamente los errores.
-    7. Incorporar pruebas unitarias y de integración.
+
+1. Diseñar los modelos de datos.
+2. Configurar la base de datos.
+3. Implementar las validaciones.
+4. Implementar la lógica de negocio.
+5. Crear los servicios y endpoints REST.
+6. Gestionar adecuadamente los errores.
+7. Incorporar pruebas unitarias y de integración.
+
 Fase 4. Frontend
-    1. Diseñar una interfaz sencilla, profesional y responsive.
-    2. Implementar los formularios necesarios.
-    3. Conectar los componentes con la API.
-    4. Mostrar correctamente los resultados de las simulaciones.
-    5. Implementar los listados, búsquedas e historiales.
-    6. Gestionar estados de carga, errores y ausencia de datos.
-    7. Incorporar pruebas de interfaz.
+
+1. Diseñar una interfaz sencilla, profesional y responsive.
+2. Implementar los formularios necesarios.
+3. Conectar los componentes con la API.
+4. Mostrar correctamente los resultados de las simulaciones.
+5. Implementar los listados, búsquedas e historiales.
+6. Gestionar estados de carga, errores y ausencia de datos.
+7. Incorporar pruebas de interfaz.
+
 Fase 5. Verificación
-    1. Comprobar los requisitos funcionales.
-    2. Ejecutar las pruebas automatizadas.
-    3. Verificar las compilaciones.
-    4. Revisar casos límite.
-    5. Detectar posibles errores de seguridad, validación o precisión monetaria.
-    6. Comprobar la integración completa entre frontend y backend.
+
+1. Comprobar los requisitos funcionales.
+2. Ejecutar las pruebas automatizadas.
+3. Verificar las compilaciones.
+4. Revisar casos límite.
+5. Detectar posibles errores de seguridad, validación o precisión monetaria.
+6. Comprobar la integración completa entre frontend y backend.
+
 Fase 6. Documentación y entrega
-    1. Completar el README.
-    2. Documentar la arquitectura.
-    3. Explicar las decisiones técnicas.
-    4. Registrar cómo se ha utilizado la inteligencia artificial.
-    5. Preparar las evidencias necesarias.
-    6. Revisar que el repositorio pueda instalarse y ejecutarse siguiendo las instrucciones.
-    7. Comprobar que se cumplen las condiciones de entrega.
+
+1. Completar el README.
+2. Documentar la arquitectura.
+3. Explicar las decisiones técnicas.
+4. Registrar cómo se ha utilizado la inteligencia artificial.
+5. Preparar las evidencias necesarias.
+6. Revisar que el repositorio pueda instalarse y ejecutarse siguiendo las instrucciones.
+7. Comprobar que se cumplen las condiciones de entrega.
+
 6. Instrucciones sobre el código
+
 El código deberá cumplir las siguientes características:
-    • Estar escrito en TypeScript siempre que corresponda.
-    • Utilizar nombres descriptivos y coherentes.
-    • Mantener una separación clara de responsabilidades.
-    • Evitar duplicaciones innecesarias.
-    • Incorporar validaciones en los puntos adecuados.
-    • Gestionar correctamente los errores.
-    • Priorizar la legibilidad y la mantenibilidad.
-    • Evitar soluciones excesivamente complejas para el alcance de la prueba.
-    • Utilizar comentarios en español cuando aporten información útil, sin comentar innecesariamente instrucciones evidentes.
+
+- Estar escrito en TypeScript siempre que corresponda.
+- Utilizar nombres descriptivos y coherentes.
+- Mantener una separación clara de responsabilidades.
+- Evitar duplicaciones innecesarias.
+- Incorporar validaciones en los puntos adecuados.
+- Gestionar correctamente los errores.
+- Priorizar la legibilidad y la mantenibilidad.
+- Evitar soluciones excesivamente complejas para el alcance de la prueba.
+- Utilizar comentarios en español cuando aporten información útil, sin comentar innecesariamente instrucciones evidentes.
+
 No quiero construir una arquitectura empresarial sobredimensionada, sino una aplicación sólida, proporcionada a los requisitos de una prueba técnica.
+
 7. Pruebas y calidad
+
 Las funcionalidades relevantes deberán contar con pruebas automatizadas.
+
 Presta especial atención a:
-    • Validaciones de formularios.
-    • Identificadores fiscales.
-    • Cálculos monetarios.
-    • Redondeos.
-    • Impuestos.
-    • Límites y casos extremos.
-    • Persistencia y recuperación de datos.
-    • Errores de la API.
-    • Integración entre componentes.
-    • Funcionamiento de las simulaciones.
+
+- Validaciones de formularios.
+- Identificadores fiscales.
+- Cálculos monetarios.
+- Redondeos.
+- Impuestos.
+- Límites y casos extremos.
+- Persistencia y recuperación de datos.
+- Errores de la API.
+- Integración entre componentes.
+- Funcionamiento de las simulaciones.
+
 Cuando detectes un error, explica primero su causa probable y después propón una corrección concreta.
+
 No afirmes que una prueba ha pasado si no existe evidencia de su ejecución.
+
 8. Documentación del uso de inteligencia artificial
+
 La prueba técnica está relacionada con el desarrollo asistido por inteligencia artificial, por lo que quiero documentar adecuadamente este proceso.
+
 Registra, cuando corresponda:
-    • Los prompts más relevantes utilizados.
-    • Las decisiones tomadas con ayuda de IA.
-    • Las alternativas técnicas consideradas.
-    • Las soluciones propuestas y aceptadas.
-    • Los problemas detectados.
-    • Las correcciones realizadas.
-    • Las comprobaciones efectuadas manualmente.
+
+- Los prompts más relevantes utilizados.
+- Las decisiones tomadas con ayuda de IA.
+- Las alternativas técnicas consideradas.
+- Las soluciones propuestas y aceptadas.
+- Los problemas detectados.
+- Las correcciones realizadas.
+- Las comprobaciones efectuadas manualmente.
+
 La documentación debe reflejar de forma transparente cómo se ha utilizado la IA y qué partes han sido verificadas por el desarrollador.
+
 9. Evidencias y capturas
+
 Durante el desarrollo, identifica los momentos en los que sería recomendable guardar capturas de pantalla como evidencia del trabajo realizado.
+
 Por ejemplo:
-    • Configuración del entorno.
-    • Estructura del proyecto.
-    • Modelos y relaciones de datos.
-    • Diagramas de arquitectura.
-    • Ejecución de pruebas.
-    • Funcionamiento de la aplicación.
-    • Resultados de las simulaciones.
+
+- Configuración del entorno.
+- Estructura del proyecto.
+- Modelos y relaciones de datos.
+- Diagramas de arquitectura.
+- Ejecución de pruebas.
+- Funcionamiento de la aplicación.
+- Resultados de las simulaciones.
+
 No es necesario generar capturas continuamente. Prioriza aquellas que aporten valor a la documentación y a la presentación final.
+
 10. Forma de trabajar conmigo
+
 Estas instrucciones son especialmente importantes.
+
 Quiero entender y controlar todo el proceso de desarrollo.
+
 Por tanto:
-    1. Explica con claridad qué vamos a realizar y por qué.
-    2. Divide el desarrollo en pasos concretos y ordenados.
-    3. Proporciona las rutas exactas de los archivos que debamos modificar.
-    4. Cuando sea necesario ejecutar comandos, indícame cuáles son y desde qué directorio.
-    5. Diferencia claramente el código nuevo del que debe sustituirse.
-    6. Evita realizar modificaciones no solicitadas.
-    7. No cambies decisiones arquitectónicas previamente acordadas sin explicarlo.
-    8. No introduzcas nuevas dependencias sin justificar su necesidad.
-    9. Cuando te comparta un resultado o un error, analízalo antes de continuar.
-    10. No avances dando por supuesto que una acción ha funcionado si todavía no la hemos verificado.
+
+1. Explica con claridad qué vamos a realizar y por qué.
+2. Divide el desarrollo en pasos concretos y ordenados.
+3. Proporciona las rutas exactas de los archivos que debamos modificar.
+4. Cuando sea necesario ejecutar comandos, indícame cuáles son y desde qué directorio.
+5. Diferencia claramente el código nuevo del que debe sustituirse.
+6. Evita realizar modificaciones no solicitadas.
+7. No cambies decisiones arquitectónicas previamente acordadas sin explicarlo.
+8. No introduzcas nuevas dependencias sin justificar su necesidad.
+9. Cuando te comparta un resultado o un error, analízalo antes de continuar.
+10. No avances dando por supuesto que una acción ha funcionado si todavía no la hemos verificado.
+
 Durante las primeras fases, prefiero avanzar paso a paso para familiarizarme con el proyecto. Más adelante podremos agrupar tareas y comprobaciones para acelerar el desarrollo.
+
 11. Prioridades generales
+
 Aplica el siguiente orden de prioridades:
-    1. Cumplimiento del enunciado oficial.
-    2. Funcionamiento correcto de la aplicación.
-    3. Precisión de los cálculos y validaciones.
-    4. Integridad de los datos.
-    5. Calidad y mantenibilidad del código.
-    6. Experiencia de usuario.
-    7. Cobertura de pruebas.
-    8. Documentación.
-    9. Mejoras estéticas o funcionalidades adicionales.
+
+1. Cumplimiento del enunciado oficial.
+2. Funcionamiento correcto de la aplicación.
+3. Precisión de los cálculos y validaciones.
+4. Integridad de los datos.
+5. Calidad y mantenibilidad del código.
+6. Experiencia de usuario.
+7. Cobertura de pruebas.
+8. Documentación.
+9. Mejoras estéticas o funcionalidades adicionales.
+
 No sacrifiques el cumplimiento de los requisitos por añadir funcionalidades visualmente atractivas pero innecesarias.
+
 12. Primera tarea
+
 Antes de comenzar a programar, quiero que:
-    1. Analices detenidamente el enunciado que voy a proporcionarte.
-    2. Resumas qué aplicación debemos construir.
-    3. Identifiques todos los requisitos principales.
-    4. Propongas una arquitectura técnica.
-    5. Valides la idoneidad del stack tecnológico seleccionado.
-    6. Propongas una estructura inicial de carpetas.
-    7. Dividas el desarrollo en fases y tareas.
-    8. Señales los principales riesgos técnicos.
-    9. Identifiques cualquier información que debamos aclarar antes de comenzar.
+
+1. Analices detenidamente el enunciado que voy a proporcionarte.
+2. Resumas qué aplicación debemos construir.
+3. Identifiques todos los requisitos principales.
+4. Propongas una arquitectura técnica.
+5. Valides la idoneidad del stack tecnológico seleccionado.
+6. Propongas una estructura inicial de carpetas.
+7. Dividas el desarrollo en fases y tareas.
+8. Señales los principales riesgos técnicos.
+9. Identifiques cualquier información que debamos aclarar antes de comenzar.
+
 No empieces a implementar código todavía.
+
 Primero quiero revisar contigo el análisis y el plan de desarrollo. Una vez acordados, comenzaremos la implementación siguiendo la metodología indicada.
 
 ```

@@ -118,7 +118,6 @@ Para Alemania se admitirá únicamente USt-IdNr., sin incluir otros identificado
 
 Esta selección constituye una simplificación funcional del simulador y no pretende representar todos los identificadores legalmente válidos en ambos países.
 
-
 **Referencias técnicas**
 
 - `DT-010`: validación de identificadores fiscales españoles.
@@ -173,7 +172,6 @@ El dashboard permitirá eliminar un cliente mediante `DELETE /customers/:id`.
 - Tras borrar, se actualizarán el listado, la selección del historial y los formularios que dependan de ese cliente.
 - Las pruebas comprobarán la eliminación de clientes con y sin simulaciones y la ausencia de registros huérfanos.
 
-
 ### 2.2. Simulaciones
 
 **RF-004 — Creación de simulaciones**
@@ -201,7 +199,6 @@ Cada solicitud incluirá:
 - Una creación correcta devuelve HTTP 201 con el identificador de la simulación y los datos necesarios para consultar su resultado.
 - Si el cliente no existe o los datos son inválidos, la API devuelve un error HTTP controlado y no almacena ninguna simulación.
 - Se incluyen pruebas automatizadas para la creación correcta, los valores límite, las entradas inválidas y los clientes inexistentes.
-
 
 **RF-005 — Historial de simulaciones**
 
@@ -254,7 +251,6 @@ Desde el historial, el usuario podrá eliminar una simulación mediante `DELETE 
 - `RT-008`: modelo de datos y persistencia histórica.
 - `RF-009`: conversión de divisas para visualización.
 - `CP-008`: comportamiento del historial y carga incremental.
-
 
 ### 2.3. Motor de facturación
 
@@ -310,8 +306,7 @@ Para un número entero no negativo de usuarios `n`:
 - El número de usuarios debe ser un entero no negativo.
 - No se aceptarán valores negativos, decimales ni entradas que no representen un número válido.
 - El valor 0 es válido y produce un coste por usuarios de 0 €.
-- El límite máximo técnico admitido por la API se establecerá antes de implementar la validación correspondiente.
-
+- El límite máximo técnico admitido por la API es de 100 000 usuarios.
 
 ### RF-007 — Planes de suscripción y datos de consumo sin coste adicional
 
@@ -330,7 +325,6 @@ Los planes disponibles son Starter, Professional y Enterprise. El almacenamiento
 - Los importes se calculan inicialmente en euros.
 - Los cálculos monetarios siguen la política de precisión y redondeo establecida en RT-007.
 - Se incluyen pruebas automatizadas que verifican que el plan, el almacenamiento y las llamadas a la API no modifican el precio.
-
 
 **RF-008 — Impuestos por país**
 
@@ -392,7 +386,6 @@ Los porcentajes de impuestos son decisiones propias del proyecto, documentadas e
 La configuración fiscal es estática y está destinada exclusivamente a la simulación comercial de esta prueba técnica.
 
 No se contemplan reglas especiales por tipo de cliente, operaciones intracomunitarias, exenciones fiscales ni cambios históricos de tasas.
-
 
 ### 2.4. Conversión de divisas
 
@@ -510,7 +503,6 @@ Cada tarjeta permitirá acceder al historial de simulaciones del cliente corresp
 - `RF-005`: historial de simulaciones.
 - `RF-009`: conversión de divisas.
 
-
 **RF-011 — Simulación interactiva**
 
 El usuario podrá modificar el número de usuarios mediante un control deslizante (_slider_) y visualizar una proyección del coste mensual.
@@ -557,7 +549,6 @@ El usuario podrá modificar el número de usuarios mediante un control deslizant
 - `RT-007`: precisión monetaria.
 - `CP-009`: comportamiento del selector de usuarios.
 
-
 **RF-012 — Diseño responsive**
 
 La interfaz se adaptará a pantallas de escritorio, tabletas y dispositivos móviles, manteniendo accesibles y utilizables las funcionalidades principales de SaaS-O-Matic.
@@ -592,7 +583,6 @@ La interfaz se adaptará a pantallas de escritorio, tabletas y dispositivos móv
 - `RF-009`: conversión de divisas.
 - `RF-010`: visualización de clientes.
 - `RF-011`: simulación interactiva.
-
 
 ---
 
@@ -689,21 +679,21 @@ El identificador fiscal será único dentro de cada país mediante una restricci
 
 Representará una simulación de facturación realizada para un cliente.
 
-| Campo              | Descripción                                   |
-| ------------------ | --------------------------------------------- |
-| `id`               | Identificador único de la simulación          |
-| `customerId`       | Referencia al cliente                         |
-| `activeUsers`      | Número de usuarios activos                    |
-| `storageGb`        | Almacenamiento utilizado en GB                |
-| `apiCalls`         | Número estimado de llamadas API               |
-| `planSnapshot`     | Plan utilizado al realizar la simulación      |
-| `countrySnapshot`  | País utilizado al realizar la simulación      |
-| `taxRateSnapshot`  | Porcentaje de impuestos aplicado              |
-| `usersCostCents`   | Coste de usuarios en céntimos                 |
-| `subtotalCents`    | Subtotal mensual en céntimos                  |
-| `taxCents`         | Importe de impuestos en céntimos              |
-| `totalCents`       | Total mensual en euros, expresado en céntimos |
-| `createdAt`        | Fecha de creación de la simulación            |
+| Campo             | Descripción                                   |
+| ----------------- | --------------------------------------------- |
+| `id`              | Identificador único de la simulación          |
+| `customerId`      | Referencia al cliente                         |
+| `activeUsers`     | Número de usuarios activos                    |
+| `storageGb`       | Almacenamiento utilizado en GB                |
+| `apiCalls`        | Número estimado de llamadas API               |
+| `planSnapshot`    | Plan utilizado al realizar la simulación      |
+| `countrySnapshot` | País utilizado al realizar la simulación      |
+| `taxRateSnapshot` | Porcentaje de impuestos aplicado              |
+| `usersCostCents`  | Coste de usuarios en céntimos                 |
+| `subtotalCents`   | Subtotal mensual en céntimos                  |
+| `taxCents`        | Importe de impuestos en céntimos              |
+| `totalCents`      | Total mensual en euros, expresado en céntimos |
+| `createdAt`       | Fecha de creación de la simulación            |
 
 **Relaciones y restricciones**
 
@@ -984,13 +974,13 @@ Las decisiones que concretan aspectos no especificados por el enunciado se docum
 | ID     | Cuestión                                                                                                                     | Impacto                                                     |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | CP-001 | Sustituida por AR-001: los planes son informativos y no añaden cuotas                                                        | Aclaración oficial de Roams                                 |
-| CP-002 | Sustituida por AR-002: el almacenamiento no genera costes adicionales                                                       | Aclaración oficial de Roams                                 |
-| CP-003 | Sustituida por AR-003: las llamadas a la API no generan costes adicionales                                                  | Aclaración oficial de Roams                                 |
+| CP-002 | Sustituida por AR-002: el almacenamiento no genera costes adicionales                                                        | Aclaración oficial de Roams                                 |
+| CP-003 | Sustituida por AR-003: las llamadas a la API no generan costes adicionales                                                   | Aclaración oficial de Roams                                 |
 | CP-004 | Resuelta: España (21 %), Francia (20 %) y Alemania (19 %)                                                                    | Configuración fiscal simplificada para simulaciones         |
 | CP-005 | Resuelta: SIREN para Francia y USt-IdNr. para Alemania                                                                       | Validación básica de formato y longitud, definida en RF-002 |
 | CP-006 | Resuelta: decimal.js, ROUND_HALF_UP y dos decimales                                                                          | Política de cálculo monetario definida en RT-007            |
 | CP-007 | Resuelta: caché de divisas de 1 hora, uso de tasas anteriores ante fallos y mantenimiento de EUR si no hay tasas disponibles | Política de contingencia definida en DT-015 y RF-009        |
-| CP-008 | Resuelta: historial por cliente, orden descendente y 10 registros iniciales con opción «Mostrar más»                         | Historial en RF-005 y acceso desde el dashboard en RF-010    |
+| CP-008 | Resuelta: historial por cliente, orden descendente y 10 registros iniciales con opción «Mostrar más»                         | Historial en RF-005 y acceso desde el dashboard en RF-010   |
 | CP-009 | Resuelta: slider de 0 a 500 usuarios, incremento de 1, valor inicial de 10 y campo numérico para cantidades superiores       | Vista previa inmediata sin guardado automático              |
 
 Todas las cuestiones de especificación identificadas durante el desarrollo quedaron resueltas mediante decisiones explícitas y documentadas. El registro refleja las aclaraciones disponibles para esta entrega.
@@ -1016,11 +1006,11 @@ Esta es la especificación consolidada de SaaS-O-Matic e incorpora las aclaracio
 
 Estas aclaraciones sustituyen las hipótesis iniciales incompatibles:
 
-| ID | Aclaración | Aplicación en el proyecto |
-| -- | ---------- | ------------------------- |
-| AR-001 | Los planes son informativos. | No se añade cuota por Starter, Professional o Enterprise. |
-| AR-002 | El almacenamiento debe registrarse y mostrarse. | No genera costes. |
-| AR-003 | Las llamadas API deben registrarse y mostrarse. | No generan costes. |
-| AR-004 | El importe base depende solo de usuarios. | Se aplican los tramos acumulativos de RF-006. |
-| AR-005 | La simulación presenta los datos y resultados económicos. | Se muestran consumo, subtotal, impuesto y total. |
+| ID     | Aclaración                                                          | Aplicación en el proyecto                                                        |
+| ------ | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| AR-001 | Los planes son informativos.                                        | No se añade cuota por Starter, Professional o Enterprise.                        |
+| AR-002 | El almacenamiento debe registrarse y mostrarse.                     | No genera costes.                                                                |
+| AR-003 | Las llamadas API deben registrarse y mostrarse.                     | No generan costes.                                                               |
+| AR-004 | El importe base depende solo de usuarios.                           | Se aplican los tramos acumulativos de RF-006.                                    |
+| AR-005 | La simulación presenta los datos y resultados económicos.           | Se muestran consumo, subtotal, impuesto y total.                                 |
 | AR-006 | Se permite documentar en español y adoptar decisiones justificadas. | Las decisiones propias se registran en `ai-workspace/03-technical-decisions.md`. |

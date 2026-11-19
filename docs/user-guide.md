@@ -26,13 +26,13 @@ Inicia la aplicación siguiendo la [guía de instalación](installation-guide.md
 
 En **Clientes → Registrar cliente**, completa los campos:
 
-| Campo | Reglas vigentes |
-| --- | --- |
-| Nombre de la empresa | Obligatorio; entre 1 y 150 caracteres después de quitar espacios exteriores. |
-| Identificación fiscal | Obligatoria; debe ajustarse al formato asociado al país seleccionado. |
-| Correo electrónico | Obligatorio; formato de email y máximo 254 caracteres. Se eliminan espacios exteriores y se convierte a minúsculas. |
-| País | Obligatorio: España (`ES`), Francia (`FR`) o Alemania (`DE`). |
-| Plan | Obligatorio: `Starter`, `Professional` o `Enterprise`. El plan es informativo y no afecta al precio de la simulación. |
+| Campo                 | Reglas vigentes                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Nombre de la empresa  | Obligatorio; entre 1 y 150 caracteres después de quitar espacios exteriores.                                          |
+| Identificación fiscal | Obligatoria; debe ajustarse al formato asociado al país seleccionado.                                                 |
+| Correo electrónico    | Obligatorio; formato de email y máximo 254 caracteres. Se eliminan espacios exteriores y se convierte a minúsculas.   |
+| País                  | Obligatorio: España (`ES`), Francia (`FR`) o Alemania (`DE`).                                                         |
+| Plan                  | Obligatorio: `Starter`, `Professional` o `Enterprise`. El plan es informativo y no afecta al precio de la simulación. |
 
 Al guardar, también se recortan espacios exteriores del nombre y del identificador; este último se convierte a mayúsculas. Los separadores dentro de un identificador se conservan y normalmente hacen que no pase el formato. Un identificador no puede repetirse para el mismo país. La aplicación no consulta registros fiscales oficiales.
 
@@ -46,64 +46,64 @@ El frontend marca los campos inválidos y el backend vuelve a validar los datos 
 - **NIE:** `X`, `Y` o `Z`, siete dígitos y una letra de control calculada con la equivalencia `X=0`, `Y=1`, `Z=2` y la misma tabla de control del DNI.
 - **NIF de entidad:** una letra de prefijo admitida, siete dígitos y un control numérico o alfabético según el prefijo. El cálculo suma dígitos con duplicación alterna.
 
-| Ejemplo | Resultado del validador | Motivo |
-| --- | --- | --- |
-| `12345678Z` | Aceptado | DNI con letra de control coincidente. |
-| `12345678A` | Rechazado | Letra de control incorrecta. |
-| `X0000000T` | Aceptado | NIE con formato y control correctos. |
-| `B12345674` | Aceptado | NIF de entidad con control numérico coincidente. |
-| `B1234567D` | Rechazado | Prefijo `B` requiere control numérico y el control no coincide. |
+| Ejemplo     | Resultado del validador | Motivo                                                          |
+| ----------- | ----------------------- | --------------------------------------------------------------- |
+| `12345678Z` | Aceptado                | DNI con letra de control coincidente.                           |
+| `12345678A` | Rechazado               | Letra de control incorrecta.                                    |
+| `X0000000T` | Aceptado                | NIE con formato y control correctos.                            |
+| `B12345674` | Aceptado                | NIF de entidad con control numérico coincidente.                |
+| `B1234567D` | Rechazado               | Prefijo `B` requiere control numérico y el control no coincide. |
 
 ### Francia: SIREN
 
 El campo admite exactamente nueve dígitos. El código no comprueba el dígito de control SIREN ni consulta el registro oficial. Por eso `123456789` pasa la validación de formato de la aplicación, aunque no debe interpretarse como verificación de un SIREN real.
 
-| Ejemplo | Resultado del validador | Motivo |
-| --- | --- | --- |
-| `123456789` | Aceptado por formato | Nueve dígitos; sin comprobación de control. |
-| `12345678` | Rechazado | Tiene ocho dígitos. |
-| `FR123456789` | Rechazado | El prefijo `FR` no forma parte del SIREN solicitado. |
-| `123 456 789` | Rechazado | Contiene separadores internos. |
+| Ejemplo       | Resultado del validador | Motivo                                               |
+| ------------- | ----------------------- | ---------------------------------------------------- |
+| `123456789`   | Aceptado por formato    | Nueve dígitos; sin comprobación de control.          |
+| `12345678`    | Rechazado               | Tiene ocho dígitos.                                  |
+| `FR123456789` | Rechazado               | El prefijo `FR` no forma parte del SIREN solicitado. |
+| `123 456 789` | Rechazado               | Contiene separadores internos.                       |
 
 ### Alemania: USt-IdNr. con formato `DE`
 
 El código admite las letras `DE` seguidas de nueve dígitos. No calcula un dígito de control ni valida el identificador ante una autoridad alemana.
 
-| Ejemplo | Resultado del validador | Motivo |
-| --- | --- | --- |
-| `DE123456789` | Aceptado por formato | Prefijo `DE` y nueve dígitos. |
-| `DE12345678` | Rechazado | Solo tiene ocho dígitos después del prefijo. |
-| `DE1234567890` | Rechazado | Tiene diez dígitos después del prefijo. |
-| `DE123 456789` | Rechazado | Contiene un espacio interno. |
+| Ejemplo        | Resultado del validador | Motivo                                       |
+| -------------- | ----------------------- | -------------------------------------------- |
+| `DE123456789`  | Aceptado por formato    | Prefijo `DE` y nueve dígitos.                |
+| `DE12345678`   | Rechazado               | Solo tiene ocho dígitos después del prefijo. |
+| `DE1234567890` | Rechazado               | Tiene diez dígitos después del prefijo.      |
+| `DE123 456789` | Rechazado               | Contiene un espacio interno.                 |
 
 ### Nombre, correo y campos obligatorios
 
-| Entrada | Resultado | Regla |
-| --- | --- | --- |
-| `  Tecnología Palencia SL  ` | Aceptada como `Tecnología Palencia SL` | Se recortan espacios exteriores; máximo 150 caracteres. |
-| Campo de nombre vacío o solo espacios | Rechazada | El nombre debe tener al menos un carácter tras recortarlo. |
-| Nombre de 151 caracteres | Rechazado | Supera el máximo de 150. |
-| `  CONTACTO@EMPRESA.COM ` | Aceptado como `contacto@empresa.com` | Email válido; se recorta y pasa a minúsculas. |
-| `nombre@empresa.com` | Aceptado | Formato de email. |
-| `correo-invalido` o `contacto@` | Rechazado | No tiene un formato de email aceptado. |
-| País `IT` o plan `Premium` | Rechazados | No están entre las opciones disponibles. |
+| Entrada                               | Resultado                              | Regla                                                      |
+| ------------------------------------- | -------------------------------------- | ---------------------------------------------------------- |
+| `  Tecnología Palencia SL  `          | Aceptada como `Tecnología Palencia SL` | Se recortan espacios exteriores; máximo 150 caracteres.    |
+| Campo de nombre vacío o solo espacios | Rechazada                              | El nombre debe tener al menos un carácter tras recortarlo. |
+| Nombre de 151 caracteres              | Rechazado                              | Supera el máximo de 150.                                   |
+| ` CONTACTO@EMPRESA.COM`               | Aceptado como `contacto@empresa.com`   | Email válido; se recorta y pasa a minúsculas.              |
+| `nombre@empresa.com`                  | Aceptado                               | Formato de email.                                          |
+| `correo-invalido` o `contacto@`       | Rechazado                              | No tiene un formato de email aceptado.                     |
+| País `IT` o plan `Premium`            | Rechazados                             | No están entre las opciones disponibles.                   |
 
-El formulario marca nombre, identificador, correo, país y plan como obligatorios. Para identificadores fiscales también se recortan los extremos y se convierten las letras a mayúsculas. Por ejemplo, ` 12345678z ` se guarda normalizado como `12345678Z`; un espacio interno como `1234 5678Z` no se elimina y el DNI se rechaza.
+El formulario marca nombre, identificador, correo, país y plan como obligatorios. Para identificadores fiscales también se recortan los extremos y se convierten las letras a mayúsculas. Por ejemplo, `12345678z` se guarda normalizado como `12345678Z`; un espacio interno como `1234 5678Z` no se elimina y el DNI se rechaza.
 
 ## Mensajes de validación
 
 Algunos errores se muestran junto al campo y otros en una alerta del formulario:
 
-| Situación | Mensaje visible |
-| --- | --- |
-| Datos de formulario incorrectos | `Revisa los campos indicados.` |
-| Identificador fiscal español incorrecto | `La identificación fiscal no es válida para España. Comprueba el formato y los caracteres de control.` |
-| Identificador francés incorrecto | `La identificación fiscal no es válida para Francia. Comprueba que tenga 9 dígitos.` |
-| Identificador alemán incorrecto | `La identificación fiscal no es válida para Alemania. Comprueba que tenga el formato DE seguido de 9 dígitos.` |
-| Correo inválido | `Introduce una dirección de correo electrónico válida.` |
-| Nombre incorrecto | `Comprueba el nombre de la empresa.` |
-| Cliente duplicado en el país | `Ya existe un cliente con esa identificación fiscal en el país seleccionado.` |
-| No se puede conectar con la API | `No se pudo conectar con el servidor. Comprueba que la aplicación esté en marcha e inténtalo de nuevo.` |
+| Situación                               | Mensaje visible                                                                                                |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Datos de formulario incorrectos         | `Revisa los campos indicados.`                                                                                 |
+| Identificador fiscal español incorrecto | `La identificación fiscal no es válida para España. Comprueba el formato y los caracteres de control.`         |
+| Identificador francés incorrecto        | `La identificación fiscal no es válida para Francia. Comprueba que tenga 9 dígitos.`                           |
+| Identificador alemán incorrecto         | `La identificación fiscal no es válida para Alemania. Comprueba que tenga el formato DE seguido de 9 dígitos.` |
+| Correo inválido                         | `Introduce una dirección de correo electrónico válida.`                                                        |
+| Nombre incorrecto                       | `Comprueba el nombre de la empresa.`                                                                           |
+| Cliente duplicado en el país            | `Ya existe un cliente con esa identificación fiscal en el país seleccionado.`                                  |
+| No se puede conectar con la API         | `No se pudo conectar con el servidor. Comprueba que la aplicación esté en marcha e inténtalo de nuevo.`        |
 
 Los campos requeridos también tienen validación del navegador. Cuando una respuesta del backend no identifica un campo conocido, se muestra: `No se pudo registrar el cliente. Inténtalo de nuevo más tarde.`
 
@@ -122,11 +122,11 @@ En **Simulador de facturación**:
 
 El coste depende solo del número de usuarios, con tramos progresivos acumulativos:
 
-| Usuarios | Precio unitario |
-| --- | ---: |
-| Primeros 10 | 10 € por usuario |
-| Del 11 al 50 | 8 € por usuario |
-| Desde el 51 | 5 € por usuario |
+| Usuarios     |  Precio unitario |
+| ------------ | ---------------: |
+| Primeros 10  | 10 € por usuario |
+| Del 11 al 50 |  8 € por usuario |
+| Desde el 51  |  5 € por usuario |
 
 Ejemplo para 15 usuarios: `10 × 10 € + 5 × 8 € = 140 €` de subtotal. El impuesto simplificado depende del país guardado en el cliente: España 21 %, Francia 20 % y Alemania 19 %. Para un cliente español, el impuesto es 29,40 € y el total estimado 169,40 €. Estas tasas son reglas simplificadas de la prueba técnica, no asesoramiento ni cálculo fiscal oficial. El plan, el almacenamiento y las llamadas API se registran como datos informativos y no añaden coste.
 

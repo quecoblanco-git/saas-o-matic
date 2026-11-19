@@ -24,10 +24,10 @@ Para comprobaciones individuales, usar los scripts de cada paquete (`backend/` y
 
 | Comprobación                 | Resultado           | Alcance                                                                                                    |
 | ---------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Backend: pruebas             | Superada: 460/460   | Suite completa de Vitest; 18 archivos.                                                                     |
+| Backend: pruebas             | Superada: 450/450   | Suite completa de Vitest; 18 archivos.                                                                     |
 | Backend: TypeScript          | Superada            | `npm run typecheck`.                                                                                       |
 | Backend: build               | Superada            | `npm run build`.                                                                                           |
-| Frontend: pruebas            | Superada: 52/52     | Suite completa de Vitest; 5 archivos.                                                                      |
+| Frontend: pruebas            | Superada: 30/30     | Suite completa de Vitest; 5 archivos.                                                                      |
 | Frontend: lint               | Superada con avisos | `npm run lint`; dos avisos `react(set-state-in-effect)` en `SimulationHistory.tsx` y `SimulationForm.tsx`. |
 | Frontend: TypeScript y build | Superada            | `npm run build` ejecuta `tsc -b` y `vite build`.                                                           |
 
