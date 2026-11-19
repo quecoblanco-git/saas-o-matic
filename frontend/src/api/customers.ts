@@ -22,3 +22,9 @@ export async function createCustomer(
     body: JSON.stringify(input),
   });
 }
+
+export async function deleteCustomer(customerId: string): Promise<void> {
+  await apiRequest<void>(`/customers/${encodeURIComponent(customerId)}`, {
+    method: "DELETE",
+  });
+}

@@ -1,23 +1,47 @@
 // Muestra y filtra los clientes y permite abrir el historial de cada uno.
-import { ArrowRight, Building2, LoaderCircle, Search } from "lucide-react";
+import { ArrowRight, Building2, LoaderCircle, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getCustomers } from "../../api/customers";
+import { deleteCustomer, getCustomers } from "../../api/customers";
 import type { Customer } from "../../types/customer";
 
 interface CustomerListProps {
   refreshKey?: number;
   onViewHistory?: (customerId: string) => void;
+  onCustomerDeleted?: (customerId: string) => void;
 }
 
 export function CustomerList({
   refreshKey = 0,
   onViewHistory,
+  onCustomerDeleted,
 }: CustomerListProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
+  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  async function handleDeleteCustomer(customer: Customer) {
+    const confirmed = window.confirm(
+      `¿Eliminar a ${customer.companyName}? También se eliminarán todas sus simulaciones. Esta acción no se puede deshacer.`,
+    );
+
+    if (!confirmed || deletingCustomerId) return;
+
+    setDeletingCustomerId(customer.id);
+    setDeleteError(null);
+    try {
+      await deleteCustomer(customer.id);
+      setCustomers((previous) => previous.filter((item) => item.id !== customer.id));
+      onCustomerDeleted?.(customer.id);
+    } catch {
+      setDeleteError(`No se pudo eliminar a ${customer.companyName}. El cliente sigue en la lista; inténtalo de nuevo.`);
+    } finally {
+      setDeletingCustomerId(null);
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -116,6 +140,11 @@ export function CustomerList({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
+          {deleteError && (
+            <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
+              {deleteError}
+            </p>
+          )}
           {customers.map((customer) => (
             <article
               key={customer.id}
@@ -154,16 +183,31 @@ export function CustomerList({
                 </div>
               </div>
 
-              {onViewHistory && (
+              <div className="flex flex-col gap-2 sm:flex-row">
+                {onViewHistory && (
+                  <button
+                    type="button"
+                    onClick={() => onViewHistory(customer.id)}
+                    className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-600 bg-slate-700/70 px-3.5 py-2 text-sm font-medium text-slate-100 transition hover:border-blue-400/50 hover:bg-blue-500/10 hover:text-blue-100 sm:min-w-36"
+                  >
+                    Ver historial
+                    <ArrowRight size={15} aria-hidden="true" />
+                  </button>
+                )}
                 <button
                   type="button"
-                  onClick={() => onViewHistory(customer.id)}
-                  className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-slate-600 bg-slate-700/70 px-3.5 py-2 text-sm font-medium text-slate-100 transition hover:border-blue-400/50 hover:bg-blue-500/10 hover:text-blue-100 sm:min-w-36"
+                  aria-label={`Eliminar cliente ${customer.companyName}`}
+                  onClick={() => void handleDeleteCustomer(customer)}
+                  disabled={deletingCustomerId !== null}
+                  className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3.5 py-2 text-sm font-medium text-rose-200 transition hover:border-rose-300/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Ver historial
-                  <ArrowRight size={15} aria-hidden="true" />
+                  {deletingCustomerId === customer.id ? (
+                    <><LoaderCircle size={15} aria-hidden="true" className="animate-spin" />Eliminando…</>
+                  ) : (
+                    <><Trash2 size={15} aria-hidden="true" />Eliminar cliente</>
+                  )}
                 </button>
-              )}
+              </div>
             </article>
           ))}
         </div>

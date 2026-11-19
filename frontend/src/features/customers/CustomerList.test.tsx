@@ -8,10 +8,11 @@ import {
 } from "@testing-library/react";
 
 import { CustomerList } from "./CustomerList";
-import { getCustomers } from "../../api/customers";
+import { deleteCustomer, getCustomers } from "../../api/customers";
 
 vi.mock("../../api/customers", () => ({
   getCustomers: vi.fn(),
+  deleteCustomer: vi.fn(),
 }));
 
 describe("CustomerList", () => {
@@ -135,5 +136,69 @@ describe("CustomerList", () => {
     expect(screen.getByText("Starter")).toBeVisible();
 
     expect(getCustomers).toHaveBeenCalledWith("");
+  });
+
+  it("cancels a customer deletion without calling the API", async () => {
+    const customer = {
+      id: "customer-delete-cancel",
+      companyName: "Cliente protegido",
+      taxId: "B12345674",
+      email: "protected@example.es",
+      country: "ES" as const,
+      plan: "Starter" as const,
+      createdAt: "2026-11-18T10:00:00.000Z",
+    };
+    vi.mocked(getCustomers).mockResolvedValueOnce([customer]);
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<CustomerList />);
+    fireEvent.click(await screen.findByRole("button", { name: "Eliminar cliente Cliente protegido" }));
+
+    expect(deleteCustomer).not.toHaveBeenCalled();
+    expect(screen.getByText("Cliente protegido")).toBeInTheDocument();
+  });
+
+  it("confirms deletion, removes the customer and notifies the dashboard", async () => {
+    const customer = {
+      id: "customer-delete-confirm",
+      companyName: "Cliente para eliminar",
+      taxId: "B12345674",
+      email: "delete@example.es",
+      country: "ES" as const,
+      plan: "Starter" as const,
+      createdAt: "2026-11-18T10:00:00.000Z",
+    };
+    const onCustomerDeleted = vi.fn();
+    vi.mocked(getCustomers).mockResolvedValueOnce([customer]);
+    vi.mocked(deleteCustomer).mockResolvedValueOnce(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<CustomerList onCustomerDeleted={onCustomerDeleted} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Eliminar cliente Cliente para eliminar" }));
+
+    await waitFor(() => expect(deleteCustomer).toHaveBeenCalledWith(customer.id));
+    expect(await screen.findByText("Todavía no hay clientes registrados.")).toBeInTheDocument();
+    expect(onCustomerDeleted).toHaveBeenCalledWith(customer.id);
+  });
+
+  it("keeps the customer visible and reports a deletion failure", async () => {
+    const customer = {
+      id: "customer-delete-error",
+      companyName: "Cliente con error",
+      taxId: "B12345674",
+      email: "error@example.es",
+      country: "ES" as const,
+      plan: "Starter" as const,
+      createdAt: "2026-11-18T10:00:00.000Z",
+    };
+    vi.mocked(getCustomers).mockResolvedValueOnce([customer]);
+    vi.mocked(deleteCustomer).mockRejectedValueOnce(new Error("database failure"));
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<CustomerList />);
+    fireEvent.click(await screen.findByRole("button", { name: "Eliminar cliente Cliente con error" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("El cliente sigue en la lista");
+    expect(screen.getByText("Cliente con error")).toBeInTheDocument();
   });
 });

@@ -4,15 +4,15 @@ _Dynamic Billing & Subscription Optimizer_
 
 Aplicación full-stack para gestionar clientes empresariales y simular su facturación mensual. Se desarrolló como prueba técnica para el proceso Full-Stack AI-Augmented de Roams.
 
-![Dashboard de SaaS-O-Matic](docs/evidence/dashboard.png)
-
 ## Funcionalidad
 
 - Registro, búsqueda y consulta de clientes.
+- Eliminación confirmada de clientes y de todas sus simulaciones asociadas.
 - Simulaciones con precios progresivos por usuarios: 10 € para los primeros 10, 8 € del 11 al 50 y 5 € a partir del 51.
 - Impuestos simplificados según país. Los planes, el almacenamiento y las llamadas a la API son informativos y no añaden costes.
 - Vista previa de facturación que no guarda datos hasta confirmar la simulación.
 - Historial paginado por cliente y visualización de importes en las divisas disponibles.
+- Eliminación individual confirmada de simulaciones desde el historial.
 
 ## Tecnologías
 
@@ -57,6 +57,8 @@ Este comando ejecuta las pruebas, el chequeo de tipos, el lint y los builds de b
 
 ## Documentación
 
+- [Guía de instalación y ejecución](docs/installation-guide.md)
+- [Guía de uso de SaaS-O-Matic](docs/user-guide.md)
 - [Requisitos funcionales y técnicos](docs/requirements.md)
 - [Arquitectura y modelo de datos](docs/architecture.md)
 - [Planificación y decisiones del desarrollo asistido por IA](ai-workspace/README.md)

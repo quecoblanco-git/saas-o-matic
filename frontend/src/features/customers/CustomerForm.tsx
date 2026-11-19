@@ -1,6 +1,7 @@
 // Recoge y envía los datos necesarios para registrar un cliente.
 import { CheckCircle2, LoaderCircle, UserRoundPlus } from "lucide-react";
 import { useState } from "react";
+import { ApiError } from "../../api/client";
 import { createCustomer } from "../../api/customers";
 import type { CreateCustomerInput, Customer } from "../../types/customer";
 
@@ -19,18 +20,69 @@ const initialForm: CreateCustomerInput = {
 const labelClassName = "mb-1.5 block text-sm font-medium text-slate-300";
 const fieldClassName =
   "min-h-11 w-full rounded-xl border border-slate-700/90 bg-slate-900/70 px-3.5 py-2.5 text-sm text-white transition placeholder:text-slate-500 hover:border-slate-600 focus:border-blue-400/80 focus:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60";
+type CustomerField = keyof CreateCustomerInput;
+type FieldErrors = Partial<Record<CustomerField, string>>;
+
+function getFieldErrorMessage(field: CustomerField, country: string): string {
+  switch (field) {
+    case "taxId":
+      if (country === "ES") {
+        return "La identificación fiscal no es válida para España. Comprueba el formato y los caracteres de control.";
+      }
+      if (country === "FR") {
+        return "La identificación fiscal no es válida para Francia. Comprueba que tenga 9 dígitos.";
+      }
+      return "La identificación fiscal no es válida para Alemania. Comprueba que tenga el formato DE seguido de 9 dígitos.";
+    case "email":
+      return "Introduce una dirección de correo electrónico válida.";
+    case "companyName":
+      return "Comprueba el nombre de la empresa.";
+    case "country":
+      return "Selecciona un país válido.";
+    case "plan":
+      return "Selecciona un plan válido.";
+  }
+}
+
+function isCustomerField(value: string | number | undefined): value is CustomerField {
+  return (
+    value === "taxId" ||
+    value === "email" ||
+    value === "companyName" ||
+    value === "country" ||
+    value === "plan"
+  );
+}
 
 export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
   const [form, setForm] = useState<CreateCustomerInput>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [success, setSuccess] = useState(false);
+
+  function updateField<K extends CustomerField>(
+    field: K,
+    value: CreateCustomerInput[K],
+  ) {
+    setForm((previous) => ({ ...previous, [field]: value }));
+    setFieldErrors((previous) => {
+      const next = { ...previous };
+      delete next[field];
+      if (field === "country") {
+        delete next.taxId;
+      }
+      return next;
+    });
+    setError(null);
+  }
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setLoading(true);
     setError(null);
+    setFieldErrors({});
     setSuccess(false);
 
     try {
@@ -40,11 +92,33 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
       setForm({ ...initialForm });
       setSuccess(true);
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo registrar el cliente",
-      );
+      if (error instanceof ApiError && error.status === 409) {
+        setError(
+          "Ya existe un cliente con esa identificación fiscal en el país seleccionado.",
+        );
+      } else if (error instanceof ApiError && error.status === 400) {
+        const nextFieldErrors: FieldErrors = {};
+        for (const detail of error.details) {
+          const field = detail.path[0];
+          if (isCustomerField(field)) {
+            nextFieldErrors[field] = getFieldErrorMessage(field, form.country);
+          }
+        }
+        setFieldErrors(nextFieldErrors);
+        setError(
+          Object.keys(nextFieldErrors).length > 0
+            ? "Revisa los campos indicados."
+            : "No se pudieron validar los datos del cliente. Comprueba la información e inténtalo de nuevo.",
+        );
+      } else if (error instanceof TypeError) {
+        setError(
+          "No se pudo conectar con el servidor. Comprueba que la aplicación esté en marcha e inténtalo de nuevo.",
+        );
+      } else {
+        setError(
+          "No se pudo registrar el cliente. Inténtalo de nuevo más tarde.",
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -61,12 +135,17 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
           autoComplete="organization"
           required
           value={form.companyName}
-          onChange={(event) =>
-            setForm({ ...form, companyName: event.target.value })
-          }
+          onChange={(event) => updateField("companyName", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.companyName)}
+          aria-describedby={fieldErrors.companyName ? "companyName-error" : undefined}
           placeholder="Ej. Tecnología Palencia SL"
           className={fieldClassName}
         />
+        {fieldErrors.companyName && (
+          <p id="companyName-error" className="mt-1.5 text-sm text-rose-200">
+            {fieldErrors.companyName}
+          </p>
+        )}
       </div>
 
       <div>
@@ -77,10 +156,17 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
           id="taxId"
           required
           value={form.taxId}
-          onChange={(event) => setForm({ ...form, taxId: event.target.value })}
+          onChange={(event) => updateField("taxId", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.taxId)}
+          aria-describedby={fieldErrors.taxId ? "taxId-error" : undefined}
           placeholder="NIF, SIREN o USt-IdNr."
           className={fieldClassName}
         />
+        {fieldErrors.taxId && (
+          <p id="taxId-error" className="mt-1.5 text-sm text-rose-200">
+            {fieldErrors.taxId}
+          </p>
+        )}
       </div>
 
       <div>
@@ -93,10 +179,17 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
           autoComplete="email"
           required
           value={form.email}
-          onChange={(event) => setForm({ ...form, email: event.target.value })}
+          onChange={(event) => updateField("email", event.target.value)}
+          aria-invalid={Boolean(fieldErrors.email)}
+          aria-describedby={fieldErrors.email ? "email-error" : undefined}
           placeholder="nombre@empresa.com"
           className={fieldClassName}
         />
+        {fieldErrors.email && (
+          <p id="email-error" className="mt-1.5 text-sm text-rose-200">
+            {fieldErrors.email}
+          </p>
+        )}
       </div>
 
       <div>
@@ -107,17 +200,21 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
           id="country"
           value={form.country}
           onChange={(event) =>
-            setForm({
-              ...form,
-              country: event.target.value as CreateCustomerInput["country"],
-            })
+            updateField("country", event.target.value as CreateCustomerInput["country"])
           }
+          aria-invalid={Boolean(fieldErrors.country)}
+          aria-describedby={fieldErrors.country ? "country-error" : undefined}
           className={fieldClassName}
         >
           <option value="ES">España</option>
           <option value="FR">Francia</option>
           <option value="DE">Alemania</option>
         </select>
+        {fieldErrors.country && (
+          <p id="country-error" className="mt-1.5 text-sm text-rose-200">
+            {fieldErrors.country}
+          </p>
+        )}
       </div>
 
       <div>
@@ -128,17 +225,21 @@ export function CustomerForm({ onCustomerCreated }: CustomerFormProps) {
           id="plan"
           value={form.plan}
           onChange={(event) =>
-            setForm({
-              ...form,
-              plan: event.target.value as CreateCustomerInput["plan"],
-            })
+            updateField("plan", event.target.value as CreateCustomerInput["plan"])
           }
+          aria-invalid={Boolean(fieldErrors.plan)}
+          aria-describedby={fieldErrors.plan ? "plan-error" : undefined}
           className={fieldClassName}
         >
           <option value="Starter">Starter</option>
           <option value="Professional">Professional</option>
           <option value="Enterprise">Enterprise</option>
         </select>
+        {fieldErrors.plan && (
+          <p id="plan-error" className="mt-1.5 text-sm text-rose-200">
+            {fieldErrors.plan}
+          </p>
+        )}
       </div>
 
       {error && (

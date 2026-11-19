@@ -17,7 +17,7 @@ describe("Simulation integration tests", () => {
         where: { customerId },
       });
 
-      await prisma.customer.delete({
+      await prisma.customer.deleteMany({
         where: { id: customerId },
       });
     }
@@ -540,5 +540,95 @@ describe("Simulation integration tests", () => {
         }),
       ]),
     );
+  });
+
+  it("deletes a customer and all of its simulations atomically", async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        companyName: "Customer Deletion Integration",
+        taxId: `TEST-DELETE-C-${Date.now()}`,
+        email: "delete-customer@integration-test.example",
+        country: "ES",
+        plan: "Starter",
+      },
+    });
+    createdCustomerIds.push(customer.id);
+
+    const first = await request(app).post("/simulations").send({
+      customerId: customer.id,
+      activeUsers: 10,
+      storageGb: 20,
+      apiCalls: 100,
+    });
+    const second = await request(app).post("/simulations").send({
+      customerId: customer.id,
+      activeUsers: 20,
+      storageGb: 40,
+      apiCalls: 200,
+    });
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+
+    const response = await request(app).delete(`/customers/${customer.id}`);
+
+    expect(response.status).toBe(204);
+    expect(response.text).toBe("");
+    expect(await prisma.customer.findUnique({ where: { id: customer.id } })).toBeNull();
+    expect(await prisma.simulation.count({ where: { customerId: customer.id } })).toBe(0);
+  });
+
+  it("deletes a customer that has no simulations", async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        companyName: "Customer Without Simulations Deletion",
+        taxId: `TEST-DELETE-EMPTY-${Date.now()}`,
+        email: "delete-empty@integration-test.example",
+        country: "DE",
+        plan: "Starter",
+      },
+    });
+    createdCustomerIds.push(customer.id);
+
+    const response = await request(app).delete(`/customers/${customer.id}`);
+
+    expect(response.status).toBe(204);
+    expect(await prisma.customer.findUnique({ where: { id: customer.id } })).toBeNull();
+    expect(await prisma.simulation.count({ where: { customerId: customer.id } })).toBe(0);
+  });
+
+  it("deletes one simulation while preserving its customer and other simulations", async () => {
+    const customer = await prisma.customer.create({
+      data: {
+        companyName: "Simulation Deletion Integration",
+        taxId: `TEST-DELETE-S-${Date.now()}`,
+        email: "delete-simulation@integration-test.example",
+        country: "FR",
+        plan: "Professional",
+      },
+    });
+    createdCustomerIds.push(customer.id);
+
+    const responses = await Promise.all([
+      request(app).post("/simulations").send({ customerId: customer.id, activeUsers: 5, storageGb: 1, apiCalls: 1 }),
+      request(app).post("/simulations").send({ customerId: customer.id, activeUsers: 15, storageGb: 2, apiCalls: 2 }),
+    ]);
+    const [first, second] = responses;
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+
+    const response = await request(app).delete(`/simulations/${first.body.id}`);
+
+    expect(response.status).toBe(204);
+    expect(await prisma.customer.findUnique({ where: { id: customer.id } })).not.toBeNull();
+    expect(await prisma.simulation.findUnique({ where: { id: first.body.id } })).toBeNull();
+    expect(await prisma.simulation.findUnique({ where: { id: second.body.id } })).not.toBeNull();
+  });
+
+  it("returns 404 for missing customers and simulations", async () => {
+    const missingCustomer = await request(app).delete("/customers/missing-customer");
+    const missingSimulation = await request(app).delete("/simulations/missing-simulation");
+
+    expect(missingCustomer.status).toBe(404);
+    expect(missingSimulation.status).toBe(404);
   });
 });

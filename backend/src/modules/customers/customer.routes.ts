@@ -4,8 +4,10 @@ import { ZodError } from "zod";
 import { createCustomerSchema } from "./customer.schema.js";
 import {
   createCustomer,
+  deleteCustomer,
   listCustomers,
   DuplicateCustomerError,
+  CustomerNotFoundError,
 } from "./customer.service.js";
 
 export const customerRouter = Router();
@@ -49,4 +51,21 @@ customerRouter.get("/", async (req, res) => {
   const customers = await listCustomers(search);
 
   res.status(200).json(customers);
+});
+
+customerRouter.delete("/:id", async (req, res) => {
+  try {
+    await deleteCustomer(req.params.id!);
+    res.status(204).end();
+  } catch (error) {
+    if (error instanceof CustomerNotFoundError) {
+      res.status(404).json({
+        error: "CustomerNotFoundError",
+        message: error.message,
+      });
+      return;
+    }
+
+    throw error;
+  }
 });

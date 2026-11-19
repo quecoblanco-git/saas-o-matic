@@ -42,6 +42,12 @@ export async function getSimulations(
   return apiRequest<Simulation[]>(`/simulations?${params.toString()}`);
 }
 
+export async function deleteSimulation(simulationId: string): Promise<void> {
+  await apiRequest<void>(`/simulations/${encodeURIComponent(simulationId)}`, {
+    method: "DELETE",
+  });
+}
+
 export async function previewSimulation(
   input: CreateSimulationInput,
 ): Promise<SimulationPreview> {

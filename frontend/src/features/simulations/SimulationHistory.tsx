@@ -1,8 +1,8 @@
 // Carga y pagina el historial del cliente seleccionado y muestra sus importes.
 import { useEffect, useRef, useState } from "react";
-import { CalendarDays, ChevronDown, Clock3, LoaderCircle } from "lucide-react";
+import { CalendarDays, ChevronDown, Clock3, LoaderCircle, Trash2 } from "lucide-react";
 import { getCustomers } from "../../api/customers";
-import { getSimulations } from "../../api/simulations";
+import { deleteSimulation, getSimulations } from "../../api/simulations";
 import type { Customer } from "../../types/customer";
 import type { Simulation } from "../../types/simulation";
 import { CurrencySelector } from "../currency/CurrencySelector";
@@ -35,13 +35,11 @@ export function SimulationHistory({
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
+  const [deletingSimulationId, setDeletingSimulationId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const historyVersionRef = useRef(0);
 
   useEffect(() => {
-    if (!selectedCustomerId) {
-      return;
-    }
-
     // Invalidar inmediatamente las peticiones anteriores.
     ++historyVersionRef.current;
 
@@ -63,6 +61,12 @@ export function SimulationHistory({
 
         if (active) {
           setCustomers(result);
+          setCustomerId((current) => {
+            if (current && !result.some((customer) => customer.id === current)) {
+              return "";
+            }
+            return current;
+          });
         }
       } catch (error) {
         if (active) {
@@ -186,6 +190,29 @@ export function SimulationHistory({
     }
   }
 
+  async function handleDeleteSimulation(simulation: Simulation) {
+    const createdAt = new Date(simulation.createdAt).toLocaleString("es-ES");
+    const confirmed = window.confirm(
+      `¿Eliminar la simulación del ${createdAt} (${simulation.activeUsers} usuarios)? Esta acción no se puede deshacer.`,
+    );
+
+    if (!confirmed || deletingSimulationId) return;
+
+    setDeletingSimulationId(simulation.id);
+    setDeleteError(null);
+    try {
+      await deleteSimulation(simulation.id);
+      const remaining = simulations.filter((item) => item.id !== simulation.id);
+      setSimulations(remaining);
+      setVisibleCount(remaining.length);
+      if (remaining.length === 0) setHasMore(false);
+    } catch {
+      setDeleteError("No se pudo eliminar la simulación. Sigue disponible en el historial; inténtalo de nuevo.");
+    } finally {
+      setDeletingSimulationId(null);
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div>
@@ -236,11 +263,15 @@ export function SimulationHistory({
           Error al cargar el historial: {error}
         </p>
       ) : simulations.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-700 px-4 py-5 text-sm leading-5 text-slate-400">
-          Este cliente todavía no tiene simulaciones.
-        </p>
+        <div className="space-y-3">
+          {deleteError && <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">{deleteError}</p>}
+          <p className="rounded-xl border border-dashed border-slate-700 px-4 py-5 text-sm leading-5 text-slate-400">
+            Este cliente todavía no tiene simulaciones.
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
+          {deleteError && <p role="alert" className="rounded-xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">{deleteError}</p>}
           {simulations.map((simulation) => (
             <article
               key={simulation.id}
@@ -251,9 +282,21 @@ export function SimulationHistory({
                   <CalendarDays size={14} aria-hidden="true" className="text-slate-500" />
                   {new Date(simulation.createdAt).toLocaleString("es-ES")}
                 </p>
-                <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-300">
-                  Guardada
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-300">
+                    Guardada
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={`Eliminar simulación del ${new Date(simulation.createdAt).toLocaleString("es-ES")}`}
+                    onClick={() => void handleDeleteSimulation(simulation)}
+                    disabled={deletingSimulationId !== null}
+                    className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-rose-400/30 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-200 transition hover:border-rose-300/60 hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {deletingSimulationId === simulation.id ? <LoaderCircle size={14} aria-hidden="true" className="animate-spin" /> : <Trash2 size={14} aria-hidden="true" />}
+                    <span className="sr-only sm:not-sr-only">Eliminar simulación</span>
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4 p-4">
@@ -324,7 +367,7 @@ export function SimulationHistory({
 
                   <div className="flex justify-between gap-4">
                     <span className="text-slate-400">
-                      Impuestos ({simulation.taxRateSnapshot}%)
+                      Impuestos ({Number(simulation.taxRateSnapshot) * 100}%)
                     </span>
                     <span>{formatEuros(simulation.taxCents)}</span>
                   </div>

@@ -301,7 +301,7 @@ Las monedas disponibles se obtienen del backend y el importe original permanece 
 
 ### Verificación
 
-- `npm run verify`: backend 450/450 pruebas y frontend 30/30; chequeos de tipos y builds superados.
+- `npm run verify`: backend 460/460 pruebas y frontend 52/52; chequeos de tipos y builds superados.
 - El lint del frontend finalizó correctamente con dos avisos `react(set-state-in-effect)` en `SimulationHistory.tsx` y `SimulationForm.tsx`.
 - Prueba de arranque de `npm run dev`: `/health` respondió `ok` y el frontend devolvió HTTP 200.
 - `git diff --check` no detectó errores.
@@ -327,7 +327,7 @@ Mejorar la claridad visual y la consistencia del dashboard, conservando las func
 
 ### Verificación y límites
 
-- `npm run verify`: backend 450/450 pruebas y frontend 30/30; TypeScript y builds superados.
+- `npm run verify`: backend 460/460 pruebas y frontend 52/52; TypeScript y builds superados.
 - El lint terminó correctamente con dos avisos `react(set-state-in-effect)` en `SimulationHistory.tsx` y `SimulationForm.tsx`.
 - `git diff --check`: correcto.
 - Se revisaron estáticamente la estructura semántica, las etiquetas y los puntos de adaptación responsive. No se completó una inspección visual en varios tamaños ni una prueba manual integral.
@@ -335,6 +335,58 @@ Mejorar la claridad visual y la consistencia del dashboard, conservando las func
 
 El resumen y los resultados vigentes constan en `05-quality-review.md`.
 
+## 18–19/11/2026 — Eliminación de clientes y simulaciones
+
+**Herramienta de IA:** Codex Desktop.
+
+### Objetivo
+
+Incorporar operaciones confirmadas para eliminar clientes y simulaciones, conservando la integridad de los datos y actualizando la documentación del proyecto.
+
+### Cambios realizados
+
+- Se añadieron `DELETE /customers/:id` y `DELETE /simulations/:id`, con respuestas HTTP 204 y 404.
+- El servicio de clientes elimina simulaciones asociadas y cliente dentro de una transacción Prisma. No se modificó el esquema ni se generaron migraciones.
+- Se añadieron acciones en el listado y el historial, con confirmación nativa, estados de carga y mensajes de error.
+- Se sincronizan el cliente seleccionado para el historial y el simulador; el borrado individual conserva el cliente y las demás simulaciones.
+- El cliente HTTP maneja respuestas 204 sin cuerpo.
+- Se actualizaron README, requisitos, arquitectura, decisiones técnicas y el registro de prompts. El prompt completo se conserva como Prompt 5 en `02-ai-prompts.md`.
+
+### Validación
+
+- `npm run verify` (19/11/2026): backend 460/460 pruebas y frontend 52/52; TypeScript y builds superados.
+- El lint finalizó con dos avisos `react(set-state-in-effect)` en `SimulationForm.tsx` y `SimulationHistory.tsx`.
+- Las pruebas de integración SQLite verificaron clientes con y sin simulaciones, ausencia de registros huérfanos, eliminación individual y respuestas 404.
+- Las pruebas de interfaz verificaron confirmación, cancelación, actualización del listado/historial y errores. El 19/11/2026, se completó la revisión manual de todas las características y que los flujos funcionan correctamente.
+- `git diff --check` se ejecutó después de los cambios; véase la revisión final de calidad.
+
+### Archivos principales
+
+Servicios y rutas de clientes/simulaciones; `CustomerList`, `SimulationHistory`, `SimulationForm`, `App` y cliente HTTP; pruebas backend/frontend; README, requisitos, arquitectura y documentos de `ai-workspace`.
+
 ---
 
 _Registro cronológico del desarrollo; las verificaciones vigentes se resumen en `05-quality-review.md`._
+
+## 19/11/2026 — Guías de instalación y uso
+
+**Herramienta de IA:** Codex Desktop.
+
+### Objetivo
+
+Facilitar a un evaluador la descarga, instalación, ejecución y uso de SaaS-O-Matic, documentando únicamente el comportamiento presente en el código.
+
+### Cambios realizados
+
+- Se crearon `docs/installation-guide.md` y `docs/user-guide.md`, con comandos PowerShell, preparación de SQLite, resolución de problemas, validaciones de clientes, cálculo de facturas, historial, divisas y eliminaciones.
+- Se enlazaron las guías desde `README.md` y el índice de `ai-workspace/README.md`.
+- Se añadió la interacción y el prompt íntegro en `02-ai-prompts.md`.
+- Se registraron el alcance y los resultados de revisión documental en `05-quality-review.md`.
+
+### Validación
+
+Los comandos se contrastaron con `scripts/setup.mjs`, `scripts/dev.mjs` y `scripts/verify.mjs`. Los ejemplos fiscales, mensajes visibles, reglas de facturación, uso de SQLite, paginación y conversiones se contrastaron con las implementaciones y pruebas existentes. La validación final de enlaces y Markdown queda reflejada en `05-quality-review.md`.
+
+No se modificaron archivos de código, bases de datos ni scripts. No se crearon commits ni se publicaron cambios.
+
+---

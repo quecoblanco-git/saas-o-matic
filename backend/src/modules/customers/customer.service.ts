@@ -10,6 +10,13 @@ export class DuplicateCustomerError extends Error {
   }
 }
 
+export class CustomerNotFoundError extends Error {
+  constructor() {
+    super("Customer not found");
+    this.name = "CustomerNotFoundError";
+  }
+}
+
 export async function createCustomer(input: CreateCustomerInput) {
   try {
     return await prisma.customer.create({
@@ -35,6 +42,28 @@ export async function createCustomer(input: CreateCustomerInput) {
     throw error;
   }
 }
+
+export async function deleteCustomer(customerId: string) {
+  return prisma.$transaction(async (transaction) => {
+    const customer = await transaction.customer.findUnique({
+      where: { id: customerId },
+      select: { id: true },
+    });
+
+    if (!customer) {
+      throw new CustomerNotFoundError();
+    }
+
+    await transaction.simulation.deleteMany({
+      where: { customerId },
+    });
+
+    await transaction.customer.delete({
+      where: { id: customerId },
+    });
+  });
+}
+
 export async function listCustomers(
   search?: string,
   db: Pick<typeof prisma, "customer"> = prisma,

@@ -2,8 +2,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import app from "../../app.js";
-import { createCustomer, listCustomers } from "./customer.service.js";
-import { DuplicateCustomerError } from "./customer.service.js";
+import {
+  createCustomer,
+  deleteCustomer,
+  listCustomers,
+  DuplicateCustomerError,
+  CustomerNotFoundError,
+} from "./customer.service.js";
 
 vi.mock("./customer.service.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./customer.service.js")>();
@@ -11,6 +16,7 @@ vi.mock("./customer.service.js", async (importOriginal) => {
   return {
     ...actual,
     createCustomer: vi.fn(),
+    deleteCustomer: vi.fn(),
     listCustomers: vi.fn(),
   };
 });
@@ -350,5 +356,44 @@ describe("GET /customers", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
     expect(listCustomers).toHaveBeenCalledWith(undefined);
+  });
+});
+
+describe("DELETE /customers/:id", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("deletes an existing customer and returns 204 without a body", async () => {
+    vi.mocked(deleteCustomer).mockResolvedValue(undefined);
+
+    const response = await request(app).delete("/customers/customer-123");
+
+    expect(response.status).toBe(204);
+    expect(response.text).toBe("");
+    expect(deleteCustomer).toHaveBeenCalledExactlyOnceWith("customer-123");
+  });
+
+  it("returns 404 for a customer that does not exist", async () => {
+    vi.mocked(deleteCustomer).mockRejectedValue(new CustomerNotFoundError());
+
+    const response = await request(app).delete("/customers/missing");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: "CustomerNotFoundError",
+      message: "Customer not found",
+    });
+  });
+
+  it("returns a safe 500 response for database failures", async () => {
+    vi.mocked(deleteCustomer).mockRejectedValue(new Error("private database details"));
+
+    const response = await request(app).delete("/customers/customer-123");
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      error: "InternalServerError",
+      message: "An unexpected error occurred",
+    });
+    expect(JSON.stringify(response.body)).not.toContain("private database details");
   });
 });

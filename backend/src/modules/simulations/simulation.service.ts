@@ -87,3 +87,11 @@ export async function listSimulations(customerId: string, skip = 0, take = 10) {
     take,
   });
 }
+
+export async function deleteSimulation(simulationId: string): Promise<boolean> {
+  const result = await prisma.simulation.deleteMany({
+    where: { id: simulationId },
+  });
+
+  return result.count === 1;
+}

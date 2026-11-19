@@ -25,6 +25,12 @@ function App() {
     setCustomerRefreshKey((current) => current + 1);
   }
 
+  function handleCustomerDeleted(customerId: string) {
+    setCustomerRefreshKey((current) => current + 1);
+    if (selectedHistoryCustomerId === customerId) setSelectedHistoryCustomerId("");
+    if (latestSimulation?.customerId === customerId) setLatestSimulation(null);
+  }
+
   function handleViewCustomerHistory(customerId: string) {
     setSelectedHistoryCustomerId(customerId);
 
@@ -133,6 +139,7 @@ function App() {
                 <CustomerList
                   refreshKey={customerRefreshKey}
                   onViewHistory={handleViewCustomerHistory}
+                  onCustomerDeleted={handleCustomerDeleted}
                 />
               </div>
             </div>

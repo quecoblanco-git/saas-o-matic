@@ -30,6 +30,8 @@ Estos documentos recogen el proceso de desarrollo:
 | [ai-development-log.md](ai-development-log.md)         | Casos prácticos del uso de IA durante el desarrollo.           |
 | [Requisitos](../docs/requirements.md)                   | Especificación funcional y técnica vigente.                   |
 | [Arquitectura](../docs/architecture.md)                 | Componentes, datos y comunicación entre frontend y backend.   |
+| [Guía de instalación](../docs/installation-guide.md)    | Requisitos, configuración e inicio local en Windows.          |
+| [Guía de uso](../docs/user-guide.md)                    | Registro de clientes, simulaciones, historial y divisas.      |
 
 El registro `04-development-log.md` conserva la evolución
 cronológica del proyecto y los resultados de cada fase.

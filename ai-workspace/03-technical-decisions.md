@@ -1139,6 +1139,34 @@ Esta modificación permite ajustar la implementación a las aclaraciones oficial
 
 Se conservan las decisiones iniciales como parte del historial del proyecto, indicando que quedan sustituidas por esta revisión en todo lo relativo a las tarifas de planes, almacenamiento y llamadas a la API.
 
+### DT-021 — Eliminación consistente de clientes y simulaciones
+
+- **Estado:** Adoptada
+- **Fecha:** 2026-11-18
+- **Requisitos relacionados:** RF-013, RF-014 y RT-008 de `docs/requirements.md`.
+
+**Contexto**
+
+La aplicación incorpora operaciones para eliminar clientes y simulaciones. La relación Prisma requerida entre `Customer` y `Simulation` no declara `onDelete: Cascade`, y no es necesario cambiar el esquema para cumplir el comportamiento deseado.
+
+**Alternativas consideradas**
+
+1. Añadir una migración y configurar cascada en la base de datos.
+2. Eliminar explícitamente las simulaciones y el cliente dentro de una transacción del servicio.
+
+**Decisión**
+
+Al eliminar un cliente, el backend comprueba su existencia, borra las simulaciones asociadas y borra el cliente dentro de una transacción Prisma. Al eliminar una simulación, se ejecuta una eliminación acotada por su ID y se informa si no existía.
+
+El frontend solicita confirmación nativa antes de cada borrado. El borrado correcto responde HTTP 204 sin cuerpo y los IDs inexistentes responden HTTP 404. Las operaciones no requieren modificar el esquema ni crear migraciones.
+
+**Justificación y consecuencias**
+
+- La transacción impide que un fallo intermedio deje simulaciones huérfanas.
+- La eliminación individual de simulación no alcanza al cliente ni a sus otros registros.
+- Se evita introducir una migración para una regla que puede garantizarse con el servicio actual.
+- Las pruebas de integración verifican la persistencia real con SQLite.
+
 ---
 
 ## 4. Estado de decisiones abiertas

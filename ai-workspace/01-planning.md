@@ -22,6 +22,7 @@ El sistema deberá permitir:
 - Comprobar mediante el algoritmo de control correspondiente la validez del DNI/NIF/CIF cuando el país sea España.
 - Buscar clientes por nombre de empresa o identificador fiscal.
 - Consultar la información de un cliente y su historial de simulaciones.
+- Eliminar clientes de la lista de clientes almacenados.
 
 ### 2.2. Simulaciones de facturación
 
@@ -34,6 +35,7 @@ El sistema deberá permitir:
 - Aplicar el impuesto correspondiente al país del cliente.
 - Persistir los datos y resultados de cada simulación.
 - Consultar las simulaciones guardadas.
+- Eliminar las simulaciones almacenadas previamente
 
 ### 2.3. Conversión de divisas
 
@@ -94,14 +96,14 @@ Antes de implementar esta funcionalidad se definirán los países admitidos, los
 
 Durante la planificación se identificaron las siguientes cuestiones. Todas quedaron resueltas antes de la entrega y su definición vigente se conserva en los documentos enlazados.
 
-| Tema | Resolución documentada |
-| ---- | ---------------------- |
-| Planes, almacenamiento y llamadas a la API | Son datos informativos y no añaden costes; aclaraciones AR-001 a AR-003 y decisión DT-020. |
-| Países e impuestos | España, Francia y Alemania, con tasas simplificadas; RF-008 y DT-011. |
-| Identificadores fiscales extranjeros | Validación básica de formato y longitud para Francia y Alemania; RF-002 y DT-018. |
-| Precisión monetaria | Cálculos decimales y redondeo definido en RT-007 y DT-014. |
-| Tipos de cambio | Caché de una hora y uso de tasas anteriores cuando falla la actualización; RF-009 y DT-015. |
-| Historial | Paginación por cliente, orden descendente y carga inicial de diez registros; RF-005 y RF-010. |
+| Tema                                       | Resolución documentada                                                                        |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Planes, almacenamiento y llamadas a la API | Son datos informativos y no añaden costes; aclaraciones AR-001 a AR-003 y decisión DT-020.    |
+| Países e impuestos                         | España, Francia y Alemania, con tasas simplificadas; RF-008 y DT-011.                         |
+| Identificadores fiscales extranjeros       | Validación básica de formato y longitud para Francia y Alemania; RF-002 y DT-018.             |
+| Precisión monetaria                        | Cálculos decimales y redondeo definido en RT-007 y DT-014.                                    |
+| Tipos de cambio                            | Caché de una hora y uso de tasas anteriores cuando falla la actualización; RF-009 y DT-015.   |
+| Historial                                  | Paginación por cliente, orden descendente y carga inicial de diez registros; RF-005 y RF-010. |
 
 ## 5. Plan de implementación
 

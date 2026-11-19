@@ -9,13 +9,14 @@ import {
 } from "@testing-library/react";
 import { SimulationHistory } from "./SimulationHistory";
 import { getCustomers } from "../../api/customers";
-import { getSimulations } from "../../api/simulations";
+import { deleteSimulation, getSimulations } from "../../api/simulations";
 
 vi.mock("../../api/customers", () => ({
   getCustomers: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("../../api/simulations", () => ({
+  deleteSimulation: vi.fn(),
   getSimulations: vi.fn().mockResolvedValue([]),
 }));
 
@@ -48,7 +49,7 @@ const mockSimulations = Array.from({ length: 11 }, (_, index) => ({
 
   planSnapshot: "Starter",
   countrySnapshot: "ES",
-  taxRateSnapshot: "21",
+  taxRateSnapshot: "0.21",
 
   usersCostCents: 10000,
   subtotalCents: 10000,
@@ -67,7 +68,7 @@ const mockSimulationsCustomer2 = Array.from({ length: 3 }, (_, index) => ({
 
   planSnapshot: "Professional",
   countrySnapshot: "FR",
-  taxRateSnapshot: "20",
+  taxRateSnapshot: "0.20",
 
   usersCostCents: 18000,
   subtotalCents: 18000,
@@ -98,6 +99,62 @@ describe("SimulationHistory", () => {
     const customerSelect = await screen.findByRole("combobox");
 
     expect(customerSelect).toBeInTheDocument();
+  });
+
+  it("confirms and removes one simulation while preserving the others", async () => {
+    const simulations = mockSimulations.slice(0, 2);
+    vi.mocked(getCustomers).mockResolvedValueOnce([
+      mockCustomer,
+    ] as unknown as Awaited<ReturnType<typeof getCustomers>>);
+    vi.mocked(getSimulations).mockResolvedValueOnce(
+      simulations as unknown as Awaited<ReturnType<typeof getSimulations>>,
+    );
+    vi.mocked(deleteSimulation).mockResolvedValueOnce(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<SimulationHistory selectedCustomerId={mockCustomer.id} />);
+    expect(await screen.findAllByText("Ver detalles")).toHaveLength(2);
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Eliminar simulación del/ })[0]!);
+
+    await waitFor(() => expect(deleteSimulation).toHaveBeenCalledWith(simulations[0]!.id));
+    await waitFor(() => expect(screen.getAllByText("Ver detalles")).toHaveLength(1));
+    expect(screen.getByText("Selector de divisas")).toBeInTheDocument();
+  });
+
+  it("does not call the API when a simulation deletion is cancelled", async () => {
+    vi.mocked(getCustomers).mockResolvedValueOnce([
+      mockCustomer,
+    ] as unknown as Awaited<ReturnType<typeof getCustomers>>);
+    vi.mocked(getSimulations).mockResolvedValueOnce(
+      mockSimulations.slice(0, 1) as unknown as Awaited<ReturnType<typeof getSimulations>>,
+    );
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<SimulationHistory selectedCustomerId={mockCustomer.id} />);
+    expect(await screen.findByText("Ver detalles")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Eliminar simulación del/ }));
+
+    expect(deleteSimulation).not.toHaveBeenCalled();
+    expect(screen.getByText("Ver detalles")).toBeInTheDocument();
+  });
+
+  it("shows the empty-history state and hides pagination after deleting the last simulation", async () => {
+    vi.mocked(getCustomers).mockResolvedValueOnce([
+      mockCustomer,
+    ] as unknown as Awaited<ReturnType<typeof getCustomers>>);
+    vi.mocked(getSimulations).mockResolvedValueOnce(
+      mockSimulations.slice(0, 1) as unknown as Awaited<ReturnType<typeof getSimulations>>,
+    );
+    vi.mocked(deleteSimulation).mockResolvedValueOnce(undefined);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    render(<SimulationHistory selectedCustomerId={mockCustomer.id} />);
+    expect(await screen.findByText("Ver detalles")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Eliminar simulación del/ }));
+
+    expect(await screen.findByText("Este cliente todavía no tiene simulaciones.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Mostrar más" })).not.toBeInTheDocument();
   });
 
   it("requests the first 10 simulations when a customer is selected", async () => {

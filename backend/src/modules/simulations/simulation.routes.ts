@@ -6,6 +6,7 @@ import {
   createSimulation,
   previewSimulation,
   listSimulations,
+  deleteSimulation,
   CustomerNotFoundError,
 } from "./simulation.service.js";
 
@@ -116,4 +117,18 @@ simulationRouter.get("/", async (req, res) => {
   const simulations = await listSimulations(customerId, skip, 10);
 
   res.status(200).json(simulations);
+});
+
+simulationRouter.delete("/:id", async (req, res) => {
+  const deleted = await deleteSimulation(req.params.id!);
+
+  if (!deleted) {
+    res.status(404).json({
+      error: "SimulationNotFoundError",
+      message: "Simulation not found",
+    });
+    return;
+  }
+
+  res.status(204).end();
 });

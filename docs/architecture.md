@@ -50,8 +50,10 @@ y la persistencia de datos.
 | Método y ruta                           | Uso                                                                 |
 | --------------------------------------- | ------------------------------------------------------------------- |
 | `GET /customers`, `POST /customers`     | Buscar y registrar clientes.                                        |
+| `DELETE /customers/:id`                 | Eliminar un cliente y sus simulaciones asociadas; 204 o 404.         |
 | `POST /simulations/preview`             | Calcular una vista previa sin persistirla.                          |
 | `POST /simulations`, `GET /simulations` | Guardar simulaciones y consultar el historial paginado por cliente. |
+| `DELETE /simulations/:id`               | Eliminar una simulación; 204 o 404.                                  |
 | `GET /currency/rates`                   | Obtener las tasas y divisas disponibles.                            |
 | `POST /currency/convert`                | Convertir un importe desde EUR.                                     |
 
@@ -188,6 +190,14 @@ Cada cliente tiene un identificador único.
 Además, Prisma define una restricción de unicidad compuesta
 sobre `country` y `taxId`, que evita duplicar el mismo
 identificador fiscal dentro de un país.
+
+### Eliminación e integridad referencial
+
+La relación requerida entre `Simulation` y `Customer` no configura borrado en cascada en el esquema Prisma. Por ello, el servicio de clientes elimina las simulaciones asociadas y después el cliente dentro de una transacción Prisma. Si el cliente no existe, la operación devuelve HTTP 404; si se completa, responde HTTP 204 sin cuerpo. La transacción evita dejar simulaciones huérfanas si falla alguno de los pasos.
+
+La eliminación individual de simulaciones usa `DELETE /simulations/:id`. El servicio elimina únicamente el registro solicitado y devuelve HTTP 404 si no existe. En ambos endpoints, los errores internos se procesan mediante el middleware general y no exponen detalles de la base de datos.
+
+La interfaz utiliza confirmaciones nativas del navegador antes de cada operación irreversible. Si el borrado falla, conserva el elemento visible y presenta un mensaje de error. Tras eliminar un cliente, refresca las opciones de clientes, limpia la selección afectada del historial y oculta el resultado reciente que pertenecía a ese cliente.
 
 ## 7. Motor de facturación
 
@@ -340,8 +350,8 @@ Desde la raíz del repositorio, `npm run verify` ejecuta las suites de pruebas, 
 
 Las siguientes capturas muestran los resultados de las pruebas automatizadas ejecutadas el **18 de noviembre de 2026**, correspondientes a la versión actual del proyecto en el momento de su verificación.
 
-- **Backend:** 450 pruebas superadas en 18 archivos.
-- **Frontend:** 30 pruebas superadas en 5 archivos.
+- **Backend:** 460 pruebas superadas en 18 archivos.
+- **Frontend:** 52 pruebas superadas en 5 archivos.
 
 Los detalles de las verificaciones adicionales, incluidas las comprobaciones de compilación, tipos y calidad del código, se encuentran documentados en [la revisión de calidad](../ai-workspace/05-quality-review.md).
 

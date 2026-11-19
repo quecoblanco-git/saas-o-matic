@@ -158,6 +158,21 @@ El dashboard permitirá buscar clientes registrados por nombre de empresa o iden
 - El usuario puede reintentar una búsqueda fallida.
 - Se incluyen pruebas automatizadas para búsquedas parciales, búsquedas sin distinción de mayúsculas y minúsculas y búsquedas sin coincidencias.
 
+**RF-013 — Eliminación de clientes**
+
+El dashboard permitirá eliminar un cliente mediante `DELETE /customers/:id`.
+
+**Comportamiento y criterios de aceptación**
+
+- La interfaz identificará al cliente y pedirá confirmación antes de borrar.
+- La confirmación advertirá que se borrarán también todas sus simulaciones y que la acción es irreversible.
+- Cancelar no realizará ninguna petición de borrado.
+- La API eliminará las simulaciones asociadas y el cliente dentro de una transacción.
+- Una eliminación correcta devolverá HTTP 204 sin cuerpo; un ID inexistente devolverá HTTP 404.
+- Ante un error, la interfaz mantendrá visible el cliente y mostrará un aviso comprensible.
+- Tras borrar, se actualizarán el listado, la selección del historial y los formularios que dependan de ese cliente.
+- Las pruebas comprobarán la eliminación de clientes con y sin simulaciones y la ausencia de registros huérfanos.
+
 
 ### 2.2. Simulaciones
 
@@ -219,6 +234,20 @@ El dashboard permitirá consultar el historial de simulaciones almacenadas de ca
 - Cambiar la divisa de visualización no altera los importes originales almacenados.
 - La interfaz informa correctamente de los estados de carga, ausencia de simulaciones y errores.
 - Se incluyen pruebas automatizadas para la asociación de clientes, ordenación, paginación, ausencia de duplicados e inmutabilidad histórica.
+
+**RF-014 — Eliminación individual de simulaciones**
+
+Desde el historial, el usuario podrá eliminar una simulación mediante `DELETE /simulations/:id`.
+
+**Comportamiento y criterios de aceptación**
+
+- Cada simulación tendrá una acción accesible que solicitará confirmación, identificará el registro y avisará de que el borrado es irreversible.
+- Cancelar no modificará los datos.
+- La API devolverá HTTP 204 sin cuerpo si elimina la simulación y HTTP 404 si no existe.
+- Solo se eliminará la simulación indicada; su cliente y sus demás simulaciones permanecerán intactos.
+- El historial y su paginación se actualizarán después del borrado; si queda vacío, se mostrará el estado vacío.
+- Ante un error, la simulación permanecerá en el historial y se mostrará un aviso comprensible.
+- Las pruebas cubrirán confirmación, cancelación, actualización del historial, error y conservación del cliente y de los otros registros.
 
 **Referencias técnicas**
 
@@ -671,9 +700,6 @@ Representará una simulación de facturación realizada para un cliente.
 | `countrySnapshot`  | País utilizado al realizar la simulación      |
 | `taxRateSnapshot`  | Porcentaje de impuestos aplicado              |
 | `usersCostCents`   | Coste de usuarios en céntimos                 |
-| `planCostCents`    | Cuota del plan en céntimos                    |
-| `storageCostCents` | Coste de almacenamiento en céntimos           |
-| `apiCostCents`     | Coste de llamadas API en céntimos             |
 | `subtotalCents`    | Subtotal mensual en céntimos                  |
 | `taxCents`         | Importe de impuestos en céntimos              |
 | `totalCents`       | Total mensual en euros, expresado en céntimos |
@@ -683,6 +709,8 @@ Representará una simulación de facturación realizada para un cliente.
 
 - Un cliente podrá tener cero o muchas simulaciones.
 - Cada simulación pertenecerá a un único cliente.
+- Al eliminar un cliente, se eliminarán sus simulaciones en la misma transacción; no quedarán registros huérfanos.
+- El usuario podrá eliminar una simulación individual sin borrar el cliente ni las otras simulaciones.
 - `activeUsers` será un número entero no negativo.
 - `storageGb` será un número entero no negativo.
 - `apiCalls` será un número entero no negativo.
@@ -698,7 +726,7 @@ El plan, país y porcentaje de impuestos se almacenarán como una instantánea d
 
 Las simulaciones históricas no se recalcularán automáticamente cuando cambien los datos del cliente o la configuración comercial.
 
-Los registros de simulación serán inmutables desde la API: no se ofrecerán operaciones para modificar sus resultados.
+Los resultados históricos no se podrán modificar mediante la API. La eliminación de simulaciones se permite conforme a RF-014.
 
 **Configuración comercial**
 

@@ -59,6 +59,12 @@ export function SimulationForm({
 
         if (active) {
           setCustomers(result);
+          setForm((previous) => {
+            if (previous.customerId && !result.some((customer) => customer.id === previous.customerId)) {
+              return { ...previous, customerId: "" };
+            }
+            return previous;
+          });
         }
       } catch (error) {
         if (active) {

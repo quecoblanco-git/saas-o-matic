@@ -6,6 +6,7 @@ import {
   createSimulation,
   previewSimulation,
   listSimulations,
+  deleteSimulation,
   CustomerNotFoundError,
 } from "./simulation.service.js";
 
@@ -18,6 +19,7 @@ vi.mock("./simulation.service.js", async (importOriginal) => {
     createSimulation: vi.fn(),
     previewSimulation: vi.fn(),
     listSimulations: vi.fn(),
+    deleteSimulation: vi.fn(),
   };
 });
 
@@ -429,5 +431,41 @@ describe("GET /simulations", () => {
     expect(response.body).toEqual([]);
 
     expect(listSimulations).toHaveBeenCalledExactlyOnceWith(customerId, 0, 10);
+  });
+});
+
+describe("DELETE /simulations/:id", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("deletes only the requested simulation and returns 204", async () => {
+    vi.mocked(deleteSimulation).mockResolvedValue(true);
+
+    const response = await request(app).delete("/simulations/simulation-123");
+
+    expect(response.status).toBe(204);
+    expect(response.text).toBe("");
+    expect(deleteSimulation).toHaveBeenCalledExactlyOnceWith("simulation-123");
+  });
+
+  it("returns 404 when the simulation does not exist", async () => {
+    vi.mocked(deleteSimulation).mockResolvedValue(false);
+
+    const response = await request(app).delete("/simulations/missing");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: "SimulationNotFoundError",
+      message: "Simulation not found",
+    });
+  });
+
+  it("returns a safe 500 response for database failures", async () => {
+    vi.mocked(deleteSimulation).mockRejectedValue(new Error("private database details"));
+
+    const response = await request(app).delete("/simulations/simulation-123");
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe("An unexpected error occurred");
+    expect(JSON.stringify(response.body)).not.toContain("private database details");
   });
 });
